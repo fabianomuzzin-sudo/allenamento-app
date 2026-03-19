@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Allenamento App v4</title>
+<style>
+:root{
+  --bg:#0f1114; --panel:#171a1f; --panel2:#20242b; --line:#313742;
+  --text:#f4f7fb; --muted:#8b94a3; --blue:#57a6ff; --green:#81d29a;
+  --green-border:#4f9f72; --yellow:#faefb4; --yellow-border:#e2d07a; --red:#e05a5a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.app{max-width:460px;margin:0 auto;min-height:100vh;padding-bottom:132px}
+.top{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#171a1f 0%, #111317 100%);border-bottom:1px solid var(--line);padding:12px}
+.timer-row{display:grid;grid-template-columns:84px 1fr 84px;gap:8px;align-items:center;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:10px}
+.timer-btn{border:none;border-radius:10px;padding:11px 8px;font-weight:900;font-size:14px}
+.start{background:var(--green);color:#081d0f}
+.stop{background:var(--red);color:#fff}
+.timer-center{text-align:center}
+.timer-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.timer{font-size:36px;font-weight:900;line-height:1;margin-top:3px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px}
+.exercise-title{font-size:20px;font-weight:900;line-height:1.15;text-overflow:ellipsiswhite-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exercise-note{font-size:11px;color:var(--muted);margin-top:4px}
+.sep{height:1px;background:var(--line);margin:10px 0}
+.header-row,.grid-row{display:grid;grid-template-columns:.7fr .84fr 1.26fr .98fr;gap:8px;align-items:center}
+.header-row{color:var(--muted);font-size:12px;margin-bottom:8px;text-align:center;font-weight:800}
+.header-row > div:first-child{text-align:left}
+.rows{display:flex;flex-direction:column;gap:8px}
+.series{font-weight:900;font-size:17px}
+.series.warm{color:var(--muted);font-size:15px}
+select{width:100%;padding:10px 28px 10px 12px;border-radius:10px;font-size:18px;font-weight:900;text-align:center;text-align-last:center;-webkit-text-align-last:center;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, rgba(0,0,0,.5) 50%),linear-gradient(135deg, rgba(0,0,0,.5) 50%, transparent 50%);background-position:calc(100% - 16px) calc(50% - 3px),calc(100% - 10px) calc(50% - 3px);background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+.yellow{background:var(--yellow);border:1px solid var(--yellow-border);color:#201b08}
+.green{background:var(--green);border:1px solid var(--green-border);color:#0a2012}
+.summary{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
+.box-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.box-value{font-size:24px;font-weight:900;margin-top:2px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(0deg,#171a1f 0%, #111317 100%);border-top:1px solid var(--line);padding:12px}
+.bottom-inner{max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.slider-row{display:grid;grid-template-columns:16px 1fr 16px auto;gap:8px;align-items:center}
+.counter{font-size:12px;color:var(--muted);text-align:right;min-width:28px}
+input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
+.days{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
+.day-btn{background:#22262e;border:1px solid var(--line);border-radius:10px;padding:8px 4px;font-size:12px;font-weight:800;color:var(--text)}
+.day-btn.active{background:var(--blue);color:#07111b}
+.day-btn.disabled{opacity:.45}
+.hidden{display:none !important}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calc-field{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
+.calc-field label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.calc-field input{width:100%;padding:10px 6px;border-radius:10px;border:1px solid var(--green-border);background:var(--green);color:#0a2012;font-size:18px;font-weight:900;text-align:center}
+.hint{color:var(--muted);font-size:12px;margin-top:10px}
+
+.calc-sheet{display:flex;flex-direction:column;gap:14px;max-height:68vh;overflow:auto;padding-right:2px}
+.calc-section h3{margin:0 0 8px 0;font-size:14px;color:var(--text)}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.calc-table{border-collapse:collapse;width:max-content;min-width:100%}
+.calc-table th,.calc-table td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:6px 8px;font-size:12px;white-space:nowrap;text-align:left}
+.calc-table th{position:sticky;top:0;background:#252a33;color:var(--text);z-index:1}
+.calc-table tr:last-child td{border-bottom:none}
+.calc-table th:last-child,.calc-table td:last-child{border-right:none}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="timer-row">
+      <button class="timer-btn start" id="startBtn">Start</button>
+      <div class="timer-center">
+        <div class="timer-label">Timer recupero</div>
+        <div class="timer" id="timer">—</div>
+      </div>
+      <button class="timer-btn stop" id="stopBtn">Stop</button>
+    </div>
+  </div>
+
+  <div class="card" id="workoutCard">
+    <div class="exercise-title" id="exerciseTitle">—</div>
+    <div class="exercise-note" id="exerciseNote">—</div>
+    <div class="sep"></div>
+    <div class="header-row">
+      <div>Serie</div>
+      <div id="h2">Ripetizioni</div>
+      <div id="h3">Peso</div>
+      <div id="h4">RIR</div>
+    </div>
+    <div class="rows" id="rows"></div>
+    <div class="summary" id="summaryBox">
+      <div class="box"><div class="box-title">Massimale</div><div class="box-value" id="maxBox">0 kg</div></div>
+      <div class="box"><div class="box-title">Volume sessione</div><div class="box-value" id="volumeBox">0 kg</div></div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="calcoliCard">
+
+    <div class="exercise-title">Calcoli</div>
+    <div class="exercise-note">Foglio1 completo</div>
+    <div class="sep"></div>
+    <div class="calc-sheet">
+<section class="calc-section"><h3>Catalogo esercizi</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Esercizzio</th><th>Muscolo</th><th>Distretto</th><th>Alta/Bassa</th><th>Push/Pull</th><th>Attrezzo</th></tr></thead><tbody><tr><td>Elliptical machine</td><td>Multiarticolare</td><td>Full body</td><td></td><td></td><td></td></tr><tr><td>Converging chest press</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Pectoral fly</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Converging shoulder press</td><td>Spalle</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Triceps extension</td><td>Tricipiti</td><td>Braccia</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Arm curl</td><td>Bcipiti</td><td>Braccia</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Chin assist</td><td>Dorsali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Back extension</td><td>Lombari</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Abdominal crunch</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Leg press</td><td>Multiarticolare</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Leg extension</td><td>Quadricipiti</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Prone leg curl</td><td>Femorali</td><td>Gambe</td><td>Bassa</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Calf press</td><td>Polpacci</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Addominali bassi</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Corpo libero</td></tr><tr><td>Inclined assist chest press 30</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 4</td></tr><tr><td>Cable chest fly one arm</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Pec fly</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Rear delt</td><td>Dorsali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Bicipiti con bilanciere a presa inversa</td><td>Bcipiti</td><td>Braccia</td><td>Alta</td><td>Pull</td><td>Bilancieri piccoli</td></tr><tr><td>Deep assist</td><td>Tricipiti</td><td>Braccia</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Diverging seated row</td><td>Dorsali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 3</td></tr><tr><td>Lombari</td><td>Lombari</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Corpo libero</td></tr><tr><td>Addominali planck</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td></td><td>Corpo libero</td></tr><tr><td>Belt squat</td><td>Multiarticolare</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 5</td></tr><tr><td>Squat con bilanciere</td><td>Multiarticolare</td><td>Full body</td><td></td><td>Push</td><td>Bilanciere 1</td></tr><tr><td>Standing calf</td><td>Polpacci</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 5</td></tr><tr><td>Hip adduction</td><td>Adduttori</td><td>Gambe</td><td>Bassa</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Hip abduction</td><td>Abduttori</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Addominali obliqui</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td></td><td>Corpo libero</td></tr><tr><td>Bicipiti con manubri su panca inclinata</td><td>Bcipiti</td><td>Braccia</td><td>Alta</td><td>Pull</td><td>Manubri</td></tr><tr><td>Alzate con manubrio sopra la testa</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Manubri</td></tr><tr><td>Alzate laterali</td><td>Spalle</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Manubri</td></tr><tr><td>Sumo dead lift</td><td>Multiarticolare</td><td></td><td></td><td></td><td>Bilanciere 1</td></tr></tbody></table></div></section>
+<section class="calc-section"><h3>Liste di riferimento</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Muscoli</th><th>Distretti</th><th>Zone</th><th>Movimento</th></tr></thead><tbody><tr><td>Multiarticolare</td><td>Full body</td><td>Alta</td><td>Push</td></tr><tr><td>Polpacci</td><td>Gambe</td><td>Bassa</td><td>Pull</td></tr><tr><td>Quadricipiti</td><td>Braccia</td><td></td><td></td></tr><tr><td>Femorali</td><td>Tronco</td><td></td><td></td></tr><tr><td>Abduttori</td><td></td><td></td><td></td></tr><tr><td>Adduttori</td><td></td><td></td><td></td></tr><tr><td>Glutei</td><td></td><td></td><td></td></tr><tr><td>Addominali</td><td></td><td></td><td></td></tr><tr><td>Lombari</td><td></td><td></td><td></td></tr><tr><td>Pettorali</td><td></td><td></td><td></td></tr><tr><td>Dorsali</td><td></td><td></td><td></td></tr><tr><td>Spalle</td><td></td><td></td><td></td></tr><tr><td>Bcipiti</td><td></td><td></td><td></td></tr><tr><td>Tricipiti</td><td></td><td></td><td></td></tr></tbody></table></div></section>
+<section class="calc-section"><h3>Attrezzi e pesi disponibili</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Attrezzi</th><th>Manubri</th><th>Bilanciere 1</th><th>Bilanciere 2</th><th>Bilanciere a Z</th><th>Bilancieri piccoli</th><th>M 1</th><th>M 2</th><th>M 3</th><th>M 4</th><th>M 5</th></tr></thead><tbody><tr><td>Macchina 1</td><td>2</td><td>20</td><td>15</td><td>10</td><td>10</td><td>4,5</td><td>4,5</td><td>4,5</td><td>11,3</td><td>0</td></tr><tr><td>Macchina 2</td><td>3</td><td>22,5</td><td>17,5</td><td>12,5</td><td>15</td><td>9</td><td>11,25</td><td>9</td><td>13,8</td><td>2,5</td></tr><tr><td>Macchina 3</td><td>4</td><td>25</td><td>20</td><td>15</td><td>20</td><td>13,5</td><td>18</td><td>13,5</td><td>16,3</td><td>5</td></tr><tr><td>Macchina 4</td><td>5</td><td>27,5</td><td>22,5</td><td>17,5</td><td>25</td><td>18</td><td>24,75</td><td>18</td><td>18,8</td><td>7,5</td></tr><tr><td>Macchina 5</td><td>6</td><td>30</td><td>25</td><td>20</td><td>30</td><td>22,5</td><td>31,5</td><td>22,5</td><td>21,3</td><td>10</td></tr><tr><td>Manubri</td><td>7</td><td>32,5</td><td>27,5</td><td>22,5</td><td></td><td>27</td><td>38,25</td><td>27</td><td>23,8</td><td>12,5</td></tr><tr><td>Bilanciere 1</td><td>8</td><td>35</td><td>30</td><td>25</td><td></td><td>31,5</td><td>45</td><td>31,5</td><td>26,3</td><td>15</td></tr><tr><td>Bilanciere 2</td><td>9</td><td>37,5</td><td>32,5</td><td>27,5</td><td></td><td>36</td><td>51,75</td><td>36</td><td>28,8</td><td>17,5</td></tr><tr><td>Bilanciere a Z</td><td>10</td><td>40</td><td>35</td><td>30</td><td></td><td>40,5</td><td>58,5</td><td>40,5</td><td>31,3</td><td>20</td></tr><tr><td>Bilancieri piccoli</td><td>12</td><td>42,5</td><td>37,5</td><td>32,5</td><td></td><td>45</td><td>65,25</td><td>47,25</td><td>33,8</td><td>22,5</td></tr><tr><td>Corpo libero</td><td>14</td><td>45</td><td>40</td><td>35</td><td></td><td>49,5</td><td>72</td><td>54</td><td>36,3</td><td>25</td></tr><tr><td></td><td>16</td><td>47,5</td><td>42,5</td><td>37,5</td><td></td><td>54</td><td>78,75</td><td>60,75</td><td>38,8</td><td>27,5</td></tr><tr><td></td><td>18</td><td>50</td><td>45</td><td>40</td><td></td><td>58,5</td><td>85,5</td><td>67,5</td><td>41,3</td><td>30</td></tr><tr><td></td><td>20</td><td>52,5</td><td>47,5</td><td>42,5</td><td></td><td>63</td><td>92,25</td><td>74,25</td><td>43,8</td><td>32,5</td></tr><tr><td></td><td>22</td><td>55</td><td>50</td><td>45</td><td></td><td>67,5</td><td>99</td><td>81</td><td>46,3</td><td>35</td></tr><tr><td></td><td>24</td><td>57,5</td><td>52,5</td><td>47,5</td><td></td><td>72</td><td>105,75</td><td>87,75</td><td>48,8</td><td>37,5</td></tr><tr><td></td><td>26</td><td>60</td><td>55</td><td>50</td><td></td><td>76,5</td><td>112,5</td><td>94,5</td><td>51,3</td><td>40</td></tr><tr><td></td><td>28</td><td>62,5</td><td>57,5</td><td>52,5</td><td></td><td>81</td><td>119,25</td><td>101,25</td><td>53,8</td><td>42,5</td></tr><tr><td></td><td>30</td><td>65</td><td>60</td><td>55</td><td></td><td>85,5</td><td>126</td><td>108</td><td>56,3</td><td>45</td></tr><tr><td></td><td>32</td><td>67,5</td><td>62,5</td><td>57,5</td><td></td><td>90</td><td>132,75</td><td>114,75</td><td>58,8</td><td>47,5</td></tr><tr><td></td><td>34</td><td>70</td><td>65</td><td>60</td><td></td><td>94,5</td><td>139,5</td><td>121,5</td><td>61,3</td><td>50</td></tr><tr><td></td><td>36</td><td>72,5</td><td>67,5</td><td>62,5</td><td></td><td>99</td><td>146,25</td><td>128,25</td><td>63,8</td><td>52,5</td></tr><tr><td></td><td>38</td><td>75</td><td>70</td><td>65</td><td></td><td>103,5</td><td>153</td><td>135</td><td>66,3</td><td>55</td></tr><tr><td></td><td>40</td><td>77,5</td><td>72,5</td><td>67,5</td><td></td><td>108</td><td>159,75</td><td>141,75</td><td>68,8</td><td>57,5</td></tr><tr><td></td><td>42</td><td>80</td><td>75</td><td>70</td><td></td><td>112,5</td><td>166,5</td><td>148,5</td><td>71,3</td><td>60</td></tr><tr><td></td><td>44</td><td>82,5</td><td>77,5</td><td>72,5</td><td></td><td>117</td><td>173,25</td><td></td><td>73,8</td><td>62,5</td></tr><tr><td></td><td>46</td><td>85</td><td>80</td><td>75</td><td></td><td>121,5</td><td>180</td><td></td><td>76,3</td><td>65</td></tr><tr><td></td><td>48</td><td>87,5</td><td>82,5</td><td>77,5</td><td></td><td>126</td><td>186,75</td><td></td><td>78,8</td><td>67,5</td></tr><tr><td></td><td>50</td><td>90</td><td>85</td><td>80</td><td></td><td>130,5</td><td>193,5</td><td></td><td>81,3</td><td>70</td></tr><tr><td></td><td></td><td>92,5</td><td>87,5</td><td></td><td></td><td>135</td><td>200,25</td><td></td><td>83,8</td><td>72,5</td></tr><tr><td></td><td></td><td>95</td><td>90</td><td></td><td></td><td></td><td></td><td></td><td>86,3</td><td>75</td></tr><tr><td></td><td></td><td>97,5</td><td>92,5</td><td></td><td></td><td></td><td></td><td></td><td>88,8</td><td>77,5</td></tr><tr><td></td><td></td><td>100</td><td>95</td><td></td><td></td><td></td><td></td><td></td><td>91,3</td><td>80</td></tr><tr><td></td><td></td><td>102,5</td><td>97,5</td><td></td><td></td><td></td><td></td><td></td><td>93,8</td><td>82,5</td></tr><tr><td></td><td></td><td>105</td><td>100</td><td></td><td></td><td></td><td></td><td></td><td>96,3</td><td>85</td></tr><tr><td></td><td></td><td>107,5</td><td>102,5</td><td></td><td></td><td></td><td></td><td></td><td>98,8</td><td>87,5</td></tr><tr><td></td><td></td><td>110</td><td>105</td><td></td><td></td><td></td><td></td><td></td><td>101,3</td><td>90</td></tr><tr><td></td><td></td><td>112,5</td><td>107,5</td><td></td><td></td><td></td><td></td><td></td><td>103,8</td><td>92,5</td></tr></tbody></table></div></section>
+<section class="calc-section"><h3>Programmazione giorni</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th></tr></thead><tbody><tr><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Converging chest press</td><td>Leg press</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Pectoral fly</td><td>Leg extension</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Converging shoulder press</td><td>Prone leg curl</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Triceps extension</td><td>Calf press</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Arm curl</td><td>Addominali bassi</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Chin assist</td><td></td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Back extension</td><td></td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Abdominal crunch</td><td></td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Ripetizioni</td><td>% del massimale</td><td>Obbiettivo</td><td></td><td></td></tr></tbody></table></div></section>
+<section class="calc-section"><h3>Tabella ripetizioni / % / obbiettivo</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Ripetizioni</th><th>% del massimale</th><th>Obbiettivo</th><th></th><th></th><th></th></tr></thead><tbody><tr><td>1</td><td>1</td><td>Forza max</td><td>0,05</td><td>0,4</td><td>0,0286</td></tr><tr><td>2</td><td>0,95</td><td>Forza max</td><td>0,05</td><td></td><td>0,9714</td></tr><tr><td>3</td><td>0,9</td><td>Forza max</td><td>0,03</td><td></td><td>0,9429</td></tr><tr><td>4</td><td>0,87</td><td>Forza  </td><td>0,04</td><td></td><td>0,9143</td></tr><tr><td>5</td><td>0,83</td><td>Forza  </td><td>0,03</td><td></td><td>0,8857</td></tr><tr><td>6</td><td>0,8</td><td>Forza  </td><td>0,015</td><td></td><td>0,8571</td></tr><tr><td>7</td><td>0,785</td><td></td><td>0,015</td><td></td><td>0,8286</td></tr><tr><td>8</td><td>0,77</td><td>Ipertrofia</td><td>0,035</td><td></td><td>0,8</td></tr><tr><td>9</td><td>0,735</td><td>Ipertrofia</td><td>0,035</td><td></td><td>0,7714</td></tr><tr><td>10</td><td>0,7</td><td>Ipertrofia</td><td>0,015</td><td></td><td>0,7429</td></tr><tr><td>11</td><td>0,685</td><td></td><td>0,015</td><td></td><td>0,7143</td></tr><tr><td>12</td><td>0,67</td><td>Resistenza</td><td>0,03</td><td></td><td>0,6857</td></tr><tr><td>13</td><td>0,64</td><td>Resistenza</td><td>0,02</td><td></td><td>0,6571</td></tr><tr><td>14</td><td>0,62</td><td>Resistenza</td><td>0,02</td><td></td><td>0,6286</td></tr><tr><td>15</td><td>0,6</td><td>Resistenza</td><td></td><td></td><td>0,6</td></tr></tbody></table></div></section>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<div class="bottom">
+  <div class="bottom-inner">
+    <div class="slider-row">
+      <div>1</div>
+      <input type="range" id="exerciseSlider" min="0" max="0" step="1" value="0">
+      <div id="lastIdx">1</div>
+      <div class="counter" id="counter">1/1</div>
+    </div>
+    <div class="days" id="days"></div>
+  </div>
+</div>
+
+<script>
+const PASSWORD = "nizzum";
+const appData = {
+"Day 1":[
+{name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
+{label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
+]},
+{name:"Panca piana",note:"Posizione sedile 0",rest:180,rows:[
+{label:"R1",warm:true,reps:["8"],repsVal:"8",peso:["25"],pesoVal:"25",extra:["-"],extraVal:"-"},
+{label:"R2",warm:true,reps:["5"],repsVal:"5",peso:["35"],pesoVal:"35",extra:["-"],extraVal:"-"},
+{label:"1",reps:["6"],repsVal:"6",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"2",reps:["5"],repsVal:"5",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"3",reps:["4"],repsVal:"4",peso:["50"],pesoVal:"50",extra:["1"],extraVal:"1"},
+{label:"4",reps:["7"],repsVal:"7",peso:["50"],pesoVal:"50",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Rematore Macchina/Bilancere",note:"Posizione sedile",rest:150,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["24"],pesoVal:"24",extra:["-"],extraVal:"-"},
+{label:"1",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"4",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Shoulder Press Macchina/Manubri",note:"Posizione sedile",rest:120,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["44"],pesoVal:"44",extra:["-"],extraVal:"-"},
+{label:"1",reps:["7"],repsVal:"7",peso:["65.77084"],pesoVal:"65.77084",extra:["2"],extraVal:"2"},
+{label:"2",reps:["7"],repsVal:"7",peso:["65.77084"],pesoVal:"65.77084",extra:["2"],extraVal:"2"},
+{label:"3",reps:["7"],repsVal:"7",peso:["65.77084"],pesoVal:"65.77084",extra:["2"],extraVal:"2"}
+]},
+{name:"Face Pull",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["10"],pesoVal:"10",extra:["-"],extraVal:"-"},
+{label:"1",reps:["13"],repsVal:"13",peso:["15"],pesoVal:"15",extra:["1"],extraVal:"1"},
+{label:"2",reps:["13"],repsVal:"13",peso:["15"],pesoVal:"15",extra:["1"],extraVal:"1"},
+{label:"3",reps:["13"],repsVal:"13",peso:["15"],pesoVal:"15",extra:["1"],extraVal:"1"}
+]},
+{name:"Rear Delt Machine",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["18"],pesoVal:"18",extra:["-"],extraVal:"-"},
+{label:"1",reps:["15"],repsVal:"15",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"},
+{label:"2",reps:["15"],repsVal:"15",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"}
+]}
+],
+"Day 2":[
+{name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
+{label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
+]},
+{name:"Belt Squat /Pendulum/Hack",note:"Posizione sedile 0",rest:180,rows:[
+{label:"R1",warm:true,reps:["8"],repsVal:"8",peso:["32.5"],pesoVal:"32.5",extra:["-"],extraVal:"-"},
+{label:"R2",warm:true,reps:["5"],repsVal:"5",peso:["43.3333"],pesoVal:"43.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["6"],repsVal:"6",peso:["65"],pesoVal:"65",extra:["2"],extraVal:"2"},
+{label:"2",reps:["5"],repsVal:"5",peso:["65"],pesoVal:"65",extra:["2"],extraVal:"2"},
+{label:"3",reps:["4"],repsVal:"4",peso:["65"],pesoVal:"65",extra:["1"],extraVal:"1"},
+{label:"4",reps:["7"],repsVal:"7",peso:["55"],pesoVal:"55",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Romanian Dead Lift",note:"Posizione sedile",rest:150,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["40"],pesoVal:"40",extra:["-"],extraVal:"-"},
+{label:"1",reps:["7"],repsVal:"7",peso:["60"],pesoVal:"60",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["7"],repsVal:"7",peso:["60"],pesoVal:"60",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["7"],repsVal:"7",peso:["60"],pesoVal:"60",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Leg Curl",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["27"],pesoVal:"27",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["40.5"],pesoVal:"40.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["11"],repsVal:"11",peso:["40.5"],pesoVal:"40.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["11"],repsVal:"11",peso:["40.5"],pesoVal:"40.5",extra:["0 / 1"],extraVal:"0 / 1"}
+]},
+{name:"Leg Press",note:"Posizione sedile",rest:120,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["75"],pesoVal:"75",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["112.5"],pesoVal:"112.5",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["11"],repsVal:"11",peso:["112.5"],pesoVal:"112.5",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["11"],repsVal:"11",peso:["112.5"],pesoVal:"112.5",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Calf Raise",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["18"],pesoVal:"18",extra:["-"],extraVal:"-"},
+{label:"1",reps:["16"],repsVal:"16",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"},
+{label:"2",reps:["16"],repsVal:"16",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"},
+{label:"3",reps:["16"],repsVal:"16",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"}
+]}
+],
+"Day 3":[
+{name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
+{label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
+]},
+{name:"Panca Inclinata con bilanciere 30°",note:"Posizione sedile 3",rest:180,rows:[
+{label:"R1",warm:true,reps:["8"],repsVal:"8",peso:["25"],pesoVal:"25",extra:["-"],extraVal:"-"},
+{label:"R2",warm:true,reps:["5"],repsVal:"5",peso:["33.3333"],pesoVal:"33.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"2",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"3",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["1"],extraVal:"1"},
+{label:"4",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Cable Fly basso >>> alto 1 braccio",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["12"],pesoVal:"12",extra:["-"],extraVal:"-"},
+{label:"1",reps:["14"],repsVal:"14",peso:["18"],pesoVal:"18",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["14"],repsVal:"14",peso:["18"],pesoVal:"18",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["14"],repsVal:"14",peso:["18"],pesoVal:"18",extra:["0 / 1"],extraVal:"0 / 1"}
+]},
+{name:"Lat Machine",note:"Posizione sedile",rest:120,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["18"],pesoVal:"18",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["27"],pesoVal:"27",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["11"],repsVal:"11",peso:["27"],pesoVal:"27",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["11"],repsVal:"11",peso:["27"],pesoVal:"27",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Alzate Laterali",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["3.3333"],pesoVal:"3.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["16"],repsVal:"16",peso:["5"],pesoVal:"5",extra:["1"],extraVal:"1"},
+{label:"2",reps:["16"],repsVal:"16",peso:["5"],pesoVal:"5",extra:["1"],extraVal:"1"},
+{label:"3",reps:["16"],repsVal:"16",peso:["5"],pesoVal:"5",extra:["1"],extraVal:"1"}
+]},
+{name:"Curl Bicipiti",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["21"],pesoVal:"21",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["31.5"],pesoVal:"31.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["11"],repsVal:"11",peso:["31.5"],pesoVal:"31.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["11"],repsVal:"11",peso:["31.5"],pesoVal:"31.5",extra:["0 / 1"],extraVal:"0 / 1"}
+]},
+{name:"Estensione Tricipiti",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["5.3333"],pesoVal:"5.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["8"],pesoVal:"8",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["11"],repsVal:"11",peso:["8"],pesoVal:"8",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["11"],repsVal:"11",peso:["8"],pesoVal:"8",extra:["0 / 1"],extraVal:"0 / 1"}
+]}
+]
+};
+
+let currentDay = "Day 1";
+let currentExercise = 0;
+let currentSection = "workout";
+let unlocked = false;
+let timerValue = null;
+let timerHandle = null;
+let timerEndAt = null;
+let lastDuration = null;
+
+let audioCtx = null;
+
+function unlockAudio(){
+  try{
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
+  }catch(e){}
+}
+
+function beepNow(){
+  try{
+    unlockAudio();
+    if(!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = 880;
+    gain.gain.value = 0.04;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.18);
+  }catch(e){}
+}
+
+function timerDoneAlert(){
+  const msgLong = "MUOVI IL CULO, VECCHIO BASTARDO";
+  const msgShort = "MUOVI IL CULO";
+  const t = document.getElementById("timer");
+  t.textContent = window.innerWidth > 390 ? msgLong : msgShort;
+  if(navigator.vibrate){
+    navigator.vibrate([220,120,220,120,220]);
+  }
+  beepNow();
+}
+
+
+function currentList(){ return appData[currentDay] || []; }
+function currentItem(){ return currentList()[currentExercise]; }
+
+function parseNum(v){ return parseFloat(String(v).replace(",", ".")) || 0; }
+
+function isMachineExercise(name=""){
+  const n = String(name).toLowerCase();
+  return (
+    n.includes("leg press") ||
+    n.includes("leg curl") ||
+    n.includes("machine") ||
+    n.includes("macchina") ||
+    n.includes("belt squat") ||
+    n.includes("pendulum") ||
+    n.includes("hack") ||
+    n.includes("calf raise")
+  );
+}
+
+function normalizeWeight(v, name=""){
+  const num = parseNum(v);
+  if(isMachineExercise(name)) return Math.round(num);
+  return Math.round(num * 2) / 2;
+}
+
+function nextAvailableWeight(target, weights, name=""){
+  const nums = weights
+    .map(x => normalizeWeight(x, name))
+    .sort((a,b)=>a-b);
+  const t = normalizeWeight(target, name);
+  for(let i=0;i<nums.length;i++){
+    if(nums[i] >= t) return nums[i];
+  }
+  return nums[nums.length-1];
+}
+
+function roundWeight(v, name=""){ return normalizeWeight(v, name); }
+
+function formatWeight(v, name=""){
+  const raw = String(v).trim().replace(",", ".");
+  const num = parseFloat(raw);
+  if(Number.isNaN(num)) return "";
+  if(Number.isInteger(num)) return String(num);
+  return num.toFixed(1).replace(".", ",");
+}
+
+function buildRepsOptions(current, isWarm=false, isCardio=false){
+  const cur = Math.max(1, parseInt(parseNum(current), 10) || 1);
+  if(isCardio){
+    const vals = [5,10,15,20,25,30,35,40,45,50,55,60];
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(String);
+  }
+  if(isWarm){
+    const vals = [5,6,7,8,9,10,11,12,13,14,15];
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(String);
+  }
+  const vals = [];
+  for(let i=Math.max(1, cur-4); i<=cur+4; i++) vals.push(String(i));
+  return vals;
+}
+
+function buildWeightOptions(current, exerciseName="", isCardio=false){
+  const cur = parseNum(current);
+  if(isCardio){
+    const vals = [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20];
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(v=>formatWeight(v, exerciseName));
+  }
+  const machine = isMachineExercise(exerciseName);
+  const step = machine ? 1 : 0.5;
+  const opts = [];
+  for(let i=-6;i<=6;i++){
+    const val = cur + i * step;
+    if(val > 0){
+      const rounded = machine ? Math.round(val) : Math.round(val * 2) / 2;
+      opts.push(formatWeight(rounded, exerciseName));
+    }
+  }
+  if(cur > 0) opts.push(formatWeight(cur, exerciseName));
+  return [...new Set(opts)];
+}
+
+function buildExtraOptions(current, isCardio=false){
+  if(isCardio){
+    const vals = [0,1,2,3,4,5,6,7,8,9,10];
+    const cur = parseInt(parseNum(current), 10);
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(String);
+  }
+  const vals = ["-","0","0 / 1","1 / 2","1","2"];
+  const normalized = String(current ?? "").trim();
+  const cur = normalized === "1/2" ? "1 / 2" : normalized;
+  if(cur && !vals.includes(cur)) vals.push(cur);
+  return vals;
+}
+
+
+function renderDays(){
+  const days = ["Day 1","Day 2","Day 3","Day 4","Day 5","Calcoli"];
+  const wrap = document.getElementById("days");
+  wrap.innerHTML = "";
+  days.forEach(day=>{
+    const btn = document.createElement("button");
+    btn.className = "day-btn";
+    btn.textContent = day;
+    if((currentSection === "workout" && day === currentDay) || (currentSection === "calcoli" && day === "Calcoli")) btn.classList.add("active");
+    if(day === "Day 4" || day === "Day 5"){
+      btn.classList.add("disabled");
+      btn.onclick = ()=>alert(day + " - coming soon");
+    } else if(day === "Calcoli"){
+      btn.onclick = ()=>{
+        if(!unlocked){
+          const p = prompt("Inserisci password");
+          if(p !== PASSWORD){ if(p !== null) alert("Password errata"); return; }
+          unlocked = true;
+          document.getElementById("accessBox").value = "Sbloccato";
+        }
+        currentSection = "calcoli";
+        render();
+      };
+    } else {
+      btn.onclick = ()=>{ stopTimer(); currentSection = "workout"; currentDay = day; currentExercise = 0; render(); };
+    }
+    wrap.appendChild(btn);
+  });
+}
+
+function makeSelect(values, selected, cls, onChange){
+  const sel = document.createElement("select");
+  sel.className = cls;
+  values.forEach(v=>{
+    const o = document.createElement("option");
+    o.value = v; o.textContent = v;
+    if(String(v) === String(selected)) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.onchange = onChange;
+  return sel;
+}
+
+function calcMassimale(item){
+  if(!item || item.cardio) return 0;
+  let max = 0;
+  item.rows.forEach(r=>{
+    if(r.warm) return;
+    const reps = parseNum(r.repsVal);
+    const peso = roundWeight(r.pesoVal, item.name);
+    const est = peso * (1 + reps / 30);
+    if(est > max) max = est;
+  });
+  return max;
+}
+
+function calcVolumeSessione(){
+  let total = 0;
+  currentList().forEach(item=>{
+    if(item.cardio) return;
+    item.rows.forEach(r=>{
+      if(r.warm) return;
+      total += parseNum(r.repsVal) * roundWeight(r.pesoVal, item.name);
+    });
+  });
+  return total;
+}
+
+function renderWorkout(){
+  const item = currentItem();
+  document.getElementById("exerciseTitle").textContent = item.name;
+  document.getElementById("exerciseNote").textContent = item.note || "";
+  document.getElementById("h2").textContent = item.cardio ? "Min" : "Ripetizioni";
+  document.getElementById("h3").textContent = item.cardio ? "Sforzo" : "Peso";
+  document.getElementById("h4").textContent = item.cardio ? "Pendenza" : "RIR";
+  const rows = document.getElementById("rows");
+  rows.innerHTML = "";
+
+  item.rows.forEach(r=>{
+    const row = document.createElement("div");
+    row.className = "grid-row";
+    const s = document.createElement("div");
+    s.className = "series" + (r.warm ? " warm" : "");
+    s.textContent = r.label;
+
+    const repsOptions = (r.reps && r.reps.length > 1)
+      ? r.reps.map(v => String(v))
+      : buildRepsOptions(r.repsVal, !!r.warm, !!item.cardio);
+    const reps = makeSelect(repsOptions, String(r.repsVal), r.warm ? "green" : "yellow", e=>{ r.repsVal = e.target.value; updateStats(); });
+
+    const sourceWeights = (r.peso && r.peso.length > 1)
+      ? r.peso
+      : buildWeightOptions(r.pesoVal, item.name, !!item.cardio);
+    const snappedWeight = nextAvailableWeight(parseNum(r.pesoVal), sourceWeights, item.name);
+    r.pesoVal = formatWeight(snappedWeight, item.name);
+
+    const pesoOptions = [...new Set(sourceWeights.map(v => formatWeight(v, item.name)))];
+    const peso = makeSelect(pesoOptions, formatWeight(r.pesoVal, item.name), r.warm ? "green" : "yellow", e=>{ r.pesoVal = e.target.value; updateStats(); });
+
+    const extraOptions = (r.extra && r.extra.length > 1)
+      ? r.extra.map(v => String(v))
+      : buildExtraOptions(r.extraVal, !!item.cardio);
+    const extra = makeSelect(extraOptions, String(r.extraVal), "green", e=>{ r.extraVal = e.target.value; });
+
+    row.append(s, reps, peso, extra);
+    rows.appendChild(row);
+  });
+
+  document.getElementById("summaryBox").style.display = item.cardio ? "none" : "grid";
+  const slider = document.getElementById("exerciseSlider");
+  slider.max = Math.max(currentList().length - 1, 0);
+  slider.value = currentExercise;
+  document.getElementById("lastIdx").textContent = String(currentList().length || 1);
+  document.getElementById("counter").textContent = `${currentExercise + 1}/${currentList().length || 1}`;
+  slider.oninput = e=>{ stopTimer(); currentExercise = parseInt(e.target.value, 10); render(); };
+
+  updateTimerDisplay();
+  updateStats();
+}
+
+function updateStats(){
+  const item = currentItem();
+  document.getElementById("maxBox").textContent = `${Math.round(calcMassimale(item))} kg`;
+  document.getElementById("volumeBox").textContent = `${Math.round(calcVolumeSessione())} kg`;
+}
+
+
+function updateTimerDisplay(){
+  const item = currentItem();
+  const el = document.getElementById("timer");
+
+  if(timerEndAt){
+    const remaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+    timerValue = remaining;
+    el.textContent = remaining > 0 ? String(remaining) : (window.innerWidth > 390 ? "MUOVI IL CULO, VECCHIO BASTARDO" : "MUOVI IL CULO");
+    return;
+  }
+
+  el.textContent = item && item.rest > 0 ? String(item.rest) : "—";
+}
+
+function runTimerLoop(){
+  if(timerHandle){
+    clearInterval(timerHandle);
+    timerHandle = null;
+  }
+
+  timerHandle = setInterval(()=>{
+    if(!timerEndAt){
+      clearInterval(timerHandle);
+      timerHandle = null;
+      updateTimerDisplay();
+      return;
+    }
+
+    const remaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+    timerValue = remaining;
+    updateTimerDisplay();
+
+    if(remaining <= 0){
+      clearInterval(timerHandle);
+      timerHandle = null;
+      timerEndAt = null;
+      timerDoneAlert();
+    }
+  }, 250);
+}
+
+function startTimer(){
+  const item = currentItem();
+  if(!item || !item.rest){
+    stopTimer();
+    updateTimerDisplay();
+    return;
+  }
+
+  unlockAudio();
+  lastDuration = item.rest;
+  timerEndAt = Date.now() + (item.rest * 1000);
+  timerValue = item.rest;
+  updateTimerDisplay();
+  runTimerLoop();
+}
+
+function stopTimer(){
+  if(timerHandle){
+    clearInterval(timerHandle);
+    timerHandle = null;
+  }
+  timerEndAt = null;
+  timerValue = null;
+  updateTimerDisplay();
+}
+
+document.addEventListener("visibilitychange", ()=>{
+  if(timerEndAt){
+    updateTimerDisplay();
+    runTimerLoop();
+  }
+});
+
+window.addEventListener("pageshow", ()=>{
+  if(timerEndAt){
+    updateTimerDisplay();
+    runTimerLoop();
+  }
+});
+function render(){
+  renderDays();
+  if(currentSection === "calcoli"){
+    document.getElementById("workoutCard").classList.add("hidden");
+    document.getElementById("calcoliCard").classList.remove("hidden");
+    document.getElementById("timer").textContent = "—";
+  } else {
+    document.getElementById("workoutCard").classList.remove("hidden");
+    document.getElementById("calcoliCard").classList.add("hidden");
+    renderWorkout();
+  }
+}
+
+document.getElementById("startBtn").onclick = startTimer;
+document.getElementById("stopBtn").onclick = stopTimer;
+render();
+</script>
+</body>
+</html>

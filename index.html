@@ -14,19 +14,47 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .app{max-width:460px;margin:0 auto;min-height:100vh;padding-bottom:132px}
 .top{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#171a1f 0%, #111317 100%);border-bottom:1px solid var(--line);padding:10px 12px}
-.top-bar{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.totali-box{flex:1;min-width:0;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
-.totali-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
-.totali-values{display:flex;flex-direction:column;gap:2px;font-size:18px;font-weight:900;line-height:1.05;color:var(--text)}
-.mini-timer{border:none;background:transparent;padding:0;margin:0;cursor:pointer;flex:0 0 auto}
-.mini-timer-ring{width:88px;height:88px;border-radius:50%;background:#7fd39c;border:3px solid #1e2229;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.25);transition:background .2s ease, transform .15s ease, opacity .2s ease}
-.mini-timer:active .mini-timer-ring{transform:scale(.97)}
-.timer{font-size:34px;font-weight:900;line-height:1;color:#07140c}
-.mini-timer.running .mini-timer-ring{background:#53c57c}
-.mini-timer.warning .mini-timer-ring{background:#e35b5b}
-.mini-timer.warning .timer{color:#fff}
-.mini-timer.blink .mini-timer-ring{animation:timerBlink .6s infinite}
+.top-bar{display:grid;grid-template-columns:.82fr .82fr auto;align-items:stretch;gap:10px}
+.totali-box,.massimali-box{min-width:0;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:8px 10px;height:72px;display:flex;flex-direction:column;justify-content:center}
+.totali-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
+.totali-big{font-size:24px;font-weight:900;line-height:1;color:var(--text);white-space:nowrap}
+.massimali-big{font-size:20px;font-weight:900;line-height:1;color:var(--text);white-space:nowrap}
+.mini-timer{position:relative;border:none;background:transparent;padding:0;margin:0;cursor:pointer;flex:0 0 auto;width:96px;height:112px;display:block}
+.stopwatch-shell{--timer-color:#2ecc71;position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 2px 8px rgba(0,0,0,.22))}
+.stopwatch-top{position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:12px;background:var(--timer-color);border-radius:7px}
+.stopwatch-side{position:absolute;top:10px;width:14px;height:10px;background:var(--timer-color);border-radius:6px}
+.stopwatch-side.left{left:20px;transform:rotate(-28deg)}
+.stopwatch-side.right{right:20px;transform:rotate(28deg)}
+.stopwatch-face{position:relative;width:88px;height:88px;border-radius:50%;background:transparent;border:3px solid var(--timer-color);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .2s ease, transform .15s ease, opacity .2s ease}
+.mini-timer:active .stopwatch-face{transform:scale(.97)}
+.stopwatch-ticks{position:absolute;inset:0;border-radius:50%}
+.stopwatch-ticks span{position:absolute;left:50%;top:6px;width:4px;height:14px;background:var(--timer-color);border-radius:3px;transform-origin:50% 38px;margin-left:-2px}
+.stopwatch-ticks span:nth-child(1){transform:rotate(0deg)}
+.stopwatch-ticks span:nth-child(2){transform:rotate(30deg)}
+.stopwatch-ticks span:nth-child(3){transform:rotate(60deg)}
+.stopwatch-ticks span:nth-child(4){transform:rotate(90deg)}
+.stopwatch-ticks span:nth-child(5){transform:rotate(120deg)}
+.stopwatch-ticks span:nth-child(6){transform:rotate(150deg)}
+.stopwatch-ticks span:nth-child(7){transform:rotate(180deg)}
+.stopwatch-ticks span:nth-child(8){transform:rotate(210deg)}
+.stopwatch-ticks span:nth-child(9){transform:rotate(240deg)}
+.stopwatch-ticks span:nth-child(10){transform:rotate(270deg)}
+.stopwatch-ticks span:nth-child(11){transform:rotate(300deg)}
+.stopwatch-ticks span:nth-child(12){transform:rotate(330deg)}
+.timer{position:relative;z-index:2;font-size:34px;font-weight:900;line-height:1;color:var(--timer-color);display:flex;align-items:center;justify-content:center;min-width:0}
+.timer.three-digits{font-size:28px}
+.timer.four-digits{font-size:23px}
+.mini-timer.running .stopwatch-shell{--timer-color:#2ecc71}
+.mini-timer.warning .stopwatch-shell,
+.mini-timer.done .stopwatch-shell{--timer-color:#e74c3c}
+.mini-timer.blink .stopwatch-shell{animation:timerBlink .6s infinite}
 @keyframes timerBlink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
+.timer-done-text{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;font-size:17px;font-weight:900;line-height:1.05;color:#e74c3c;padding:10px 4px;background:transparent}
+.mini-timer.done .stopwatch-shell{display:none}
+.mini-timer.done .timer-done-text{display:flex}
+
+
+
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px}
 .exercise-title{font-size:20px;font-weight:900;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .exercise-note{font-size:11px;color:var(--muted);margin-top:4px}
@@ -66,16 +94,29 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   <div class="top">
     <div class="top-bar">
       <div class="totali-box">
-        <div class="totali-label">Carichi totali</div>
-        <div class="totali-values">
-          <div id="totVolume">0 kg</div>
-          <div id="totMax">0 kg</div>
-        </div>
+        <div class="totali-label">Volume sessione</div>
+        <div class="totali-big" id="totVolume">0 kg</div>
       </div>
+
+      <div class="massimali-box">
+        <div class="totali-label">Massimali</div>
+        <div class="massimali-big" id="totMax">0 kg</div>
+      </div>
+
       <button id="miniTimer" class="mini-timer" type="button" aria-label="Timer recupero">
-        <div class="mini-timer-ring">
-          <div class="timer" id="timer">—</div>
+        <div class="stopwatch-shell" id="stopwatchShell">
+          <div class="stopwatch-top"></div>
+          <div class="stopwatch-side left"></div>
+          <div class="stopwatch-side right"></div>
+          <div class="stopwatch-face">
+            <div class="stopwatch-ticks">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="timer" id="timer">—</div>
+          </div>
         </div>
+        <div class="timer-done-text" id="timerMessage">MUOVI IL CULO, VECCHIO BASTARDO!!</div>
       </button>
     </div>
   </div>
@@ -91,10 +132,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
       <div id="h4">RIR</div>
     </div>
     <div class="rows" id="rows"></div>
-    <div class="summary" id="summaryBox">
-      <div class="box"><div class="box-title">Massimale</div><div class="box-value" id="maxBox">0 kg</div></div>
-      <div class="box"><div class="box-title">Volume sessione</div><div class="box-value" id="volumeBox">0 kg</div></div>
-    </div>
+
   </div>
 
   <div class="card hidden" id="calcoliCard">
@@ -504,7 +542,8 @@ function renderWorkout(){
     rows.appendChild(row);
   });
 
-  document.getElementById("summaryBox").style.display = item.cardio ? "none" : "grid";
+  const summaryBox = document.getElementById("summaryBox");
+  if(summaryBox) summaryBox.style.display = item.cardio ? "none" : "grid";
   const slider = document.getElementById("exerciseSlider");
   slider.max = Math.max(currentList().length - 1, 0);
   slider.value = currentExercise;
@@ -520,10 +559,10 @@ function updateStats(){
   const item = currentItem();
   const maxVal = `${Math.round(calcMassimale(item))} kg`;
   const volVal = `${Math.round(calcVolumeSessione())} kg`;
-  document.getElementById("maxBox").textContent = maxVal;
-  document.getElementById("volumeBox").textContent = volVal;
-  document.getElementById("totMax").textContent = maxVal;
-  document.getElementById("totVolume").textContent = volVal;
+  const topMax = document.getElementById("totMax");
+  const topVol = document.getElementById("totVolume");
+  if(topMax) topMax.textContent = maxVal;
+  if(topVol) topVol.textContent = volVal;
 }
 
 
@@ -538,12 +577,20 @@ function updateTimerDisplay(){
   const el = document.getElementById("timer");
   const timerBtn = document.getElementById("miniTimer");
 
-  timerBtn.classList.remove("running","warning","blink");
+  timerBtn.classList.remove("running","warning","blink","done");
+  el.classList.remove("three-digits","four-digits");
 
   if(timerEndAt){
     const remaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
     timerValue = remaining;
-    el.textContent = String(remaining);
+    const text = String(remaining);
+    el.textContent = text;
+
+    if(text.length >= 4){
+      el.classList.add("four-digits");
+    } else if(text.length >= 3){
+      el.classList.add("three-digits");
+    }
 
     if(remaining > 10){
       timerBtn.classList.add("running");
@@ -555,7 +602,18 @@ function updateTimerDisplay(){
     return;
   }
 
-  el.textContent = item && item.rest > 0 ? String(item.rest) : "—";
+  if(timerValue === 0){
+    timerBtn.classList.add("done","warning","blink");
+    return;
+  }
+
+  const baseText = item && item.rest > 0 ? String(item.rest) : "—";
+  el.textContent = baseText;
+  if(baseText.length >= 4){
+    el.classList.add("four-digits");
+  } else if(baseText.length >= 3){
+    el.classList.add("three-digits");
+  }
 }
 
 function runTimerLoop(){
@@ -584,6 +642,7 @@ function runTimerLoop(){
       clearInterval(timerHandle);
       timerHandle = null;
       timerEndAt = null;
+      timerValue = 0;
       vibratePattern([200,100,200,100,250]);
       updateTimerDisplay();
     }

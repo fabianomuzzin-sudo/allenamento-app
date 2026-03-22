@@ -52,6 +52,9 @@ html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-sys
 .timer-done-text{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;font-size:17px;font-weight:900;line-height:1.05;color:#e74c3c;padding:10px 4px;background:transparent}
 .mini-timer.done .stopwatch-shell{display:none}
 .mini-timer.done .timer-done-text{display:flex}
+.action-row{display:flex;gap:8px;margin-top:8px}
+.action-btn{flex:1;background:#22262e;border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:12px;font-weight:800;color:var(--text)}
+.action-btn.primary{background:var(--blue);color:#07111b}
 
 
 
@@ -65,9 +68,13 @@ html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-sys
 .rows{display:flex;flex-direction:column;gap:8px}
 .series{font-weight:900;font-size:17px}
 .series.warm{color:var(--muted);font-size:15px}
-select{width:auto;min-width:72px;max-width:100%;justify-self:center;padding:8px 20px 8px 8px;border-radius:10px;font-size:17px;font-weight:900;text-align:center;text-align-last:center;-webkit-text-align-last:center;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, rgba(0,0,0,.5) 50%),linear-gradient(135deg, rgba(0,0,0,.5) 50%, transparent 50%);background-position:calc(100% - 12px) calc(50% - 3px),calc(100% - 8px) calc(50% - 3px);background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+select{width:auto;min-width:68px;max-width:100%;justify-self:center;padding:6px 18px 6px 6px;border-radius:9px;font-size:15px;font-weight:900;text-align:center;text-align-last:center;-webkit-text-align-last:center;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, rgba(0,0,0,.5) 50%),linear-gradient(135deg, rgba(0,0,0,.5) 50%, transparent 50%);background-position:calc(100% - 11px) calc(50% - 3px),calc(100% - 7px) calc(50% - 3px);background-size:4px 4px,4px 4px;background-repeat:no-repeat}
 .yellow{background:var(--yellow);border:1px solid var(--yellow-border);color:#201b08}
 .green{background:var(--green);border:1px solid var(--green-border);color:#0a2012}
+.reps-cell{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:3px;width:100%}
+.rep-side{width:32px;min-width:32px;padding:2px 4px;border-radius:6px;font-size:10px;font-weight:900;line-height:1.05}
+.rep-ghost{visibility:hidden;pointer-events:none}
+
 .summary{display:none}
 .box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
 .box-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
@@ -118,6 +125,11 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
         </div>
         <div class="timer-done-text" id="timerMessage">MUOVI IL CULO, VECCHIO BASTARDO!!</div>
       </button>
+    </div>
+    <div class="action-row">
+      <button class="action-btn" id="unlockBtn" type="button">Sblocca</button>
+      <button class="action-btn" id="lockBtn" type="button">Blocca</button>
+      <button class="action-btn primary" id="saveSessionBtn" type="button">Salva sessione</button>
     </div>
   </div>
 
@@ -295,6 +307,66 @@ let timerEndAt = null;
 let lastDuration = null;
 
 let audioCtx = null;
+const STORAGE_KEY = "allenamento_app_state_v54";
+const HISTORY_KEY = "allenamento_app_history_v54";
+
+function saveAppState(){
+  try{
+    const state = {
+      appData,
+      currentDay,
+      currentExercise,
+      currentSection,
+      unlocked
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){}
+}
+
+function loadAppState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const state = JSON.parse(raw);
+    if(state && state.appData) Object.assign(appData, state.appData);
+    if(state && state.currentDay) currentDay = state.currentDay;
+    if(state && Number.isInteger(state.currentExercise)) currentExercise = state.currentExercise;
+    if(state && state.currentSection) currentSection = state.currentSection;
+    if(state && typeof state.unlocked === "boolean") unlocked = state.unlocked;
+  }catch(e){}
+}
+
+function saveSessionHistory(){
+  try{
+    const entry = {
+      savedAt: new Date().toISOString(),
+      day: currentDay,
+      totalVolume: calcVolumeSessione(),
+      exercises: currentList().map(item => ({
+        name: item.name,
+        note: item.note || "",
+        cardio: !!item.cardio,
+        rest: item.rest || 0,
+        rows: item.rows.map(r => ({
+          label: r.label,
+          warm: !!r.warm,
+          repsVal: r.repsVal,
+          repsMinVal: r.repsMinVal ?? "",
+          repsMaxVal: r.repsMaxVal ?? "",
+          pesoVal: r.pesoVal,
+          extraVal: r.extraVal
+        }))
+      }))
+    };
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.push(entry);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+    alert("Sessione salvata");
+  }catch(e){
+    alert("Errore nel salvataggio");
+  }
+}
 
 function unlockAudio(){
   try{
@@ -337,6 +409,20 @@ function timerDoneAlert(){
 
 function currentList(){ return appData[currentDay] || []; }
 function currentItem(){ return currentList()[currentExercise]; }
+
+function requirePasswordForGreenEdit(){
+  if(unlocked) return true;
+  const p = prompt("Inserisci password");
+  if(p !== PASSWORD){
+    if(p !== null) alert("Password errata");
+    return false;
+  }
+  unlocked = true;
+  const access = document.getElementById("accessBox");
+  if(access) access.value = "Sbloccato";
+  saveAppState();
+  return true;
+}
 
 function parseNum(v){ return parseFloat(String(v).replace(",", ".")) || 0; }
 
@@ -434,6 +520,26 @@ function buildExtraOptions(current, isCardio=false){
 }
 
 
+
+function buildSmallRepOptions(current){
+  const cur = Math.max(1, parseInt(parseNum(current), 10) || 1);
+  const vals = [];
+  for(let i=Math.max(1, cur-5); i<=cur+5; i++) vals.push(String(i));
+  return vals;
+}
+
+function buildRepsFromRange(min, max){
+  const vals = [];
+  const minN = Math.max(1, parseInt(parseNum(min), 10) || 1);
+  const maxN = Math.max(minN, parseInt(parseNum(max), 10) || minN);
+  for(let i=minN; i<=maxN; i++) vals.push(String(i));
+  return vals;
+}
+
+function refreshCurrentExercise(){
+  renderWorkout();
+}
+
 function renderDays(){
   const days = ["Day 1","Day 2","Day 3","Day 4","Day 5","Calcoli"];
   const wrap = document.getElementById("days");
@@ -448,12 +554,7 @@ function renderDays(){
       btn.onclick = ()=>alert(day + " - coming soon");
     } else if(day === "Calcoli"){
       btn.onclick = ()=>{
-        if(!unlocked){
-          const p = prompt("Inserisci password");
-          if(p !== PASSWORD){ if(p !== null) alert("Password errata"); return; }
-          unlocked = true;
-          document.getElementById("accessBox").value = "Sbloccato";
-        }
+        if(!requirePasswordForGreenEdit()) return;
         currentSection = "calcoli";
         render();
       };
@@ -473,7 +574,36 @@ function makeSelect(values, selected, cls, onChange){
     if(String(v) === String(selected)) o.selected = true;
     sel.appendChild(o);
   });
-  sel.onchange = onChange;
+
+  const isGreenField = String(cls).includes("green");
+  if(isGreenField && !unlocked){
+    sel.disabled = true;
+    sel.addEventListener("click", (e)=>{
+      e.preventDefault();
+      if(requirePasswordForGreenEdit()){
+        render();
+      }
+    });
+    sel.addEventListener("touchstart", (e)=>{
+      if(!unlocked){
+        e.preventDefault();
+        if(requirePasswordForGreenEdit()){
+          render();
+        }
+      }
+    }, {passive:false});
+    sel.addEventListener("mousedown", (e)=>{
+      if(!unlocked){
+        e.preventDefault();
+        if(requirePasswordForGreenEdit()){
+          render();
+        }
+      }
+    });
+  } else {
+    sel.onchange = (e)=>{ onChange(e); saveAppState(); };
+  }
+
   return sel;
 }
 
@@ -519,10 +649,87 @@ function renderWorkout(){
     s.className = "series" + (r.warm ? " warm" : "");
     s.textContent = r.label;
 
-    const repsOptions = (r.reps && r.reps.length > 1)
-      ? r.reps.map(v => String(v))
-      : buildRepsOptions(r.repsVal, !!r.warm, !!item.cardio);
+    const showRepRange = !item.cardio && !r.warm;
+    let repsOptions;
+
+    if(showRepRange){
+      if(r.repsMinVal === undefined || r.repsMinVal === null || r.repsMinVal === ""){
+        r.repsMinVal = String(Math.max(1, (parseInt(parseNum(r.repsVal), 10) || 1) - 2));
+      }
+      if(r.repsMaxVal === undefined || r.repsMaxVal === null || r.repsMaxVal === ""){
+        r.repsMaxVal = String((parseInt(parseNum(r.repsVal), 10) || 1) + 2);
+      }
+
+      const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+      const maxN = Math.max(minN, parseInt(parseNum(r.repsMaxVal), 10) || minN);
+      let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+      if(currentN < minN) currentN = minN;
+      if(currentN > maxN) currentN = maxN;
+      r.repsVal = String(currentN);
+
+      repsOptions = buildRepsFromRange(r.repsMinVal, r.repsMaxVal);
+    } else {
+      repsOptions = (r.reps && r.reps.length > 1)
+        ? r.reps.map(v => String(v))
+        : buildRepsOptions(r.repsVal, !!r.warm, !!item.cardio);
+    }
+
     const reps = makeSelect(repsOptions, String(r.repsVal), r.warm ? "green" : "yellow", e=>{ r.repsVal = e.target.value; updateStats(); });
+
+    const repsCell = document.createElement("div");
+    repsCell.className = "reps-cell";
+
+    if(showRepRange){
+      if(r.repsMinVal === undefined || r.repsMinVal === null || r.repsMinVal === ""){
+        r.repsMinVal = String(Math.max(1, (parseInt(parseNum(r.repsVal), 10) || 1) - 2));
+      }
+      if(r.repsMaxVal === undefined || r.repsMaxVal === null || r.repsMaxVal === ""){
+        r.repsMaxVal = String((parseInt(parseNum(r.repsVal), 10) || 1) + 2);
+      }
+
+      const repsMin = makeSelect(buildSmallRepOptions(r.repsVal), String(r.repsMinVal), "green rep-side", e=>{
+        r.repsMinVal = e.target.value;
+        const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+        const maxNraw = parseInt(parseNum(r.repsMaxVal), 10) || minN;
+        const maxN = Math.max(minN, maxNraw);
+        if(maxN !== maxNraw) r.repsMaxVal = String(maxN);
+        let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+        if(currentN < minN) currentN = minN;
+        if(currentN > maxN) currentN = maxN;
+        r.repsVal = String(currentN);
+        saveAppState();
+        saveAppState();
+        refreshCurrentExercise();
+      });
+      const repsMax = makeSelect(buildSmallRepOptions(r.repsVal), String(r.repsMaxVal), "green rep-side", e=>{
+        r.repsMaxVal = e.target.value;
+        const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+        const maxN = Math.max(minN, parseInt(parseNum(r.repsMaxVal), 10) || minN);
+        r.repsMaxVal = String(maxN);
+        let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+        if(currentN < minN) currentN = minN;
+        if(currentN > maxN) currentN = maxN;
+        r.repsVal = String(currentN);
+        saveAppState();
+        refreshCurrentExercise();
+      });
+
+      repsCell.appendChild(repsMin);
+      repsCell.appendChild(reps);
+      repsCell.appendChild(repsMax);
+    } else {
+      const leftGhost = document.createElement("div");
+      leftGhost.className = "rep-side rep-ghost";
+      leftGhost.textContent = "00";
+
+      const rightGhost = document.createElement("div");
+      rightGhost.className = "rep-side rep-ghost";
+      rightGhost.textContent = "00";
+
+      repsCell.appendChild(leftGhost);
+      repsCell.appendChild(reps);
+      repsCell.appendChild(rightGhost);
+    }
 
     const sourceWeights = (r.peso && r.peso.length > 1)
       ? r.peso
@@ -538,7 +745,7 @@ function renderWorkout(){
       : buildExtraOptions(r.extraVal, !!item.cardio);
     const extra = makeSelect(extraOptions, String(r.extraVal), "green", e=>{ r.extraVal = e.target.value; });
 
-    row.append(s, reps, peso, extra);
+    row.append(s, repsCell, peso, extra);
     rows.appendChild(row);
   });
 
@@ -563,6 +770,7 @@ function updateStats(){
   const topVol = document.getElementById("totVolume");
   if(topMax) topMax.textContent = maxVal;
   if(topVol) topVol.textContent = volVal;
+  saveAppState();
 }
 
 
@@ -709,6 +917,47 @@ function render(){
 }
 
 document.getElementById("miniTimer").onclick = toggleMiniTimer;
+
+function updateLockButtons(){
+  const unlockBtn = document.getElementById("unlockBtn");
+  const lockBtn = document.getElementById("lockBtn");
+  if(unlocked){
+    unlockBtn.disabled = true;
+    lockBtn.disabled = false;
+    unlockBtn.style.opacity = ".45";
+    lockBtn.style.opacity = "1";
+  } else {
+    unlockBtn.disabled = false;
+    lockBtn.disabled = true;
+    unlockBtn.style.opacity = "1";
+    lockBtn.style.opacity = ".45";
+  }
+}
+
+document.getElementById("unlockBtn").onclick = ()=>{
+  if(requirePasswordForGreenEdit()){
+    saveAppState();
+    render();
+  }
+};
+
+document.getElementById("lockBtn").onclick = ()=>{
+  unlocked = false;
+  const access = document.getElementById("accessBox");
+  if(access) access.value = "Protetto";
+  saveAppState();
+  render();
+};
+
+document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
+
+const originalRender = render;
+render = function(){
+  originalRender();
+  updateLockButtons();
+};
+
+loadAppState();
 render();
 </script>
 </body>

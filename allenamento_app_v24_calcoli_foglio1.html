@@ -7,34 +7,76 @@
 <style>
 :root{
   --bg:#0f1114; --panel:#171a1f; --panel2:#20242b; --line:#313742;
-  --text:#f4f7fb; --muted:#8b94a3; --blue:#57a6ff; --green:#81d29a;
-  --green-border:#4f9f72; --yellow:#faefb4; --yellow-border:#e2d07a; --red:#e05a5a;
+  --text:#f4f7fb; --muted:#8b94a3; --blue:#57a6ff; --green:#2ecc71;
+  --green-border:#2ecc71; --yellow:#faefb4; --yellow-border:#e2d07a; --red:#e05a5a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .app{max-width:460px;margin:0 auto;min-height:100vh;padding-bottom:132px}
-.top{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#171a1f 0%, #111317 100%);border-bottom:1px solid var(--line);padding:12px}
-.timer-row{display:grid;grid-template-columns:84px 1fr 84px;gap:8px;align-items:center;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:10px}
-.timer-btn{border:none;border-radius:10px;padding:11px 8px;font-weight:900;font-size:14px}
-.start{background:var(--green);color:#081d0f}
-.stop{background:var(--red);color:#fff}
-.timer-center{text-align:center}
-.timer-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.timer{font-size:36px;font-weight:900;line-height:1;margin-top:3px}
+.top{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#171a1f 0%, #111317 100%);border-bottom:1px solid var(--line);padding:10px 12px}
+.top-bar{display:grid;grid-template-columns:.82fr .82fr auto;grid-template-rows:50px 62px;align-items:stretch;row-gap:0;column-gap:10px}
+.totali-box{grid-column:1;grid-row:2;min-width:0;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:6px 8px;height:62px;display:flex;flex-direction:column;justify-content:center;gap:1px;}
+.top-action-btn{width:100%;height:50px;background:#22262e;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:0 4px;font-size:18px;line-height:50px;font-weight:800;margin:0}
+.save-btn{grid-column:1;grid-row:1}
+.lock-btn-top{grid-column:2;grid-row:1}
+.lock-btn-bottom{grid-column:2;grid-row:2;height:62px;line-height:62px;margin-top:4px;}
+.left-massimali{grid-column:1;grid-row:2;}
+.totali-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
+.totali-big{font-size:24px;font-weight:900;line-height:1;color:var(--text);white-space:nowrap}
+.mini-timer{grid-column:3;grid-row:1 / span 2;position:relative;border:none;background:transparent;padding:0;margin:0;cursor:pointer;flex:0 0 auto;width:96px;height:112px;display:block;align-self:stretch}
+.stopwatch-shell{--timer-color:#2ecc71;position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 2px 8px rgba(0,0,0,.22))}
+.stopwatch-top{position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:12px;background:var(--timer-color);border-radius:7px}
+.stopwatch-side{position:absolute;top:10px;width:14px;height:10px;background:var(--timer-color);border-radius:6px}
+.stopwatch-side.left{left:20px;transform:rotate(-28deg)}
+.stopwatch-side.right{right:20px;transform:rotate(28deg)}
+.stopwatch-face{position:relative;width:88px;height:88px;border-radius:50%;background:transparent;border:3px solid var(--timer-color);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .2s ease, transform .15s ease, opacity .2s ease}
+.mini-timer:active .stopwatch-face{transform:scale(.97)}
+.stopwatch-ticks{position:absolute;inset:0;border-radius:50%}
+.stopwatch-ticks span{position:absolute;left:50%;top:6px;width:4px;height:14px;background:var(--timer-color);border-radius:3px;transform-origin:50% 38px;margin-left:-2px}
+.stopwatch-ticks span:nth-child(1){transform:rotate(0deg)}
+.stopwatch-ticks span:nth-child(2){transform:rotate(30deg)}
+.stopwatch-ticks span:nth-child(3){transform:rotate(60deg)}
+.stopwatch-ticks span:nth-child(4){transform:rotate(90deg)}
+.stopwatch-ticks span:nth-child(5){transform:rotate(120deg)}
+.stopwatch-ticks span:nth-child(6){transform:rotate(150deg)}
+.stopwatch-ticks span:nth-child(7){transform:rotate(180deg)}
+.stopwatch-ticks span:nth-child(8){transform:rotate(210deg)}
+.stopwatch-ticks span:nth-child(9){transform:rotate(240deg)}
+.stopwatch-ticks span:nth-child(10){transform:rotate(270deg)}
+.stopwatch-ticks span:nth-child(11){transform:rotate(300deg)}
+.stopwatch-ticks span:nth-child(12){transform:rotate(330deg)}
+.timer{position:relative;z-index:2;font-size:34px;font-weight:900;line-height:1;color:var(--timer-color);display:flex;align-items:center;justify-content:center;min-width:0}
+.timer.three-digits{font-size:28px}
+.timer.four-digits{font-size:23px}
+.mini-timer.running .stopwatch-shell{--timer-color:var(--timer-color)}
+.mini-timer.warning .stopwatch-shell,
+.mini-timer.done .stopwatch-shell{--timer-color:#e74c3c}
+.mini-timer.blink .stopwatch-shell{animation:timerBlink .6s infinite}
+@keyframes timerBlink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
+.timer-done-text{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;font-size:17px;font-weight:900;line-height:1.05;color:#e74c3c;padding:10px 4px;background:transparent}
+.mini-timer.done .stopwatch-shell{display:none}
+.mini-timer.done .timer-done-text{display:flex}
+
+
+
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px}
-.exercise-title{font-size:20px;font-weight:900;line-height:1.15;text-overflow:ellipsiswhite-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exercise-title{font-size:24px;font-weight:900;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .exercise-note{font-size:11px;color:var(--muted);margin-top:4px}
 .sep{height:1px;background:var(--line);margin:10px 0}
-.header-row,.grid-row{display:grid;grid-template-columns:.7fr .84fr 1.26fr .98fr;gap:8px;align-items:center}
+.header-row,.grid-row{display:grid;grid-template-columns:.68fr .76fr 1.18fr .82fr;gap:8px;align-items:center}
 .header-row{color:var(--muted);font-size:12px;margin-bottom:8px;text-align:center;font-weight:800}
 .header-row > div:first-child{text-align:left}
 .rows{display:flex;flex-direction:column;gap:8px}
 .series{font-weight:900;font-size:17px}
 .series.warm{color:var(--muted);font-size:15px}
-select{width:100%;padding:10px 28px 10px 12px;border-radius:10px;font-size:18px;font-weight:900;text-align:center;text-align-last:center;-webkit-text-align-last:center;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, rgba(0,0,0,.5) 50%),linear-gradient(135deg, rgba(0,0,0,.5) 50%, transparent 50%);background-position:calc(100% - 16px) calc(50% - 3px),calc(100% - 10px) calc(50% - 3px);background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+select{width:auto;min-width:68px;max-width:100%;justify-self:center;padding:6px 18px 6px 6px;border-radius:9px;font-size:15px;font-weight:900;text-align:center;text-align-last:center;-webkit-text-align-last:center;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, rgba(0,0,0,.5) 50%),linear-gradient(135deg, rgba(0,0,0,.5) 50%, transparent 50%);background-position:calc(100% - 11px) calc(50% - 3px),calc(100% - 7px) calc(50% - 3px);background-size:4px 4px,4px 4px;background-repeat:no-repeat}
 .yellow{background:var(--yellow);border:1px solid var(--yellow-border);color:#201b08}
 .green{background:var(--green);border:1px solid var(--green-border);color:#0a2012}
-.summary{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.reps-cell{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:3px;width:100%}
+.rep-side{width:32px;min-width:32px;padding:2px 4px;border-radius:6px;font-size:10px;font-weight:900;line-height:1.05}
+.rep-ghost{visibility:hidden;pointer-events:none}
+
+.summary{display:none}
 .box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
 .box-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 .box-value{font-size:24px;font-weight:900;margin-top:2px}
@@ -53,28 +95,40 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .calc-field label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
 .calc-field input{width:100%;padding:10px 6px;border-radius:10px;border:1px solid var(--green-border);background:var(--green);color:#0a2012;font-size:18px;font-weight:900;text-align:center}
 .hint{color:var(--muted);font-size:12px;margin-top:10px}
-
-.calc-sheet{display:flex;flex-direction:column;gap:14px;max-height:68vh;overflow:auto;padding-right:2px}
-.calc-section h3{margin:0 0 8px 0;font-size:14px;color:var(--text)}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
-.calc-table{border-collapse:collapse;width:max-content;min-width:100%}
-.calc-table th,.calc-table td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:6px 8px;font-size:12px;white-space:nowrap;text-align:left}
-.calc-table th{position:sticky;top:0;background:#252a33;color:var(--text);z-index:1}
-.calc-table tr:last-child td{border-bottom:none}
-.calc-table th:last-child,.calc-table td:last-child{border-right:none}
-
 </style>
 </head>
 <body>
 <div class="app">
   <div class="top">
-    <div class="timer-row">
-      <button class="timer-btn start" id="startBtn">Start</button>
-      <div class="timer-center">
-        <div class="timer-label">Timer recupero</div>
-        <div class="timer" id="timer">—</div>
+    <div class="top-bar">
+      <button class="top-action-btn save-btn primary" style="background:#60a5fa;color:#07111b;" id="saveSessionBtn" type="button">Salva</button>
+      <button class="top-action-btn lock-btn-top" id="toggleLockBtn" type="button">Sblocca</button>
+
+      <div class="top-action-btn lock-btn-bottom left-massimali" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:62px;">
+        <div class="totali-label" style="margin-bottom:2px;transform:translateY(-30px);"><span id="volWord" style="display:block;transform:translateY(50px);">Volume</span><span>sessione</span></div><style>#totVolumeLeft{margin-top:-4px;}</style>
+        <div class="massimali-big" id="totVolumeLeft" style="font-size:24px;line-height:1;text-align:center;transform:translateY(-52px);position:relative;top:0;">0 kg</div>
       </div>
-      <button class="timer-btn stop" id="stopBtn">Stop</button>
+
+      <div class="top-action-btn lock-btn-bottom" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:62px;">
+        <div class="totali-label" style="margin-bottom:2px;transform:translateY(-10px);">Massimali</div>
+        <div class="massimali-big" id="totMax" style="font-size:24px;line-height:1;text-align:center;transform:translateY(-22px);position:relative;top:0;">0 kg</div>
+      </div>
+
+      <button id="miniTimer" class="mini-timer" type="button" aria-label="Timer recupero">
+        <div class="stopwatch-shell" id="stopwatchShell">
+          <div class="stopwatch-top"></div>
+          <div class="stopwatch-side left"></div>
+          <div class="stopwatch-side right"></div>
+          <div class="stopwatch-face">
+            <div class="stopwatch-ticks">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="timer" id="timer">—</div>
+          </div>
+        </div>
+        <div class="timer-done-text" id="timerMessage">MUOVI IL CULO, VECCHIO BASTARDO!!</div>
+      </button>
     </div>
   </div>
 
@@ -89,27 +143,23 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
       <div id="h4">RIR</div>
     </div>
     <div class="rows" id="rows"></div>
-    <div class="summary" id="summaryBox">
-      <div class="box"><div class="box-title">Massimale</div><div class="box-value" id="maxBox">0 kg</div></div>
-      <div class="box"><div class="box-title">Volume sessione</div><div class="box-value" id="volumeBox">0 kg</div></div>
-    </div>
+
   </div>
 
   <div class="card hidden" id="calcoliCard">
-
     <div class="exercise-title">Calcoli</div>
-    <div class="exercise-note">Foglio1 completo</div>
+    <div class="exercise-note">Area protetta</div>
     <div class="sep"></div>
-    <div class="calc-sheet">
-<section class="calc-section"><h3>Catalogo esercizi</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Esercizzio</th><th>Muscolo</th><th>Distretto</th><th>Alta/Bassa</th><th>Push/Pull</th><th>Attrezzo</th></tr></thead><tbody><tr><td>Elliptical machine</td><td>Multiarticolare</td><td>Full body</td><td></td><td></td><td></td></tr><tr><td>Converging chest press</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Pectoral fly</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Converging shoulder press</td><td>Spalle</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Triceps extension</td><td>Tricipiti</td><td>Braccia</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Arm curl</td><td>Bcipiti</td><td>Braccia</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Chin assist</td><td>Dorsali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Back extension</td><td>Lombari</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Abdominal crunch</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Leg press</td><td>Multiarticolare</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Leg extension</td><td>Quadricipiti</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 2</td></tr><tr><td>Prone leg curl</td><td>Femorali</td><td>Gambe</td><td>Bassa</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Calf press</td><td>Polpacci</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Addominali bassi</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Corpo libero</td></tr><tr><td>Inclined assist chest press 30</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 4</td></tr><tr><td>Cable chest fly one arm</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Pec fly</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Rear delt</td><td>Dorsali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Bicipiti con bilanciere a presa inversa</td><td>Bcipiti</td><td>Braccia</td><td>Alta</td><td>Pull</td><td>Bilancieri piccoli</td></tr><tr><td>Deep assist</td><td>Tricipiti</td><td>Braccia</td><td>Alta</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Diverging seated row</td><td>Dorsali</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Macchina 3</td></tr><tr><td>Lombari</td><td>Lombari</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Corpo libero</td></tr><tr><td>Addominali planck</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td></td><td>Corpo libero</td></tr><tr><td>Belt squat</td><td>Multiarticolare</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 5</td></tr><tr><td>Squat con bilanciere</td><td>Multiarticolare</td><td>Full body</td><td></td><td>Push</td><td>Bilanciere 1</td></tr><tr><td>Standing calf</td><td>Polpacci</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 5</td></tr><tr><td>Hip adduction</td><td>Adduttori</td><td>Gambe</td><td>Bassa</td><td>Pull</td><td>Macchina 1</td></tr><tr><td>Hip abduction</td><td>Abduttori</td><td>Gambe</td><td>Bassa</td><td>Push</td><td>Macchina 1</td></tr><tr><td>Addominali obliqui</td><td>Addominali</td><td>Tronco</td><td>Alta</td><td></td><td>Corpo libero</td></tr><tr><td>Bicipiti con manubri su panca inclinata</td><td>Bcipiti</td><td>Braccia</td><td>Alta</td><td>Pull</td><td>Manubri</td></tr><tr><td>Alzate con manubrio sopra la testa</td><td>Pettorali</td><td>Tronco</td><td>Alta</td><td>Push</td><td>Manubri</td></tr><tr><td>Alzate laterali</td><td>Spalle</td><td>Tronco</td><td>Alta</td><td>Pull</td><td>Manubri</td></tr><tr><td>Sumo dead lift</td><td>Multiarticolare</td><td></td><td></td><td></td><td>Bilanciere 1</td></tr></tbody></table></div></section>
-<section class="calc-section"><h3>Liste di riferimento</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Muscoli</th><th>Distretti</th><th>Zone</th><th>Movimento</th></tr></thead><tbody><tr><td>Multiarticolare</td><td>Full body</td><td>Alta</td><td>Push</td></tr><tr><td>Polpacci</td><td>Gambe</td><td>Bassa</td><td>Pull</td></tr><tr><td>Quadricipiti</td><td>Braccia</td><td></td><td></td></tr><tr><td>Femorali</td><td>Tronco</td><td></td><td></td></tr><tr><td>Abduttori</td><td></td><td></td><td></td></tr><tr><td>Adduttori</td><td></td><td></td><td></td></tr><tr><td>Glutei</td><td></td><td></td><td></td></tr><tr><td>Addominali</td><td></td><td></td><td></td></tr><tr><td>Lombari</td><td></td><td></td><td></td></tr><tr><td>Pettorali</td><td></td><td></td><td></td></tr><tr><td>Dorsali</td><td></td><td></td><td></td></tr><tr><td>Spalle</td><td></td><td></td><td></td></tr><tr><td>Bcipiti</td><td></td><td></td><td></td></tr><tr><td>Tricipiti</td><td></td><td></td><td></td></tr></tbody></table></div></section>
-<section class="calc-section"><h3>Attrezzi e pesi disponibili</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Attrezzi</th><th>Manubri</th><th>Bilanciere 1</th><th>Bilanciere 2</th><th>Bilanciere a Z</th><th>Bilancieri piccoli</th><th>M 1</th><th>M 2</th><th>M 3</th><th>M 4</th><th>M 5</th></tr></thead><tbody><tr><td>Macchina 1</td><td>2</td><td>20</td><td>15</td><td>10</td><td>10</td><td>4,5</td><td>4,5</td><td>4,5</td><td>11,3</td><td>0</td></tr><tr><td>Macchina 2</td><td>3</td><td>22,5</td><td>17,5</td><td>12,5</td><td>15</td><td>9</td><td>11,25</td><td>9</td><td>13,8</td><td>2,5</td></tr><tr><td>Macchina 3</td><td>4</td><td>25</td><td>20</td><td>15</td><td>20</td><td>13,5</td><td>18</td><td>13,5</td><td>16,3</td><td>5</td></tr><tr><td>Macchina 4</td><td>5</td><td>27,5</td><td>22,5</td><td>17,5</td><td>25</td><td>18</td><td>24,75</td><td>18</td><td>18,8</td><td>7,5</td></tr><tr><td>Macchina 5</td><td>6</td><td>30</td><td>25</td><td>20</td><td>30</td><td>22,5</td><td>31,5</td><td>22,5</td><td>21,3</td><td>10</td></tr><tr><td>Manubri</td><td>7</td><td>32,5</td><td>27,5</td><td>22,5</td><td></td><td>27</td><td>38,25</td><td>27</td><td>23,8</td><td>12,5</td></tr><tr><td>Bilanciere 1</td><td>8</td><td>35</td><td>30</td><td>25</td><td></td><td>31,5</td><td>45</td><td>31,5</td><td>26,3</td><td>15</td></tr><tr><td>Bilanciere 2</td><td>9</td><td>37,5</td><td>32,5</td><td>27,5</td><td></td><td>36</td><td>51,75</td><td>36</td><td>28,8</td><td>17,5</td></tr><tr><td>Bilanciere a Z</td><td>10</td><td>40</td><td>35</td><td>30</td><td></td><td>40,5</td><td>58,5</td><td>40,5</td><td>31,3</td><td>20</td></tr><tr><td>Bilancieri piccoli</td><td>12</td><td>42,5</td><td>37,5</td><td>32,5</td><td></td><td>45</td><td>65,25</td><td>47,25</td><td>33,8</td><td>22,5</td></tr><tr><td>Corpo libero</td><td>14</td><td>45</td><td>40</td><td>35</td><td></td><td>49,5</td><td>72</td><td>54</td><td>36,3</td><td>25</td></tr><tr><td></td><td>16</td><td>47,5</td><td>42,5</td><td>37,5</td><td></td><td>54</td><td>78,75</td><td>60,75</td><td>38,8</td><td>27,5</td></tr><tr><td></td><td>18</td><td>50</td><td>45</td><td>40</td><td></td><td>58,5</td><td>85,5</td><td>67,5</td><td>41,3</td><td>30</td></tr><tr><td></td><td>20</td><td>52,5</td><td>47,5</td><td>42,5</td><td></td><td>63</td><td>92,25</td><td>74,25</td><td>43,8</td><td>32,5</td></tr><tr><td></td><td>22</td><td>55</td><td>50</td><td>45</td><td></td><td>67,5</td><td>99</td><td>81</td><td>46,3</td><td>35</td></tr><tr><td></td><td>24</td><td>57,5</td><td>52,5</td><td>47,5</td><td></td><td>72</td><td>105,75</td><td>87,75</td><td>48,8</td><td>37,5</td></tr><tr><td></td><td>26</td><td>60</td><td>55</td><td>50</td><td></td><td>76,5</td><td>112,5</td><td>94,5</td><td>51,3</td><td>40</td></tr><tr><td></td><td>28</td><td>62,5</td><td>57,5</td><td>52,5</td><td></td><td>81</td><td>119,25</td><td>101,25</td><td>53,8</td><td>42,5</td></tr><tr><td></td><td>30</td><td>65</td><td>60</td><td>55</td><td></td><td>85,5</td><td>126</td><td>108</td><td>56,3</td><td>45</td></tr><tr><td></td><td>32</td><td>67,5</td><td>62,5</td><td>57,5</td><td></td><td>90</td><td>132,75</td><td>114,75</td><td>58,8</td><td>47,5</td></tr><tr><td></td><td>34</td><td>70</td><td>65</td><td>60</td><td></td><td>94,5</td><td>139,5</td><td>121,5</td><td>61,3</td><td>50</td></tr><tr><td></td><td>36</td><td>72,5</td><td>67,5</td><td>62,5</td><td></td><td>99</td><td>146,25</td><td>128,25</td><td>63,8</td><td>52,5</td></tr><tr><td></td><td>38</td><td>75</td><td>70</td><td>65</td><td></td><td>103,5</td><td>153</td><td>135</td><td>66,3</td><td>55</td></tr><tr><td></td><td>40</td><td>77,5</td><td>72,5</td><td>67,5</td><td></td><td>108</td><td>159,75</td><td>141,75</td><td>68,8</td><td>57,5</td></tr><tr><td></td><td>42</td><td>80</td><td>75</td><td>70</td><td></td><td>112,5</td><td>166,5</td><td>148,5</td><td>71,3</td><td>60</td></tr><tr><td></td><td>44</td><td>82,5</td><td>77,5</td><td>72,5</td><td></td><td>117</td><td>173,25</td><td></td><td>73,8</td><td>62,5</td></tr><tr><td></td><td>46</td><td>85</td><td>80</td><td>75</td><td></td><td>121,5</td><td>180</td><td></td><td>76,3</td><td>65</td></tr><tr><td></td><td>48</td><td>87,5</td><td>82,5</td><td>77,5</td><td></td><td>126</td><td>186,75</td><td></td><td>78,8</td><td>67,5</td></tr><tr><td></td><td>50</td><td>90</td><td>85</td><td>80</td><td></td><td>130,5</td><td>193,5</td><td></td><td>81,3</td><td>70</td></tr><tr><td></td><td></td><td>92,5</td><td>87,5</td><td></td><td></td><td>135</td><td>200,25</td><td></td><td>83,8</td><td>72,5</td></tr><tr><td></td><td></td><td>95</td><td>90</td><td></td><td></td><td></td><td></td><td></td><td>86,3</td><td>75</td></tr><tr><td></td><td></td><td>97,5</td><td>92,5</td><td></td><td></td><td></td><td></td><td></td><td>88,8</td><td>77,5</td></tr><tr><td></td><td></td><td>100</td><td>95</td><td></td><td></td><td></td><td></td><td></td><td>91,3</td><td>80</td></tr><tr><td></td><td></td><td>102,5</td><td>97,5</td><td></td><td></td><td></td><td></td><td></td><td>93,8</td><td>82,5</td></tr><tr><td></td><td></td><td>105</td><td>100</td><td></td><td></td><td></td><td></td><td></td><td>96,3</td><td>85</td></tr><tr><td></td><td></td><td>107,5</td><td>102,5</td><td></td><td></td><td></td><td></td><td></td><td>98,8</td><td>87,5</td></tr><tr><td></td><td></td><td>110</td><td>105</td><td></td><td></td><td></td><td></td><td></td><td>101,3</td><td>90</td></tr><tr><td></td><td></td><td>112,5</td><td>107,5</td><td></td><td></td><td></td><td></td><td></td><td>103,8</td><td>92,5</td></tr></tbody></table></div></section>
-<section class="calc-section"><h3>Programmazione giorni</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th></tr></thead><tbody><tr><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Converging chest press</td><td>Leg press</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Pectoral fly</td><td>Leg extension</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Converging shoulder press</td><td>Prone leg curl</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Triceps extension</td><td>Calf press</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Arm curl</td><td>Addominali bassi</td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Chin assist</td><td></td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Back extension</td><td></td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Abdominal crunch</td><td></td><td>Elliptical machine</td><td>Elliptical machine</td><td>Elliptical machine</td></tr><tr><td>Ripetizioni</td><td>% del massimale</td><td>Obbiettivo</td><td></td><td></td></tr></tbody></table></div></section>
-<section class="calc-section"><h3>Tabella ripetizioni / % / obbiettivo</h3><div class="table-wrap"><table class="calc-table"><thead><tr><th>Ripetizioni</th><th>% del massimale</th><th>Obbiettivo</th><th></th><th></th><th></th></tr></thead><tbody><tr><td>1</td><td>1</td><td>Forza max</td><td>0,05</td><td>0,4</td><td>0,0286</td></tr><tr><td>2</td><td>0,95</td><td>Forza max</td><td>0,05</td><td></td><td>0,9714</td></tr><tr><td>3</td><td>0,9</td><td>Forza max</td><td>0,03</td><td></td><td>0,9429</td></tr><tr><td>4</td><td>0,87</td><td>Forza  </td><td>0,04</td><td></td><td>0,9143</td></tr><tr><td>5</td><td>0,83</td><td>Forza  </td><td>0,03</td><td></td><td>0,8857</td></tr><tr><td>6</td><td>0,8</td><td>Forza  </td><td>0,015</td><td></td><td>0,8571</td></tr><tr><td>7</td><td>0,785</td><td></td><td>0,015</td><td></td><td>0,8286</td></tr><tr><td>8</td><td>0,77</td><td>Ipertrofia</td><td>0,035</td><td></td><td>0,8</td></tr><tr><td>9</td><td>0,735</td><td>Ipertrofia</td><td>0,035</td><td></td><td>0,7714</td></tr><tr><td>10</td><td>0,7</td><td>Ipertrofia</td><td>0,015</td><td></td><td>0,7429</td></tr><tr><td>11</td><td>0,685</td><td></td><td>0,015</td><td></td><td>0,7143</td></tr><tr><td>12</td><td>0,67</td><td>Resistenza</td><td>0,03</td><td></td><td>0,6857</td></tr><tr><td>13</td><td>0,64</td><td>Resistenza</td><td>0,02</td><td></td><td>0,6571</td></tr><tr><td>14</td><td>0,62</td><td>Resistenza</td><td>0,02</td><td></td><td>0,6286</td></tr><tr><td>15</td><td>0,6</td><td>Resistenza</td><td></td><td></td><td>0,6</td></tr></tbody></table></div></section>
+    <div class="calc-grid">
+      <div class="calc-field"><label>Massimale panca</label><input value="100" readonly></div>
+      <div class="calc-field"><label>Massimale squat</label><input value="140" readonly></div>
+      <div class="calc-field"><label>Warm-up 1 (%)</label><input value="50" readonly></div>
+      <div class="calc-field"><label>Warm-up 2 (%)</label><input value="70" readonly></div>
+      <div class="calc-field"><label>Arrotondamento</label><input value="2.5" readonly></div>
+      <div class="calc-field"><label>Accesso</label><input id="accessBox" value="Protetto" readonly></div>
     </div>
-
+    <div class="hint">Le caselle gialle sono modificabili. Day 4 e Day 5 sono vuoti.</div>
   </div>
-</div>
 </div>
 
 <div class="bottom">
@@ -256,6 +306,66 @@ let timerEndAt = null;
 let lastDuration = null;
 
 let audioCtx = null;
+const STORAGE_KEY = "allenamento_app_state_v54";
+const HISTORY_KEY = "allenamento_app_history_v54";
+
+function saveAppState(){
+  try{
+    const state = {
+      appData,
+      currentDay,
+      currentExercise,
+      currentSection,
+      unlocked
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){}
+}
+
+function loadAppState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const state = JSON.parse(raw);
+    if(state && state.appData) Object.assign(appData, state.appData);
+    if(state && state.currentDay) currentDay = state.currentDay;
+    if(state && Number.isInteger(state.currentExercise)) currentExercise = state.currentExercise;
+    if(state && state.currentSection) currentSection = state.currentSection;
+    if(state && typeof state.unlocked === "boolean") unlocked = state.unlocked;
+  }catch(e){}
+}
+
+function saveSessionHistory(){
+  try{
+    const entry = {
+      savedAt: new Date().toISOString(),
+      day: currentDay,
+      totalVolume: calcVolumeSessione(),
+      exercises: currentList().map(item => ({
+        name: item.name,
+        note: item.note || "",
+        cardio: !!item.cardio,
+        rest: item.rest || 0,
+        rows: item.rows.map(r => ({
+          label: r.label,
+          warm: !!r.warm,
+          repsVal: r.repsVal,
+          repsMinVal: r.repsMinVal ?? "",
+          repsMaxVal: r.repsMaxVal ?? "",
+          pesoVal: r.pesoVal,
+          extraVal: r.extraVal
+        }))
+      }))
+    };
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.push(entry);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+    alert("Sessione salvata");
+  }catch(e){
+    alert("Errore nel salvataggio");
+  }
+}
 
 function unlockAudio(){
   try{
@@ -298,6 +408,20 @@ function timerDoneAlert(){
 
 function currentList(){ return appData[currentDay] || []; }
 function currentItem(){ return currentList()[currentExercise]; }
+
+function requirePasswordForGreenEdit(){
+  if(unlocked) return true;
+  const p = prompt("Inserisci password");
+  if(p !== PASSWORD){
+    if(p !== null) alert("Password errata");
+    return false;
+  }
+  unlocked = true;
+  const access = document.getElementById("accessBox");
+  if(access) access.value = "Sbloccato";
+  saveAppState();
+  return true;
+}
 
 function parseNum(v){ return parseFloat(String(v).replace(",", ".")) || 0; }
 
@@ -387,13 +511,33 @@ function buildExtraOptions(current, isCardio=false){
     if(!vals.includes(cur)) vals.push(cur);
     return vals.sort((a,b)=>a-b).map(String);
   }
-  const vals = ["-","0","0 / 1","1 / 2","1","2"];
+  const vals = ["-","0","0 / 1","1 / 2","1","1 / 2","2"];
   const normalized = String(current ?? "").trim();
   const cur = normalized === "1/2" ? "1 / 2" : normalized;
   if(cur && !vals.includes(cur)) vals.push(cur);
   return vals;
 }
 
+
+
+function buildSmallRepOptions(current){
+  const cur = Math.max(1, parseInt(parseNum(current), 10) || 1);
+  const vals = [];
+  for(let i=Math.max(1, cur-5); i<=cur+5; i++) vals.push(String(i));
+  return vals;
+}
+
+function buildRepsFromRange(min, max){
+  const vals = [];
+  const minN = Math.max(1, parseInt(parseNum(min), 10) || 1);
+  const maxN = Math.max(minN, parseInt(parseNum(max), 10) || minN);
+  for(let i=minN; i<=maxN; i++) vals.push(String(i));
+  return vals;
+}
+
+function refreshCurrentExercise(){
+  renderWorkout();
+}
 
 function renderDays(){
   const days = ["Day 1","Day 2","Day 3","Day 4","Day 5","Calcoli"];
@@ -409,12 +553,7 @@ function renderDays(){
       btn.onclick = ()=>alert(day + " - coming soon");
     } else if(day === "Calcoli"){
       btn.onclick = ()=>{
-        if(!unlocked){
-          const p = prompt("Inserisci password");
-          if(p !== PASSWORD){ if(p !== null) alert("Password errata"); return; }
-          unlocked = true;
-          document.getElementById("accessBox").value = "Sbloccato";
-        }
+        if(!requirePasswordForGreenEdit()) return;
         currentSection = "calcoli";
         render();
       };
@@ -434,7 +573,36 @@ function makeSelect(values, selected, cls, onChange){
     if(String(v) === String(selected)) o.selected = true;
     sel.appendChild(o);
   });
-  sel.onchange = onChange;
+
+  const isGreenField = String(cls).includes("green");
+  if(isGreenField && !unlocked){
+    sel.disabled = true;
+    sel.addEventListener("click", (e)=>{
+      e.preventDefault();
+      if(requirePasswordForGreenEdit()){
+        render();
+      }
+    });
+    sel.addEventListener("touchstart", (e)=>{
+      if(!unlocked){
+        e.preventDefault();
+        if(requirePasswordForGreenEdit()){
+          render();
+        }
+      }
+    }, {passive:false});
+    sel.addEventListener("mousedown", (e)=>{
+      if(!unlocked){
+        e.preventDefault();
+        if(requirePasswordForGreenEdit()){
+          render();
+        }
+      }
+    });
+  } else {
+    sel.onchange = (e)=>{ onChange(e); saveAppState(); };
+  }
+
   return sel;
 }
 
@@ -480,10 +648,87 @@ function renderWorkout(){
     s.className = "series" + (r.warm ? " warm" : "");
     s.textContent = r.label;
 
-    const repsOptions = (r.reps && r.reps.length > 1)
-      ? r.reps.map(v => String(v))
-      : buildRepsOptions(r.repsVal, !!r.warm, !!item.cardio);
+    const showRepRange = !item.cardio && !r.warm;
+    let repsOptions;
+
+    if(showRepRange){
+      if(r.repsMinVal === undefined || r.repsMinVal === null || r.repsMinVal === ""){
+        r.repsMinVal = String(Math.max(1, (parseInt(parseNum(r.repsVal), 10) || 1) - 2));
+      }
+      if(r.repsMaxVal === undefined || r.repsMaxVal === null || r.repsMaxVal === ""){
+        r.repsMaxVal = String((parseInt(parseNum(r.repsVal), 10) || 1) + 2);
+      }
+
+      const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+      const maxN = Math.max(minN, parseInt(parseNum(r.repsMaxVal), 10) || minN);
+      let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+      if(currentN < minN) currentN = minN;
+      if(currentN > maxN) currentN = maxN;
+      r.repsVal = String(currentN);
+
+      repsOptions = buildRepsFromRange(r.repsMinVal, r.repsMaxVal);
+    } else {
+      repsOptions = (r.reps && r.reps.length > 1)
+        ? r.reps.map(v => String(v))
+        : buildRepsOptions(r.repsVal, !!r.warm, !!item.cardio);
+    }
+
     const reps = makeSelect(repsOptions, String(r.repsVal), r.warm ? "green" : "yellow", e=>{ r.repsVal = e.target.value; updateStats(); });
+
+    const repsCell = document.createElement("div");
+    repsCell.className = "reps-cell";
+
+    if(showRepRange){
+      if(r.repsMinVal === undefined || r.repsMinVal === null || r.repsMinVal === ""){
+        r.repsMinVal = String(Math.max(1, (parseInt(parseNum(r.repsVal), 10) || 1) - 2));
+      }
+      if(r.repsMaxVal === undefined || r.repsMaxVal === null || r.repsMaxVal === ""){
+        r.repsMaxVal = String((parseInt(parseNum(r.repsVal), 10) || 1) + 2);
+      }
+
+      const repsMin = makeSelect(buildSmallRepOptions(r.repsVal), String(r.repsMinVal), "green rep-side", e=>{
+        r.repsMinVal = e.target.value;
+        const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+        const maxNraw = parseInt(parseNum(r.repsMaxVal), 10) || minN;
+        const maxN = Math.max(minN, maxNraw);
+        if(maxN !== maxNraw) r.repsMaxVal = String(maxN);
+        let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+        if(currentN < minN) currentN = minN;
+        if(currentN > maxN) currentN = maxN;
+        r.repsVal = String(currentN);
+        saveAppState();
+        saveAppState();
+        refreshCurrentExercise();
+      });
+      const repsMax = makeSelect(buildSmallRepOptions(r.repsVal), String(r.repsMaxVal), "green rep-side", e=>{
+        r.repsMaxVal = e.target.value;
+        const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+        const maxN = Math.max(minN, parseInt(parseNum(r.repsMaxVal), 10) || minN);
+        r.repsMaxVal = String(maxN);
+        let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+        if(currentN < minN) currentN = minN;
+        if(currentN > maxN) currentN = maxN;
+        r.repsVal = String(currentN);
+        saveAppState();
+        refreshCurrentExercise();
+      });
+
+      repsCell.appendChild(repsMin);
+      repsCell.appendChild(reps);
+      repsCell.appendChild(repsMax);
+    } else {
+      const leftGhost = document.createElement("div");
+      leftGhost.className = "rep-side rep-ghost";
+      leftGhost.textContent = "00";
+
+      const rightGhost = document.createElement("div");
+      rightGhost.className = "rep-side rep-ghost";
+      rightGhost.textContent = "00";
+
+      repsCell.appendChild(leftGhost);
+      repsCell.appendChild(reps);
+      repsCell.appendChild(rightGhost);
+    }
 
     const sourceWeights = (r.peso && r.peso.length > 1)
       ? r.peso
@@ -499,11 +744,12 @@ function renderWorkout(){
       : buildExtraOptions(r.extraVal, !!item.cardio);
     const extra = makeSelect(extraOptions, String(r.extraVal), "green", e=>{ r.extraVal = e.target.value; });
 
-    row.append(s, reps, peso, extra);
+    row.append(s, repsCell, peso, extra);
     rows.appendChild(row);
   });
 
-  document.getElementById("summaryBox").style.display = item.cardio ? "none" : "grid";
+  const summaryBox = document.getElementById("summaryBox");
+  if(summaryBox) summaryBox.style.display = item.cardio ? "none" : "grid";
   const slider = document.getElementById("exerciseSlider");
   slider.max = Math.max(currentList().length - 1, 0);
   slider.value = currentExercise;
@@ -517,23 +763,64 @@ function renderWorkout(){
 
 function updateStats(){
   const item = currentItem();
-  document.getElementById("maxBox").textContent = `${Math.round(calcMassimale(item))} kg`;
-  document.getElementById("volumeBox").textContent = `${Math.round(calcVolumeSessione())} kg`;
+  const maxVal = `${Math.round(calcMassimale(item))} kg`;
+  const volVal = `${Math.round(calcVolumeSessione())} kg`;
+  const topVolLeft = document.getElementById("totVolumeLeft");
+  const topMax = document.getElementById("totMax");
+  if(topVolLeft) topVolLeft.textContent = volVal;
+  if(topMax) topMax.textContent = maxVal;
+  saveAppState();
 }
 
+
+function vibratePattern(pattern){
+  if(navigator.vibrate){
+    navigator.vibrate(pattern);
+  }
+}
 
 function updateTimerDisplay(){
   const item = currentItem();
   const el = document.getElementById("timer");
+  const timerBtn = document.getElementById("miniTimer");
+
+  timerBtn.classList.remove("running","warning","blink","done");
+  el.classList.remove("three-digits","four-digits");
 
   if(timerEndAt){
     const remaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
     timerValue = remaining;
-    el.textContent = remaining > 0 ? String(remaining) : (window.innerWidth > 390 ? "MUOVI IL CULO, VECCHIO BASTARDO" : "MUOVI IL CULO");
+    const text = String(remaining);
+    el.textContent = text;
+
+    if(text.length >= 4){
+      el.classList.add("four-digits");
+    } else if(text.length >= 3){
+      el.classList.add("three-digits");
+    }
+
+    if(remaining > 10){
+      timerBtn.classList.add("running");
+    } else if(remaining > 5){
+      timerBtn.classList.add("warning");
+    } else {
+      timerBtn.classList.add("warning","blink");
+    }
     return;
   }
 
-  el.textContent = item && item.rest > 0 ? String(item.rest) : "—";
+  if(timerValue === 0){
+    timerBtn.classList.add("done","warning","blink");
+    return;
+  }
+
+  const baseText = item && item.rest > 0 ? String(item.rest) : "—";
+  el.textContent = baseText;
+  if(baseText.length >= 4){
+    el.classList.add("four-digits");
+  } else if(baseText.length >= 3){
+    el.classList.add("three-digits");
+  }
 }
 
 function runTimerLoop(){
@@ -554,11 +841,17 @@ function runTimerLoop(){
     timerValue = remaining;
     updateTimerDisplay();
 
+    if(remaining <= 10 && remaining > 0){
+      vibratePattern(60);
+    }
+
     if(remaining <= 0){
       clearInterval(timerHandle);
       timerHandle = null;
       timerEndAt = null;
-      timerDoneAlert();
+      timerValue = 0;
+      vibratePattern([200,100,200,100,250]);
+      updateTimerDisplay();
     }
   }, 250);
 }
@@ -571,7 +864,6 @@ function startTimer(){
     return;
   }
 
-  unlockAudio();
   lastDuration = item.rest;
   timerEndAt = Date.now() + (item.rest * 1000);
   timerValue = item.rest;
@@ -589,7 +881,15 @@ function stopTimer(){
   updateTimerDisplay();
 }
 
-document.addEventListener("visibilitychange", ()=>{
+function toggleMiniTimer(){
+  if(timerEndAt){
+    stopTimer();
+  } else {
+    startTimer();
+  }
+}
+
+window.addEventListener("visibilitychange", ()=>{
   if(timerEndAt){
     updateTimerDisplay();
     runTimerLoop();
@@ -615,9 +915,48 @@ function render(){
   }
 }
 
-document.getElementById("startBtn").onclick = startTimer;
-document.getElementById("stopBtn").onclick = stopTimer;
+document.getElementById("miniTimer").onclick = toggleMiniTimer;
+
+function updateLockButtons(){
+  const btn1 = document.getElementById("toggleLockBtn");
+  const btn2 = document.getElementById("toggleLockBtn2");
+  [btn1, btn2].forEach(btn=>{
+    if(!btn) return;
+    if(unlocked){
+      btn.textContent = "Blocca";
+      btn.classList.add("primary");
+    } else {
+      btn.textContent = "Sblocca";
+      btn.classList.remove("primary");
+    }
+  });
+}
+
+function handleToggleLock(){
+  if(unlocked){
+    unlocked = false;
+    const access = document.getElementById("accessBox");
+    if(access) access.value = "Protetto";
+  } else {
+    if(!requirePasswordForGreenEdit()) return;
+  }
+  saveAppState();
+  render();
+}
+
+document.getElementById("toggleLockBtn").onclick = handleToggleLock;
+document.getElementById("toggleLockBtn2").onclick = handleToggleLock;
+document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
+
+const originalRender = render;
+render = function(){
+  originalRender();
+  updateLockButtons();
+};
+
+loadAppState();
 render();
 </script>
 </body>
 </html>
+<!-- v16 tighter selects -->

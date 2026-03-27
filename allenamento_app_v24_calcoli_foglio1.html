@@ -829,6 +829,7 @@ function renderWorkout(){
   });
 
   const summaryBox = document.getElementById("summaryBox");
+  const slider = document.getElementById("exerciseSlider");
   if(summaryBox) summaryBox.style.display = item.cardio ? "none" : "grid";
   if(currentMode === "ex"){
   slider.min = 1;
@@ -1030,6 +1031,7 @@ function render(){
     document.getElementById("calcoliCard").classList.add("hidden");
     renderWorkout();
   }
+  updateSliderUI();
 }
 
 document.getElementById("miniTimer").onclick = toggleMiniTimer;

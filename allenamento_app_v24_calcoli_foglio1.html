@@ -1030,7 +1030,9 @@ function updateSliderUI(){
   const max = parseInt(slider.max);
   const percent = max > min ? (value - min) / (max - min) : 0;
   const width = slider.offsetWidth;
-  bubble.style.left = (percent * width) + "px";
+  const knobWidth = 28;
+const usableWidth = width - knobWidth;
+bubble.style.left = ((percent * usableWidth) + knobWidth / 2) + "px";
 }
 
 slider.addEventListener("input", () => {

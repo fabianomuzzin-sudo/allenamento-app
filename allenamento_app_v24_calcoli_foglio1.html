@@ -945,7 +945,8 @@ function handleToggleLock(){
 }
 
 document.getElementById("toggleLockBtn").onclick = handleToggleLock;
-document.getElementById("toggleLockBtn2").onclick = handleToggleLock;
+const lockBtn2 = document.getElementById("toggleLockBtn2");
+if (lockBtn2) lockBtn2.onclick = handleToggleLock;
 document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
 
 const originalRender = render;

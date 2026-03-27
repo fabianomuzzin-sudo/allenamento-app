@@ -830,13 +830,15 @@ function renderWorkout(){
 
   const summaryBox = document.getElementById("summaryBox");
   if(summaryBox) summaryBox.style.display = item.cardio ? "none" : "grid";
-  const slider = document.getElementById("exerciseSlider");
-  slider.max = Math.max(currentList().length - 1, 0);
-  slider.value = currentExercise;
-  document.getElementById("lastIdx").textContent = String(currentList().length || 1);
-  document.getElementById("counter").textContent = `${currentExercise + 1}/${currentList().length || 1}`;
-  slider.oninput = e=>{ stopTimer(); currentExercise = parseInt(e.target.value, 10); render(); };
-
+  if(currentMode === "ex"){
+  slider.min = 1;
+  slider.max = currentList().length;
+  slider.value = currentExercise + 1;
+} else {
+  slider.min = 1;
+  slider.max = 5;
+  slider.value = parseInt(currentDay.replace("Day ",""));
+}
   updateTimerDisplay();
   updateStats();
 }
@@ -981,6 +983,41 @@ window.addEventListener("pageshow", ()=>{
     updateTimerDisplay();
     runTimerLoop();
   }
+});
+  const slider = document.getElementById("exerciseSlider");
+const bubble = document.getElementById("sliderBubble");
+
+function updateSliderUI(){
+  let value = parseInt(slider.value);
+
+  if(currentMode === "day"){
+    bubble.innerText = "Day " + value;
+  } else if(currentMode === "ex"){
+    bubble.innerText = "Ex " + value;
+  } else {
+    bubble.innerText = "Calc";
+  }
+
+  const min = parseInt(slider.min);
+  const max = parseInt(slider.max);
+  const percent = max > min ? (value - min) / (max - min) : 0;
+  const width = slider.offsetWidth;
+  bubble.style.left = (percent * width) + "px";
+}
+
+slider.addEventListener("input", () => {
+  let value = parseInt(slider.value);
+
+  if(currentMode === "day"){
+    currentDay = "Day " + value;
+    currentExercise = 0;
+  }
+
+  if(currentMode === "ex"){
+    currentExercise = value - 1;
+  }
+
+  render();
 });
 function render(){
   renderDays();

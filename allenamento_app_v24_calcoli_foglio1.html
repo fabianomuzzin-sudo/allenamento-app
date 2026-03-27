@@ -115,6 +115,59 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   }
 
 }
+.slider-row{
+  display:grid;
+  grid-template-columns:22px 1fr 22px 70px;
+  gap:8px;
+  align-items:center;
+}
+
+.slider-edge{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-align:center;
+}
+
+.slider-wrap{
+  position:relative;
+}
+
+.wheel-slot{
+  width:70px;
+  height:42px;
+}
+
+#exerciseSlider{
+  -webkit-appearance:none;
+  width:100%;
+  height:8px;
+  border-radius:999px;
+  background:rgba(87,166,255,.2);
+}
+
+#exerciseSlider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:var(--blue);
+  border:2px solid #fff;
+  margin-top:-10px;
+}
+
+.slider-bubble{
+  position:absolute;
+  top:-30px;
+  transform:translateX(-50%);
+  background:var(--blue);
+  color:#000;
+  font-weight:900;
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:12px;
+  pointer-events:none;
+}  
 </style>
 </head>
 <body>
@@ -184,12 +237,18 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
 <div class="bottom">
   <div class="bottom-inner">
-    <div class="slider-row">
-      <div>1</div>
-      <input type="range" id="exerciseSlider" min="0" max="0" step="1" value="0">
-      <div id="lastIdx">1</div>
-      <div class="counter" id="counter">1/1</div>
-    </div>
+<div class="slider-row">
+  <div class="slider-edge" id="sliderMin">1</div>
+
+  <div class="slider-wrap">
+    <input type="range" id="exerciseSlider" min="1" max="5" step="1" value="1">
+    <div class="slider-bubble" id="sliderBubble">Day 1</div>
+  </div>
+
+  <div class="slider-edge" id="sliderMax">5</div>
+
+  <div class="wheel-slot"></div>
+</div>
     <div class="days" id="days"></div>
   </div>
 </div>

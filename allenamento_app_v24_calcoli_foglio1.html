@@ -151,9 +151,36 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   width:28px;
   height:28px;
   border-radius:50%;
-  background:var(--blue);
-  border:2px solid #fff;
+  background:transparent;
+  border:none;
   margin-top:-10px;
+}
+.slider-knob-label{
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translate(-50%, -50%);
+  min-width:58px;
+  height:36px;
+  padding:0 10px;
+  border-radius:999px;
+  background:var(--blue);
+  color:#07111b;
+  font-size:11px;
+  font-weight:900;
+  line-height:36px;
+  text-align:center;
+  white-space:nowrap;
+  pointer-events:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.24);
+  border:2px solid #d8ebff;
+}
+#exerciseSlider::-moz-range-thumb{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:transparent;
+  border:none;
 }
 
 .slider-bubble{
@@ -242,7 +269,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
   <div class="slider-wrap">
     <input type="range" id="exerciseSlider" min="1" max="5" step="1" value="1">
-    <div class="slider-bubble" id="sliderBubble">Day 1</div>
+    <div class="slider-knob-label" id="sliderBubble">Day 1</div>
   </div>
 
   <div class="slider-edge" id="sliderMax">5</div>

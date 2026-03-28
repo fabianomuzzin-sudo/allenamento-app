@@ -1124,6 +1124,7 @@ document.getElementById("toggleLockBtn").onclick = handleToggleLock;
 const lockBtn2 = document.getElementById("toggleLockBtn2");
 if (lockBtn2) lockBtn2.onclick = handleToggleLock;
 document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
+
 const wheel = document.getElementById("modeWheel");
 
 if (wheel) {
@@ -1135,6 +1136,21 @@ if (wheel) {
       el.classList.remove("active");
     });
 
+    item.classList.add("active");
+
+    const text = item.textContent.trim();
+
+    if(text === "DAY"){
+      currentMode = "day";
+    } else if(text === "EX"){
+      currentMode = "ex";
+    } else if(text === "CALC"){
+      currentMode = "calc";
+    }
+
+    render();
+  });
+}
     item.classList.add("active");
   });
 }

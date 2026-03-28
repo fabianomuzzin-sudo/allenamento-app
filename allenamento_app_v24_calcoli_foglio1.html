@@ -288,7 +288,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
 <div class="bottom">
   <div class="bottom-inner">
-<div class="slider-row">
+<div class="slider-row" id="sliderRow">
   <div class="slider-edge" id="sliderMin">1</div>
 
   <div class="slider-wrap">
@@ -1044,27 +1044,19 @@ window.addEventListener("pageshow", ()=>{
 const bubble = document.getElementById("sliderBubble");
 
 function updateSliderUI(){
+
+const sliderRow = document.getElementById("sliderRow");
   let value = parseInt(slider.value);
 // MODALITÀ CALC
 if (currentMode === "calc") {
   bubble.innerText = "CALC";
 
   // centro lo slider
-  const width = slider.offsetWidth;
-  bubble.style.left = (width / 2) + "px";
-
-  // blocco slider
-  slider.disabled = true;
-
-  // nascondo numeri laterali
-  document.getElementById("sliderMin").style.opacity = 0;
-  document.getElementById("sliderMax").style.opacity = 0;
-
+  
+sliderRow.style.display = "none";
   return;
 } else {
-  slider.disabled = false;
-  document.getElementById("sliderMin").style.opacity = 1;
-  document.getElementById("sliderMax").style.opacity = 1;
+  sliderRow.style.display = "grid";
 }
   if(currentMode === "day"){
     bubble.innerText = "Day " + value;

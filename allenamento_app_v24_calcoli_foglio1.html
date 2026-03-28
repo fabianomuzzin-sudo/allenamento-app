@@ -299,9 +299,9 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   <div class="slider-edge" id="sliderMax">5</div>
 
   <div class="wheel" id="modeWheel">
-  <div class="wheel-item">DAY</div>
-  <div class="wheel-item active">EX</div>
-  <div class="wheel-item">CALC</div>
+ <div class="wheel-item active">DAY</div>
+<div class="wheel-item">EX</div>
+<div class="wheel-item">CALC</div>
 </div>
 </div>
     <div class="days" id="days"></div>
@@ -1140,18 +1140,20 @@ if (wheel) {
 
     const text = item.textContent.trim();
 
-    if(text === "DAY"){
+    if (text === "DAY") {
       currentMode = "day";
-    } else if(text === "EX"){
+    } else if (text === "EX") {
       currentMode = "ex";
-    } else if(text === "CALC"){
+    } else if (text === "CALC") {
       currentMode = "calc";
+      currentSection = "calcoli";
+    }
+
+    if (text !== "CALC") {
+      currentSection = "workout";
     }
 
     render();
-  });
-}
-    item.classList.add("active");
   });
 }
 const originalRender = render;

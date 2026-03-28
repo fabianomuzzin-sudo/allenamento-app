@@ -1045,7 +1045,27 @@ const bubble = document.getElementById("sliderBubble");
 
 function updateSliderUI(){
   let value = parseInt(slider.value);
+// MODALITÀ CALC
+if (currentMode === "calc") {
+  bubble.innerText = "CALC";
 
+  // centro lo slider
+  const width = slider.offsetWidth;
+  bubble.style.left = (width / 2) + "px";
+
+  // blocco slider
+  slider.disabled = true;
+
+  // nascondo numeri laterali
+  document.getElementById("sliderMin").style.opacity = 0;
+  document.getElementById("sliderMax").style.opacity = 0;
+
+  return;
+} else {
+  slider.disabled = false;
+  document.getElementById("sliderMin").style.opacity = 1;
+  document.getElementById("sliderMax").style.opacity = 1;
+}
   if(currentMode === "day"){
     bubble.innerText = "Day " + value;
   } else if(currentMode === "ex"){
@@ -1065,7 +1085,7 @@ bubble.style.left = ((percent * usableWidth) + knobWidth / 2) + "px";
 
 slider.addEventListener("input", () => {
   let value = parseInt(slider.value);
-
+if (currentMode === "calc") return;
   if(currentMode === "day"){
     currentDay = "Day " + value;
     currentExercise = 0;

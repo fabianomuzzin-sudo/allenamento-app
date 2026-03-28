@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Allenamento App v4</title>
+<style>
+:root{
+  --bg:#0f1114; --panel:#171a1f; --panel2:#20242b; --line:#313742;
+  --text:#f4f7fb; --muted:#8b94a3; --blue:#57a6ff; --green:#2ecc71;
+  --green-border:#2ecc71; --yellow:#faefb4; --yellow-border:#e2d07a; --red:#e05a5a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.app{max-width:460px;margin:0 auto;min-height:100vh;padding-bottom:132px}
+.top{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#171a1f 0%, #111317 100%);border-bottom:1px solid var(--line);padding:10px 12px}
+.top-bar{display:grid;grid-template-columns:.82fr .82fr auto;grid-template-rows:50px 62px;align-items:stretch;row-gap:0;column-gap:10px}
+.totali-box{grid-column:1;grid-row:2;min-width:0;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:6px 8px;height:62px;display:flex;flex-direction:column;justify-content:center;gap:1px;}
+.top-action-btn{width:100%;height:50px;background:#22262e;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:0 4px;font-size:18px;line-height:50px;font-weight:800;margin:0}
+.save-btn{grid-column:1;grid-row:1}
+.lock-btn-top{grid-column:2;grid-row:1}
+.lock-btn-bottom{grid-column:2;grid-row:2;height:62px;line-height:62px;margin-top:4px;}
+.left-massimali{grid-column:1;grid-row:2;}
+.totali-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
+.totali-big{font-size:24px;font-weight:900;line-height:1;color:var(--text);white-space:nowrap}
+.mini-timer{grid-column:3;grid-row:1 / span 2;position:relative;border:none;background:transparent;padding:0;margin:0;cursor:pointer;flex:0 0 auto;width:96px;height:112px;display:block;align-self:stretch}
+.stopwatch-shell{--timer-color:#2ecc71;position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 2px 8px rgba(0,0,0,.22))}
+.stopwatch-top{position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:12px;background:var(--timer-color);border-radius:7px}
+.stopwatch-side{position:absolute;top:10px;width:14px;height:10px;background:var(--timer-color);border-radius:6px}
+.stopwatch-side.left{left:20px;transform:rotate(-28deg)}
+.stopwatch-side.right{right:20px;transform:rotate(28deg)}
+.stopwatch-face{position:relative;width:88px;height:88px;border-radius:50%;background:transparent;border:3px solid var(--timer-color);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .2s ease, transform .15s ease, opacity .2s ease}
+.mini-timer:active .stopwatch-face{transform:scale(.97)}
+.stopwatch-ticks{position:absolute;inset:0;border-radius:50%}
+.stopwatch-ticks span{position:absolute;left:50%;top:6px;width:4px;height:14px;background:var(--timer-color);border-radius:3px;transform-origin:50% 38px;margin-left:-2px}
+.stopwatch-ticks span:nth-child(1){transform:rotate(0deg)}
+.stopwatch-ticks span:nth-child(2){transform:rotate(30deg)}
+.stopwatch-ticks span:nth-child(3){transform:rotate(60deg)}
+.stopwatch-ticks span:nth-child(4){transform:rotate(90deg)}
+.stopwatch-ticks span:nth-child(5){transform:rotate(120deg)}
+.stopwatch-ticks span:nth-child(6){transform:rotate(150deg)}
+.stopwatch-ticks span:nth-child(7){transform:rotate(180deg)}
+.stopwatch-ticks span:nth-child(8){transform:rotate(210deg)}
+.stopwatch-ticks span:nth-child(9){transform:rotate(240deg)}
+.stopwatch-ticks span:nth-child(10){transform:rotate(270deg)}
+.stopwatch-ticks span:nth-child(11){transform:rotate(300deg)}
+.stopwatch-ticks span:nth-child(12){transform:rotate(330deg)}
+.timer{position:relative;z-index:2;font-size:34px;font-weight:900;line-height:1;color:var(--timer-color);display:flex;align-items:center;justify-content:center;min-width:0}
+.timer.three-digits{font-size:28px}
+.timer.four-digits{font-size:23px}
+.mini-timer.running .stopwatch-shell{--timer-color:#2ecc71}
+.mini-timer.warning .stopwatch-shell,
+.mini-timer.done .stopwatch-shell{--timer-color:#e74c3c}
+.mini-timer.blink .stopwatch-shell{animation:timerBlink .6s infinite}
+@keyframes timerBlink{0%{opacity:1}50%{opacity:.45}100%{opacity:1}}
+.timer-done-text{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;font-size:17px;font-weight:900;line-height:1.05;color:#e74c3c;padding:10px 4px;background:transparent}
+.mini-timer.done .stopwatch-shell{display:none}
+.mini-timer.done .timer-done-text{display:flex}
+
+
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px}
+.exercise-title{font-size:24px;font-weight:900;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exercise-note{font-size:11px;color:var(--muted);margin-top:4px}
+.sep{height:1px;background:var(--line);margin:10px 0}
+.header-row,.grid-row{display:grid;grid-template-columns:.68fr .76fr 1.18fr .82fr;gap:8px;align-items:center}
+.header-row{color:var(--muted);font-size:12px;margin-bottom:8px;text-align:center;font-weight:800}
+.header-row > div:first-child{text-align:left}
+.rows{display:flex;flex-direction:column;gap:8px}
+.series{font-weight:900;font-size:17px}
+.series.warm{color:var(--muted);font-size:15px}
+select{width:auto;min-width:68px;max-width:100%;justify-self:center;padding:6px 18px 6px 6px;border-radius:9px;font-size:15px;font-weight:900;text-align:center;text-align-last:center;-webkit-text-align-last:center;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg, transparent 50%, rgba(0,0,0,.5) 50%),linear-gradient(135deg, rgba(0,0,0,.5) 50%, transparent 50%);background-position:calc(100% - 11px) calc(50% - 3px),calc(100% - 7px) calc(50% - 3px);background-size:4px 4px,4px 4px;background-repeat:no-repeat}
+.yellow{background:var(--yellow);border:1px solid var(--yellow-border);color:#201b08}
+.green{background:var(--green);border:1px solid var(--green-border);color:#0a2012}
+.reps-cell{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:3px;width:100%}
+.rep-side{width:32px;min-width:32px;padding:2px 4px;border-radius:6px;font-size:10px;font-weight:900;line-height:1.05}
+.rep-ghost{visibility:hidden;pointer-events:none}
+
+.summary{display:none}
+.box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
+.box-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.box-value{font-size:24px;font-weight:900;margin-top:2px}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(0deg,#171a1f 0%, #111317 100%);border-top:1px solid var(--line);padding:12px}
+.bottom-inner{max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.slider-row{display:grid;grid-template-columns:16px 1fr 16px auto;gap:8px;align-items:center}
+.counter{font-size:12px;color:var(--muted);text-align:right;min-width:28px}
+input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
+.days{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
+.day-btn{background:#22262e;border:1px solid var(--line);border-radius:10px;padding:8px 4px;font-size:12px;font-weight:800;color:var(--text)}
+.day-btn.active{background:var(--blue);color:#07111b}
+.day-btn.disabled{opacity:.45}
+.hidden{display:none !important}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calc-field{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
+.calc-field label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.calc-field input{width:100%;padding:10px 6px;border-radius:10px;border:1px solid var(--green-border);background:var(--green);color:#0a2012;font-size:18px;font-weight:900;text-align:center}
+.hint{color:var(--muted);font-size:12px;margin-top:10px}
+  @media (max-width: 430px){
+
+  .reps-cell{
+    justify-content: center;
+    gap:2px;
+  }
+
+  .rep-side{
+    width:24px;
+    min-width:24px;
+    font-size:9px;
+    padding:2px 2px;
+  }
+
+  select{
+    font-size:14px;
+    padding:6px 12px 6px 4px;
+  }
+
+}
+.slider-row{
+  display:grid;
+  grid-template-columns:22px 1fr 22px 70px;
+  gap:8px;
+  align-items:center;
+}
+
+.slider-edge{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-align:center;
+}
+
+.slider-wrap{
+  position:relative;
+}
+
+.wheel-slot{
+  width:70px;
+  height:42px;
+}
+
+#exerciseSlider{
+  -webkit-appearance:none;
+  width:100%;
+  height:8px;
+  border-radius:999px;
+  background:rgba(87,166,255,.2);
+}
+
+#exerciseSlider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:transparent;
+  border:none;
+  margin-top:-10px;
+}
+.slider-knob-label{
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translate(-50%, -50%);
+  min-width:58px;
+  height:36px;
+  padding:0 10px;
+  border-radius:999px;
+  background:var(--blue);
+  color:#07111b;
+  font-size:11px;
+  font-weight:900;
+  line-height:36px;
+  text-align:center;
+  white-space:nowrap;
+  pointer-events:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.24);
+  border:2px solid #d8ebff;
+}
+#exerciseSlider::-moz-range-thumb{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:transparent;
+  border:none;
+}
+
+.slider-bubble{
+  position:absolute;
+  top:-30px;
+  transform:translateX(-50%);
+  background:var(--blue);
+  color:#000;
+  font-weight:900;
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:12px;
+  pointer-events:none;
+} 
+ .wheel{
+  width:70px;
+  height:60px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:4px;
+}
+
+.wheel-item{
+  font-size:11px;
+  color:var(--muted);
+  opacity:.4;
+  transform:scale(.85);
+  transition:.2s;
+}
+
+.wheel-item.active{
+  color:var(--blue);
+  opacity:1;
+  transform:scale(1.1);
+  font-weight:900;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="top-bar">
+      <button class="top-action-btn save-btn primary" style="background:#60a5fa;color:#07111b;" id="saveSessionBtn" type="button">Salva</button>
+      <button class="top-action-btn lock-btn-top" id="toggleLockBtn" type="button">Sblocca</button>
+
+      <div class="top-action-btn lock-btn-bottom left-massimali" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:62px;">
+        <div class="totali-label" style="margin-bottom:2px;transform:translateY(-30px);"><span id="volWord" style="display:block;transform:translateY(50px);">Volume</span><span>sessione</span></div><style>#totVolumeLeft{margin-top:-4px;}</style>
+        <div class="massimali-big" id="totVolumeLeft" style="font-size:24px;line-height:1;text-align:center;transform:translateY(-52px);position:relative;top:0;">0 kg</div>
+      </div>
+
+      <div class="top-action-btn lock-btn-bottom" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:62px;">
+        <div class="totali-label" style="margin-bottom:2px;transform:translateY(-10px);">Massimali</div>
+        <div class="massimali-big" id="totMax" style="font-size:24px;line-height:1;text-align:center;transform:translateY(-22px);position:relative;top:0;">0 kg</div>
+      </div>
+
+      <button id="miniTimer" class="mini-timer" type="button" aria-label="Timer recupero">
+        <div class="stopwatch-shell" id="stopwatchShell">
+          <div class="stopwatch-top"></div>
+          <div class="stopwatch-side left"></div>
+          <div class="stopwatch-side right"></div>
+          <div class="stopwatch-face">
+            <div class="stopwatch-ticks">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="timer" id="timer">—</div>
+          </div>
+        </div>
+        <div class="timer-done-text" id="timerMessage">MUOVI IL CULO, VECCHIO BASTARDO!!</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="card" id="workoutCard">
+    <div class="exercise-title" id="exerciseTitle">—</div>
+    <div class="exercise-note" id="exerciseNote">—</div>
+    <div class="sep"></div>
+    <div class="header-row">
+      <div>Serie</div>
+      <div id="h2">Ripetizioni</div>
+      <div id="h3">Peso</div>
+      <div id="h4">RIR</div>
+    </div>
+    <div class="rows" id="rows"></div>
+
+  </div>
+
+  <div class="card hidden" id="calcoliCard">
+    <div class="exercise-title">Calcoli</div>
+    <div class="exercise-note">Area protetta</div>
+    <div class="sep"></div>
+    <div class="calc-grid">
+      <div class="calc-field"><label>Massimale panca</label><input value="100" readonly></div>
+      <div class="calc-field"><label>Massimale squat</label><input value="140" readonly></div>
+      <div class="calc-field"><label>Warm-up 1 (%)</label><input value="50" readonly></div>
+      <div class="calc-field"><label>Warm-up 2 (%)</label><input value="70" readonly></div>
+      <div class="calc-field"><label>Arrotondamento</label><input value="2.5" readonly></div>
+      <div class="calc-field"><label>Accesso</label><input id="accessBox" value="Protetto" readonly></div>
+    </div>
+    <div class="hint">Le caselle gialle sono modificabili. Day 4 e Day 5 sono vuoti.</div>
+  </div>
+</div>
+
+<div class="bottom">
+  <div class="bottom-inner">
+<div class="slider-row">
+  <div class="slider-edge" id="sliderMin">1</div>
+
+  <div class="slider-wrap">
+    <input type="range" id="exerciseSlider" min="1" max="5" step="1" value="1">
+    <div class="slider-knob-label" id="sliderBubble">Day 1</div>
+  </div>
+
+  <div class="slider-edge" id="sliderMax">5</div>
+
+  <div class="wheel" id="modeWheel">
+ <div class="wheel-item active">DAY</div>
+<div class="wheel-item">EX</div>
+<div class="wheel-item">CALC</div>
+</div>
+</div>
+    <div class="days" id="days"></div>
+  </div>
+</div>
+
+<script>
+const PASSWORD = "nizzum";
+const appData = {
+"Day 1":[
+{name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
+{label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
+]},
+{name:"Panca piana",note:"Posizione sedile 0",rest:180,rows:[
+{label:"R1",warm:true,reps:["8"],repsVal:"8",peso:["25"],pesoVal:"25",extra:["-"],extraVal:"-"},
+{label:"R2",warm:true,reps:["5"],repsVal:"5",peso:["35"],pesoVal:"35",extra:["-"],extraVal:"-"},
+{label:"1",reps:["6"],repsVal:"6",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"2",reps:["5"],repsVal:"5",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"3",reps:["4"],repsVal:"4",peso:["50"],pesoVal:"50",extra:["1"],extraVal:"1"},
+{label:"4",reps:["7"],repsVal:"7",peso:["50"],pesoVal:"50",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Rematore Macchina/Bilancere",note:"Posizione sedile",rest:150,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["24"],pesoVal:"24",extra:["-"],extraVal:"-"},
+{label:"1",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"4",reps:["7"],repsVal:"7",peso:["36"],pesoVal:"36",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Shoulder Press Macchina/Manubri",note:"Posizione sedile",rest:120,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["44"],pesoVal:"44",extra:["-"],extraVal:"-"},
+{label:"1",reps:["7"],repsVal:"7",peso:["65.77084"],pesoVal:"65.77084",extra:["2"],extraVal:"2"},
+{label:"2",reps:["7"],repsVal:"7",peso:["65.77084"],pesoVal:"65.77084",extra:["2"],extraVal:"2"},
+{label:"3",reps:["7"],repsVal:"7",peso:["65.77084"],pesoVal:"65.77084",extra:["2"],extraVal:"2"}
+]},
+{name:"Face Pull",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["10"],pesoVal:"10",extra:["-"],extraVal:"-"},
+{label:"1",reps:["13"],repsVal:"13",peso:["15"],pesoVal:"15",extra:["1"],extraVal:"1"},
+{label:"2",reps:["13"],repsVal:"13",peso:["15"],pesoVal:"15",extra:["1"],extraVal:"1"},
+{label:"3",reps:["13"],repsVal:"13",peso:["15"],pesoVal:"15",extra:["1"],extraVal:"1"}
+]},
+{name:"Rear Delt Machine",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["18"],pesoVal:"18",extra:["-"],extraVal:"-"},
+{label:"1",reps:["15"],repsVal:"15",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"},
+{label:"2",reps:["15"],repsVal:"15",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"}
+]}
+],
+"Day 2":[
+{name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
+{label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
+]},
+{name:"Belt Squat /Pendulum/Hack",note:"Posizione sedile 0",rest:180,rows:[
+{label:"R1",warm:true,reps:["8"],repsVal:"8",peso:["32.5"],pesoVal:"32.5",extra:["-"],extraVal:"-"},
+{label:"R2",warm:true,reps:["5"],repsVal:"5",peso:["43.3333"],pesoVal:"43.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["6"],repsVal:"6",peso:["65"],pesoVal:"65",extra:["2"],extraVal:"2"},
+{label:"2",reps:["5"],repsVal:"5",peso:["65"],pesoVal:"65",extra:["2"],extraVal:"2"},
+{label:"3",reps:["4"],repsVal:"4",peso:["65"],pesoVal:"65",extra:["1"],extraVal:"1"},
+{label:"4",reps:["7"],repsVal:"7",peso:["55"],pesoVal:"55",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Romanian Dead Lift",note:"Posizione sedile",rest:150,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["40"],pesoVal:"40",extra:["-"],extraVal:"-"},
+{label:"1",reps:["7"],repsVal:"7",peso:["60"],pesoVal:"60",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["7"],repsVal:"7",peso:["60"],pesoVal:"60",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["7"],repsVal:"7",peso:["60"],pesoVal:"60",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Leg Curl",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["27"],pesoVal:"27",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["40.5"],pesoVal:"40.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["11"],repsVal:"11",peso:["40.5"],pesoVal:"40.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["11"],repsVal:"11",peso:["40.5"],pesoVal:"40.5",extra:["0 / 1"],extraVal:"0 / 1"}
+]},
+{name:"Leg Press",note:"Posizione sedile",rest:120,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["75"],pesoVal:"75",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["112.5"],pesoVal:"112.5",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["11"],repsVal:"11",peso:["112.5"],pesoVal:"112.5",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["11"],repsVal:"11",peso:["112.5"],pesoVal:"112.5",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Calf Raise",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["18"],pesoVal:"18",extra:["-"],extraVal:"-"},
+{label:"1",reps:["16"],repsVal:"16",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"},
+{label:"2",reps:["16"],repsVal:"16",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"},
+{label:"3",reps:["16"],repsVal:"16",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"}
+]}
+],
+"Day 3":[
+{name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
+{label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
+]},
+{name:"Panca Inclinata con bilanciere 30°",note:"Posizione sedile 3",rest:180,rows:[
+{label:"R1",warm:true,reps:["8"],repsVal:"8",peso:["25"],pesoVal:"25",extra:["-"],extraVal:"-"},
+{label:"R2",warm:true,reps:["5"],repsVal:"5",peso:["33.3333"],pesoVal:"33.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"2",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["2"],extraVal:"2"},
+{label:"3",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["1"],extraVal:"1"},
+{label:"4",reps:["10"],repsVal:"10",peso:["50"],pesoVal:"50",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Cable Fly basso >>> alto 1 braccio",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["12"],pesoVal:"12",extra:["-"],extraVal:"-"},
+{label:"1",reps:["14"],repsVal:"14",peso:["18"],pesoVal:"18",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["14"],repsVal:"14",peso:["18"],pesoVal:"18",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["14"],repsVal:"14",peso:["18"],pesoVal:"18",extra:["0 / 1"],extraVal:"0 / 1"}
+]},
+{name:"Lat Machine",note:"Posizione sedile",rest:120,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["18"],pesoVal:"18",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["27"],pesoVal:"27",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"2",reps:["11"],repsVal:"11",peso:["27"],pesoVal:"27",extra:["1 / 2"],extraVal:"1 / 2"},
+{label:"3",reps:["11"],repsVal:"11",peso:["27"],pesoVal:"27",extra:["1 / 2"],extraVal:"1 / 2"}
+]},
+{name:"Alzate Laterali",note:"Posizione sedile",rest:60,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["3.3333"],pesoVal:"3.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["16"],repsVal:"16",peso:["5"],pesoVal:"5",extra:["1"],extraVal:"1"},
+{label:"2",reps:["16"],repsVal:"16",peso:["5"],pesoVal:"5",extra:["1"],extraVal:"1"},
+{label:"3",reps:["16"],repsVal:"16",peso:["5"],pesoVal:"5",extra:["1"],extraVal:"1"}
+]},
+{name:"Curl Bicipiti",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["21"],pesoVal:"21",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["31.5"],pesoVal:"31.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["11"],repsVal:"11",peso:["31.5"],pesoVal:"31.5",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["11"],repsVal:"11",peso:["31.5"],pesoVal:"31.5",extra:["0 / 1"],extraVal:"0 / 1"}
+]},
+{name:"Estensione Tricipiti",note:"Posizione sedile",rest:90,rows:[
+{label:"R1",warm:true,reps:["10"],repsVal:"10",peso:["5.3333"],pesoVal:"5.3333",extra:["-"],extraVal:"-"},
+{label:"1",reps:["11"],repsVal:"11",peso:["8"],pesoVal:"8",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"2",reps:["11"],repsVal:"11",peso:["8"],pesoVal:"8",extra:["0 / 1"],extraVal:"0 / 1"},
+{label:"3",reps:["11"],repsVal:"11",peso:["8"],pesoVal:"8",extra:["0 / 1"],extraVal:"0 / 1"}
+]}
+]
+};
+
+let currentDay = "Day 1";
+let currentExercise = 0;
+let currentSection = "workout";
+let currentMode = "day";
+let unlocked = false;
+let timerValue = null;
+let timerHandle = null;
+let timerEndAt = null;
+let lastDuration = null;
+
+let audioCtx = null;
+const STORAGE_KEY = "allenamento_app_state_v54";
+const HISTORY_KEY = "allenamento_app_history_v54";
+
+function saveAppState(){
+  try{
+    const state = {
+      appData,
+      currentDay,
+      currentExercise,
+      currentSection,
+      unlocked
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){}
+}
+
+function loadAppState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const state = JSON.parse(raw);
+    if(state && state.appData) Object.assign(appData, state.appData);
+    if(state && state.currentDay) currentDay = state.currentDay;
+    if(state && Number.isInteger(state.currentExercise)) currentExercise = state.currentExercise;
+    if(state && state.currentSection) currentSection = state.currentSection;
+    if(state && typeof state.unlocked === "boolean") unlocked = state.unlocked;
+  }catch(e){}
+}
+
+function saveSessionHistory(){
+  try{
+    const entry = {
+      savedAt: new Date().toISOString(),
+      day: currentDay,
+      totalVolume: calcVolumeSessione(),
+      exercises: currentList().map(item => ({
+        name: item.name,
+        note: item.note || "",
+        cardio: !!item.cardio,
+        rest: item.rest || 0,
+        rows: item.rows.map(r => ({
+          label: r.label,
+          warm: !!r.warm,
+          repsVal: r.repsVal,
+          repsMinVal: r.repsMinVal ?? "",
+          repsMaxVal: r.repsMaxVal ?? "",
+          pesoVal: r.pesoVal,
+          extraVal: r.extraVal
+        }))
+      }))
+    };
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.push(entry);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+    alert("Sessione salvata");
+  }catch(e){
+    alert("Errore nel salvataggio");
+  }
+}
+
+function unlockAudio(){
+  try{
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
+  }catch(e){}
+}
+
+function beepNow(){
+  try{
+    unlockAudio();
+    if(!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = 880;
+    gain.gain.value = 0.04;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.18);
+  }catch(e){}
+}
+
+function timerDoneAlert(){
+  const msgLong = "MUOVI IL CULO, VECCHIO BASTARDO";
+  const msgShort = "MUOVI IL CULO";
+  const t = document.getElementById("timer");
+  t.textContent = window.innerWidth > 390 ? msgLong : msgShort;
+  if(navigator.vibrate){
+    navigator.vibrate([220,120,220,120,220]);
+  }
+  beepNow();
+}
+
+
+function currentList(){ return appData[currentDay] || []; }
+function currentItem(){ return currentList()[currentExercise]; }
+
+function requirePasswordForGreenEdit(){
+  if(unlocked) return true;
+  const p = prompt("Inserisci password");
+  if(p !== PASSWORD){
+    if(p !== null) alert("Password errata");
+    return false;
+  }
+  unlocked = true;
+  const access = document.getElementById("accessBox");
+  if(access) access.value = "Sbloccato";
+  saveAppState();
+  return true;
+}
+
+function parseNum(v){ return parseFloat(String(v).replace(",", ".")) || 0; }
+
+function isMachineExercise(name=""){
+  const n = String(name).toLowerCase();
+  return (
+    n.includes("leg press") ||
+    n.includes("leg curl") ||
+    n.includes("machine") ||
+    n.includes("macchina") ||
+    n.includes("belt squat") ||
+    n.includes("pendulum") ||
+    n.includes("hack") ||
+    n.includes("calf raise")
+  );
+}
+
+function normalizeWeight(v, name=""){
+  const num = parseNum(v);
+  if(isMachineExercise(name)) return Math.round(num);
+  return Math.round(num * 2) / 2;
+}
+
+function nextAvailableWeight(target, weights, name=""){
+  const nums = weights
+    .map(x => normalizeWeight(x, name))
+    .sort((a,b)=>a-b);
+  const t = normalizeWeight(target, name);
+  for(let i=0;i<nums.length;i++){
+    if(nums[i] >= t) return nums[i];
+  }
+  return nums[nums.length-1];
+}
+
+function roundWeight(v, name=""){ return normalizeWeight(v, name); }
+
+function formatWeight(v, name=""){
+  const raw = String(v).trim().replace(",", ".");
+  const num = parseFloat(raw);
+  if(Number.isNaN(num)) return "";
+  if(Number.isInteger(num)) return String(num);
+  return num.toFixed(1).replace(".", ",");
+}
+
+function buildRepsOptions(current, isWarm=false, isCardio=false){
+  const cur = Math.max(1, parseInt(parseNum(current), 10) || 1);
+  if(isCardio){
+    const vals = [5,10,15,20,25,30,35,40,45,50,55,60];
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(String);
+  }
+  if(isWarm){
+    const vals = [5,6,7,8,9,10,11,12,13,14,15];
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(String);
+  }
+  const vals = [];
+  for(let i=Math.max(1, cur-4); i<=cur+4; i++) vals.push(String(i));
+  return vals;
+}
+
+function buildWeightOptions(current, exerciseName="", isCardio=false){
+  const cur = parseNum(current);
+  if(isCardio){
+    const vals = [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20];
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(v=>formatWeight(v, exerciseName));
+  }
+  const machine = isMachineExercise(exerciseName);
+  const step = machine ? 1 : 0.5;
+  const opts = [];
+  for(let i=-6;i<=6;i++){
+    const val = cur + i * step;
+    if(val > 0){
+      const rounded = machine ? Math.round(val) : Math.round(val * 2) / 2;
+      opts.push(formatWeight(rounded, exerciseName));
+    }
+  }
+  if(cur > 0) opts.push(formatWeight(cur, exerciseName));
+  return [...new Set(opts)];
+}
+
+function buildExtraOptions(current, isCardio=false){
+  if(isCardio){
+    const vals = [0,1,2,3,4,5,6,7,8,9,10];
+    const cur = parseInt(parseNum(current), 10);
+    if(!vals.includes(cur)) vals.push(cur);
+    return vals.sort((a,b)=>a-b).map(String);
+  }
+  const vals = ["-","0","0 / 1","1 / 2","1","1 / 2","2"];
+  const normalized = String(current ?? "").trim();
+  const cur = normalized === "1/2" ? "1 / 2" : normalized;
+  if(cur && !vals.includes(cur)) vals.push(cur);
+  return vals;
+}
+
+
+
+function buildSmallRepOptions(current){
+  const cur = Math.max(1, parseInt(parseNum(current), 10) || 1);
+  const vals = [];
+  for(let i=Math.max(1, cur-5); i<=cur+5; i++) vals.push(String(i));
+  return vals;
+}
+
+function buildRepsFromRange(min, max){
+  const vals = [];
+  const minN = Math.max(1, parseInt(parseNum(min), 10) || 1);
+  const maxN = Math.max(minN, parseInt(parseNum(max), 10) || minN);
+  for(let i=minN; i<=maxN; i++) vals.push(String(i));
+  return vals;
+}
+
+function refreshCurrentExercise(){
+  renderWorkout();
+}
+
+function renderDays(){
+  const days = ["Day 1","Day 2","Day 3","Day 4","Day 5","Calcoli"];
+  const wrap = document.getElementById("days");
+  wrap.innerHTML = "";
+  days.forEach(day=>{
+    const btn = document.createElement("button");
+    btn.className = "day-btn";
+    btn.textContent = day;
+    if((currentSection === "workout" && day === currentDay) || (currentSection === "calcoli" && day === "Calcoli")) btn.classList.add("active");
+    if(day === "Day 4" || day === "Day 5"){
+      btn.classList.add("disabled");
+      btn.onclick = ()=>alert(day + " - coming soon");
+    } else if(day === "Calcoli"){
+      btn.onclick = ()=>{
+        if(!requirePasswordForGreenEdit()) return;
+        currentSection = "calcoli";
+        render();
+      };
+    } else {
+      btn.onclick = ()=>{ stopTimer(); currentSection = "workout"; currentDay = day; currentExercise = 0; render(); };
+    }
+    wrap.appendChild(btn);
+  });
+}
+
+function makeSelect(values, selected, cls, onChange){
+  const sel = document.createElement("select");
+  sel.className = cls;
+  values.forEach(v=>{
+    const o = document.createElement("option");
+    o.value = v; o.textContent = v;
+    if(String(v) === String(selected)) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  const isGreenField = String(cls).includes("green");
+  if(isGreenField && !unlocked){
+    sel.disabled = true;
+    sel.addEventListener("click", (e)=>{
+      e.preventDefault();
+      if(requirePasswordForGreenEdit()){
+        render();
+      }
+    });
+    sel.addEventListener("touchstart", (e)=>{
+      if(!unlocked){
+        e.preventDefault();
+        if(requirePasswordForGreenEdit()){
+          render();
+        }
+      }
+    }, {passive:false});
+    sel.addEventListener("mousedown", (e)=>{
+      if(!unlocked){
+        e.preventDefault();
+        if(requirePasswordForGreenEdit()){
+          render();
+        }
+      }
+    });
+  } else {
+    sel.onchange = (e)=>{ onChange(e); saveAppState(); };
+  }
+
+  return sel;
+}
+
+function calcMassimale(item){
+  if(!item || item.cardio) return 0;
+  let max = 0;
+  item.rows.forEach(r=>{
+    if(r.warm) return;
+    const reps = parseNum(r.repsVal);
+    const peso = roundWeight(r.pesoVal, item.name);
+    const est = peso * (1 + reps / 30);
+    if(est > max) max = est;
+  });
+  return max;
+}
+
+function calcVolumeSessione(){
+  let total = 0;
+  currentList().forEach(item=>{
+    if(item.cardio) return;
+    item.rows.forEach(r=>{
+      if(r.warm) return;
+      total += parseNum(r.repsVal) * roundWeight(r.pesoVal, item.name);
+    });
+  });
+  return total;
+}
+
+function renderWorkout(){
+  const item = currentItem();
+  document.getElementById("exerciseTitle").textContent = item.name;
+  document.getElementById("exerciseNote").textContent = item.note || "";
+  document.getElementById("h2").textContent = item.cardio ? "Min" : "Ripetizioni";
+  document.getElementById("h3").textContent = item.cardio ? "Sforzo" : "Peso";
+  document.getElementById("h4").textContent = item.cardio ? "Pendenza" : "RIR";
+  const rows = document.getElementById("rows");
+  rows.innerHTML = "";
+
+  item.rows.forEach(r=>{
+    const row = document.createElement("div");
+    row.className = "grid-row";
+    const s = document.createElement("div");
+    s.className = "series" + (r.warm ? " warm" : "");
+    s.textContent = r.label;
+
+    const showRepRange = !item.cardio && !r.warm;
+    let repsOptions;
+
+    if(showRepRange){
+      if(r.repsMinVal === undefined || r.repsMinVal === null || r.repsMinVal === ""){
+        r.repsMinVal = String(Math.max(1, (parseInt(parseNum(r.repsVal), 10) || 1) - 2));
+      }
+      if(r.repsMaxVal === undefined || r.repsMaxVal === null || r.repsMaxVal === ""){
+        r.repsMaxVal = String((parseInt(parseNum(r.repsVal), 10) || 1) + 2);
+      }
+
+      const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+      const maxN = Math.max(minN, parseInt(parseNum(r.repsMaxVal), 10) || minN);
+      let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+      if(currentN < minN) currentN = minN;
+      if(currentN > maxN) currentN = maxN;
+      r.repsVal = String(currentN);
+
+      repsOptions = buildRepsFromRange(r.repsMinVal, r.repsMaxVal);
+    } else {
+      repsOptions = (r.reps && r.reps.length > 1)
+        ? r.reps.map(v => String(v))
+        : buildRepsOptions(r.repsVal, !!r.warm, !!item.cardio);
+    }
+
+    const reps = makeSelect(repsOptions, String(r.repsVal), r.warm ? "green" : "yellow", e=>{ r.repsVal = e.target.value; updateStats(); });
+
+    const repsCell = document.createElement("div");
+    repsCell.className = "reps-cell";
+
+    if(showRepRange){
+      if(r.repsMinVal === undefined || r.repsMinVal === null || r.repsMinVal === ""){
+        r.repsMinVal = String(Math.max(1, (parseInt(parseNum(r.repsVal), 10) || 1) - 2));
+      }
+      if(r.repsMaxVal === undefined || r.repsMaxVal === null || r.repsMaxVal === ""){
+        r.repsMaxVal = String((parseInt(parseNum(r.repsVal), 10) || 1) + 2);
+      }
+
+      const repsMin = makeSelect(buildSmallRepOptions(r.repsVal), String(r.repsMinVal), "green rep-side", e=>{
+        r.repsMinVal = e.target.value;
+        const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+        const maxNraw = parseInt(parseNum(r.repsMaxVal), 10) || minN;
+        const maxN = Math.max(minN, maxNraw);
+        if(maxN !== maxNraw) r.repsMaxVal = String(maxN);
+        let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+        if(currentN < minN) currentN = minN;
+        if(currentN > maxN) currentN = maxN;
+        r.repsVal = String(currentN);
+        saveAppState();
+        saveAppState();
+        refreshCurrentExercise();
+      });
+      const repsMax = makeSelect(buildSmallRepOptions(r.repsVal), String(r.repsMaxVal), "green rep-side", e=>{
+        r.repsMaxVal = e.target.value;
+        const minN = Math.max(1, parseInt(parseNum(r.repsMinVal), 10) || 1);
+        const maxN = Math.max(minN, parseInt(parseNum(r.repsMaxVal), 10) || minN);
+        r.repsMaxVal = String(maxN);
+        let currentN = parseInt(parseNum(r.repsVal), 10) || minN;
+        if(currentN < minN) currentN = minN;
+        if(currentN > maxN) currentN = maxN;
+        r.repsVal = String(currentN);
+        saveAppState();
+        refreshCurrentExercise();
+      });
+
+      repsCell.appendChild(repsMin);
+      repsCell.appendChild(reps);
+      repsCell.appendChild(repsMax);
+    } else {
+      const leftGhost = document.createElement("div");
+      leftGhost.className = "rep-side rep-ghost";
+      leftGhost.textContent = "00";
+
+      const rightGhost = document.createElement("div");
+      rightGhost.className = "rep-side rep-ghost";
+      rightGhost.textContent = "00";
+
+      repsCell.appendChild(leftGhost);
+      repsCell.appendChild(reps);
+      repsCell.appendChild(rightGhost);
+    }
+
+    const sourceWeights = (r.peso && r.peso.length > 1)
+      ? r.peso
+      : buildWeightOptions(r.pesoVal, item.name, !!item.cardio);
+    const snappedWeight = nextAvailableWeight(parseNum(r.pesoVal), sourceWeights, item.name);
+    r.pesoVal = formatWeight(snappedWeight, item.name);
+
+    const pesoOptions = [...new Set(sourceWeights.map(v => formatWeight(v, item.name)))];
+    const peso = makeSelect(pesoOptions, formatWeight(r.pesoVal, item.name), r.warm ? "green" : "yellow", e=>{ r.pesoVal = e.target.value; updateStats(); });
+
+    const extraOptions = (r.extra && r.extra.length > 1)
+      ? r.extra.map(v => String(v))
+      : buildExtraOptions(r.extraVal, !!item.cardio);
+    const extra = makeSelect(extraOptions, String(r.extraVal), "green", e=>{ r.extraVal = e.target.value; });
+
+    row.append(s, repsCell, peso, extra);
+    rows.appendChild(row);
+  });
+
+  const summaryBox = document.getElementById("summaryBox");
+  const slider = document.getElementById("exerciseSlider");
+  if(summaryBox) summaryBox.style.display = item.cardio ? "none" : "grid";
+  if(currentMode === "ex"){
+  slider.min = 1;
+  slider.max = currentList().length;
+  slider.value = currentExercise + 1;
+} else {
+  slider.min = 1;
+  slider.max = 5;
+  slider.value = parseInt(currentDay.replace("Day ",""));
+}
+  updateTimerDisplay();
+  updateStats();
+}
+
+function updateStats(){
+  const item = currentItem();
+  const maxVal = `${Math.round(calcMassimale(item))} kg`;
+  const volVal = `${Math.round(calcVolumeSessione())} kg`;
+  const topVolLeft = document.getElementById("totVolumeLeft");
+  const topMax = document.getElementById("totMax");
+  if(topVolLeft) topVolLeft.textContent = volVal;
+  if(topMax) topMax.textContent = maxVal;
+  saveAppState();
+}
+
+
+function vibratePattern(pattern){
+  if(navigator.vibrate){
+    navigator.vibrate(pattern);
+  }
+}
+
+function updateTimerDisplay(){
+  const item = currentItem();
+  const el = document.getElementById("timer");
+  const timerBtn = document.getElementById("miniTimer");
+
+  timerBtn.classList.remove("running","warning","blink","done");
+  el.classList.remove("three-digits","four-digits");
+
+  if(timerEndAt){
+    const remaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+    timerValue = remaining;
+    const text = String(remaining);
+    el.textContent = text;
+
+    if(text.length >= 4){
+      el.classList.add("four-digits");
+    } else if(text.length >= 3){
+      el.classList.add("three-digits");
+    }
+
+    if(remaining > 10){
+      timerBtn.classList.add("running");
+    } else if(remaining > 5){
+      timerBtn.classList.add("warning");
+    } else {
+      timerBtn.classList.add("warning","blink");
+    }
+    return;
+  }
+
+  if(timerValue === 0){
+    timerBtn.classList.add("done","warning","blink");
+    return;
+  }
+
+  const baseText = item && item.rest > 0 ? String(item.rest) : "—";
+  el.textContent = baseText;
+  if(baseText.length >= 4){
+    el.classList.add("four-digits");
+  } else if(baseText.length >= 3){
+    el.classList.add("three-digits");
+  }
+}
+
+function runTimerLoop(){
+  if(timerHandle){
+    clearInterval(timerHandle);
+    timerHandle = null;
+  }
+
+  timerHandle = setInterval(()=>{
+    if(!timerEndAt){
+      clearInterval(timerHandle);
+      timerHandle = null;
+      updateTimerDisplay();
+      return;
+    }
+
+    const remaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+    timerValue = remaining;
+    updateTimerDisplay();
+
+    if(remaining <= 10 && remaining > 0){
+      vibratePattern(60);
+    }
+
+    if(remaining <= 0){
+      clearInterval(timerHandle);
+      timerHandle = null;
+      timerEndAt = null;
+      timerValue = 0;
+      vibratePattern([200,100,200,100,250]);
+      updateTimerDisplay();
+    }
+  }, 250);
+}
+
+function startTimer(){
+  const item = currentItem();
+  if(!item || !item.rest){
+    stopTimer();
+    updateTimerDisplay();
+    return;
+  }
+
+  lastDuration = item.rest;
+  timerEndAt = Date.now() + (item.rest * 1000);
+  timerValue = item.rest;
+  updateTimerDisplay();
+  runTimerLoop();
+}
+
+function stopTimer(){
+  if(timerHandle){
+    clearInterval(timerHandle);
+    timerHandle = null;
+  }
+  timerEndAt = null;
+  timerValue = null;
+  updateTimerDisplay();
+}
+
+function toggleMiniTimer(){
+  if(timerEndAt){
+    stopTimer();
+  } else {
+    startTimer();
+  }
+}
+
+window.addEventListener("visibilitychange", ()=>{
+  if(timerEndAt){
+    updateTimerDisplay();
+    runTimerLoop();
+  }
+});
+
+window.addEventListener("pageshow", ()=>{
+  if(timerEndAt){
+    updateTimerDisplay();
+    runTimerLoop();
+  }
+});
+  const slider = document.getElementById("exerciseSlider");
+const bubble = document.getElementById("sliderBubble");
+
+function updateSliderUI(){
+  let value = parseInt(slider.value);
+// MODALITÀ CALC
+if (currentMode === "calc") {
+  bubble.innerText = "CALC";
+
+  // centro lo slider
+  const width = slider.offsetWidth;
+  bubble.style.left = (width / 2) + "px";
+
+  // blocco slider
+  slider.disabled = true;
+
+  // nascondo numeri laterali
+  document.getElementById("sliderMin").style.opacity = 0;
+  document.getElementById("sliderMax").style.opacity = 0;
+
+  return;
+} else {
+  slider.disabled = false;
+  document.getElementById("sliderMin").style.opacity = 1;
+  document.getElementById("sliderMax").style.opacity = 1;
+}
+  if(currentMode === "day"){
+    bubble.innerText = "Day " + value;
+  } else if(currentMode === "ex"){
+    bubble.innerText = "Ex " + value;
+  } else {
+    bubble.innerText = "Calc";
+  }
+
+  const min = parseInt(slider.min);
+  const max = parseInt(slider.max);
+  const percent = max > min ? (value - min) / (max - min) : 0;
+  const width = slider.offsetWidth;
+  const knobWidth = 28;
+const usableWidth = width - knobWidth;
+bubble.style.left = ((percent * usableWidth) + knobWidth / 2) + "px";
+}
+
+slider.addEventListener("input", () => {
+  let value = parseInt(slider.value);
+if (currentMode === "calc") return;
+  if(currentMode === "day"){
+    currentDay = "Day " + value;
+    currentExercise = 0;
+  }
+
+  if(currentMode === "ex"){
+    currentExercise = value - 1;
+  }
+
+  render();
+});
+function render(){
+  renderDays();
+  if(currentSection === "calcoli"){
+    document.getElementById("workoutCard").classList.add("hidden");
+    document.getElementById("calcoliCard").classList.remove("hidden");
+    document.getElementById("timer").textContent = "—";
+  } else {
+    document.getElementById("workoutCard").classList.remove("hidden");
+    document.getElementById("calcoliCard").classList.add("hidden");
+    renderWorkout();
+  }
+  updateSliderUI();
+}
+
+document.getElementById("miniTimer").onclick = toggleMiniTimer;
+
+function updateLockButtons(){
+  const btn1 = document.getElementById("toggleLockBtn");
+  const btn2 = document.getElementById("toggleLockBtn2");
+  [btn1, btn2].forEach(btn=>{
+    if(!btn) return;
+    if(unlocked){
+      btn.textContent = "Blocca";
+      btn.classList.add("primary");
+    } else {
+      btn.textContent = "Sblocca";
+      btn.classList.remove("primary");
+    }
+  });
+}
+
+function handleToggleLock(){
+  if(unlocked){
+    unlocked = false;
+    const access = document.getElementById("accessBox");
+    if(access) access.value = "Protetto";
+  } else {
+    if(!requirePasswordForGreenEdit()) return;
+  }
+  saveAppState();
+  render();
+}
+
+document.getElementById("toggleLockBtn").onclick = handleToggleLock;
+const lockBtn2 = document.getElementById("toggleLockBtn2");
+if (lockBtn2) lockBtn2.onclick = handleToggleLock;
+document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
+
+const wheel = document.getElementById("modeWheel");
+
+if (wheel) {
+  wheel.addEventListener("click", (e) => {
+    const item = e.target.closest(".wheel-item");
+    if (!item) return;
+
+    wheel.querySelectorAll(".wheel-item").forEach(el => {
+      el.classList.remove("active");
+    });
+
+    item.classList.add("active");
+
+    const text = item.textContent.trim();
+
+    if (text === "DAY") {
+      currentMode = "day";
+    } else if (text === "EX") {
+      currentMode = "ex";
+    } else if (text === "CALC") {
+      currentMode = "calc";
+      currentSection = "calcoli";
+    }
+
+    if (text !== "CALC") {
+      currentSection = "workout";
+    }
+
+    render();
+  });
+}
+const originalRender = render;
+render = function(){
+  originalRender();
+  updateLockButtons();
+};
+
+loadAppState();
+render();
+</script>
+</body>
+</html>
+<!-- v16 tighter selects -->

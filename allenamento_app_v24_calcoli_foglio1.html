@@ -194,7 +194,31 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   padding:4px 10px;
   border-radius:12px;
   pointer-events:none;
-}  
+} 
+ .wheel{
+  width:70px;
+  height:60px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:4px;
+}
+
+.wheel-item{
+  font-size:11px;
+  color:var(--muted);
+  opacity:.4;
+  transform:scale(.85);
+  transition:.2s;
+}
+
+.wheel-item.active{
+  color:var(--blue);
+  opacity:1;
+  transform:scale(1.1);
+  font-weight:900;
+}
 </style>
 </head>
 <body>
@@ -274,7 +298,11 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
   <div class="slider-edge" id="sliderMax">5</div>
 
-  <div class="wheel-slot"></div>
+  <div class="wheel" id="modeWheel">
+  <div class="wheel-item">DAY</div>
+  <div class="wheel-item active">EX</div>
+  <div class="wheel-item">CALC</div>
+</div>
 </div>
     <div class="days" id="days"></div>
   </div>

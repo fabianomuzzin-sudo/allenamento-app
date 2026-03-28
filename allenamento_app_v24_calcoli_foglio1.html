@@ -1169,20 +1169,18 @@ if (wheel) {
 
     const text = item.textContent.trim();
 
-    if (text === "DAY") {
-      currentMode = "day";
-    } else if (text === "EX") {
-      currentMode = "ex";
-    } else if (text === "CALC") {
-      currentMode = "calc";
-      currentSection = "calcoli";
-    }
+if(text === "DAY"){
+  currentMode = "day";
+  currentSection = "workout";
+} else if(text === "EX"){
+  currentMode = "ex";
+  currentSection = "workout";
+} else if(text === "CALC"){
+  currentMode = "calc";
+  currentSection = "calcoli";
+}
 
-    if (text !== "CALC") {
-      currentSection = "workout";
-    }
-
-    render();
+render();
   });
 }
 const originalRender = render;

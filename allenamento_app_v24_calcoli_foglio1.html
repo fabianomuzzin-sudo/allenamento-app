@@ -1051,12 +1051,20 @@ const sliderRow = document.getElementById("sliderRow");
 if (currentMode === "calc") {
   bubble.innerText = "CALC";
 
-  // centro lo slider
-  
-sliderRow.style.display = "none";
+  slider.disabled = true;
+  document.getElementById("sliderMin").style.opacity = 0;
+  document.getElementById("sliderMax").style.opacity = 0;
+  document.querySelector(".slider-wrap").style.opacity = 0.45;
+
+  const width = slider.offsetWidth;
+  bubble.style.left = (width / 2) + "px";
+
   return;
 } else {
-  sliderRow.style.display = "grid";
+  slider.disabled = false;
+  document.getElementById("sliderMin").style.opacity = 1;
+  document.getElementById("sliderMax").style.opacity = 1;
+  document.querySelector(".slider-wrap").style.opacity = 1;
 }
   if(currentMode === "day"){
     bubble.innerText = "Day " + value;
@@ -1090,7 +1098,16 @@ if (currentMode === "calc") return;
   render();
 });
 function render(){
-  renderDays();
+  const daysWrap = document.getElementById("days");
+
+  if(currentMode === "day"){
+    daysWrap.style.display = "grid";
+    renderDays();
+  } else {
+    daysWrap.style.display = "none";
+    daysWrap.innerHTML = "";
+  }
+
   if(currentSection === "calcoli"){
     document.getElementById("workoutCard").classList.add("hidden");
     document.getElementById("calcoliCard").classList.remove("hidden");
@@ -1100,9 +1117,9 @@ function render(){
     document.getElementById("calcoliCard").classList.add("hidden");
     renderWorkout();
   }
+
   updateSliderUI();
 }
-
 document.getElementById("miniTimer").onclick = toggleMiniTimer;
 
 function updateLockButtons(){

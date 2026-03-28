@@ -1124,7 +1124,20 @@ document.getElementById("toggleLockBtn").onclick = handleToggleLock;
 const lockBtn2 = document.getElementById("toggleLockBtn2");
 if (lockBtn2) lockBtn2.onclick = handleToggleLock;
 document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
+const wheel = document.getElementById("modeWheel");
 
+if (wheel) {
+  wheel.addEventListener("click", (e) => {
+    const item = e.target.closest(".wheel-item");
+    if (!item) return;
+
+    wheel.querySelectorAll(".wheel-item").forEach(el => {
+      el.classList.remove("active");
+    });
+
+    item.classList.add("active");
+  });
+}
 const originalRender = render;
 render = function(){
   originalRender();

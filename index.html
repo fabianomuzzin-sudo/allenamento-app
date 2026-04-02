@@ -767,7 +767,21 @@ function calcVolumeSessione(){
 }
 
 function renderWorkout(){
-  const item = currentItem();
+  const list = currentList();
+
+if (!list || list.length === 0) {
+  document.getElementById("exerciseTitle").textContent = "—";
+  document.getElementById("exerciseNote").textContent = "";
+  document.getElementById("rows").innerHTML = "";
+  updateStats();
+  return;
+}
+
+if (currentExercise < 0 || currentExercise >= list.length) {
+  currentExercise = 0;
+}
+
+const item = list[currentExercise];
   document.getElementById("exerciseTitle").textContent = item.name;
   document.getElementById("exerciseNote").textContent = item.note || "";
   document.getElementById("h2").textContent = item.cardio ? "Min" : "Ripetizioni";

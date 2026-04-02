@@ -1041,6 +1041,26 @@ function updateSliderUI(){
 const sliderRow = document.getElementById("sliderRow");
   let value = parseInt(slider.value);
 
+document.getElementById("sliderMin").textContent = 1;
+
+if (currentMode === "ex") {
+  slider.min = 1;
+  slider.max = currentList().length;
+  document.getElementById("sliderMax").textContent = currentList().length;
+} else if (currentMode === "day") {
+  slider.min = 1;
+  slider.max = 5;
+  document.getElementById("sliderMax").textContent = 5;
+}
+
+if(currentMode === "day"){
+  bubble.innerText = "Day " + value;
+} else if(currentMode === "ex"){
+  bubble.innerText = "Ex " + value;
+} else {
+  bubble.innerText = "Calc";
+}
+
 // MODALITÀ CALC
 if (currentMode === "calc") {
   bubble.innerText = "CALC";

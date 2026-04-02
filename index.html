@@ -7,19 +7,23 @@
 <style>
 :root{
   --bg:#0f1114; --panel:#171a1f; --panel2:#20242b; --line:#313742;
-  --text:#f4f7fb; --muted:#8b94a3; --blue:#57a6ff; --green:#81d29a;
-  --green-border:#4f9f72; --yellow:#faefb4; --yellow-border:#e2d07a; --red:#e05a5a;
+  --text:#f4f7fb; --muted:#8b94a3; --blue:#57a6ff; --green:#2ecc71;
+  --green-border:#2ecc71; --yellow:#faefb4; --yellow-border:#e2d07a; --red:#e05a5a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .app{max-width:460px;margin:0 auto;min-height:100vh;padding-bottom:132px}
 .top{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#171a1f 0%, #111317 100%);border-bottom:1px solid var(--line);padding:10px 12px}
-.top-bar{display:grid;grid-template-columns:.82fr .82fr auto;align-items:stretch;gap:10px}
-.totali-box,.massimali-box{min-width:0;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:8px 10px;height:72px;display:flex;flex-direction:column;justify-content:center}
+.top-bar{display:grid;grid-template-columns:.82fr .82fr auto;grid-template-rows:50px 62px;align-items:stretch;row-gap:0;column-gap:10px}
+.totali-box{grid-column:1;grid-row:2;min-width:0;background:#1e2229;border:1px solid var(--line);border-radius:14px;padding:6px 8px;height:62px;display:flex;flex-direction:column;justify-content:center;gap:1px;}
+.top-action-btn{width:100%;height:50px;background:#22262e;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:0 4px;font-size:18px;line-height:50px;font-weight:800;margin:0}
+.save-btn{grid-column:1;grid-row:1}
+.lock-btn-top{grid-column:2;grid-row:1}
+.lock-btn-bottom{grid-column:2;grid-row:2;height:62px;line-height:62px;margin-top:4px;}
+.left-massimali{grid-column:1;grid-row:2;}
 .totali-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
 .totali-big{font-size:24px;font-weight:900;line-height:1;color:var(--text);white-space:nowrap}
-.massimali-big{font-size:20px;font-weight:900;line-height:1;color:var(--text);white-space:nowrap}
-.mini-timer{position:relative;border:none;background:transparent;padding:0;margin:0;cursor:pointer;flex:0 0 auto;width:96px;height:112px;display:block}
+.mini-timer{grid-column:3;grid-row:1 / span 2;position:relative;border:none;background:transparent;padding:0;margin:0;cursor:pointer;flex:0 0 auto;width:96px;height:112px;display:block;align-self:stretch}
 .stopwatch-shell{--timer-color:#2ecc71;position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 2px 8px rgba(0,0,0,.22))}
 .stopwatch-top{position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:12px;background:var(--timer-color);border-radius:7px}
 .stopwatch-side{position:absolute;top:10px;width:14px;height:10px;background:var(--timer-color);border-radius:6px}
@@ -52,14 +56,11 @@ html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-sys
 .timer-done-text{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;font-size:17px;font-weight:900;line-height:1.05;color:#e74c3c;padding:10px 4px;background:transparent}
 .mini-timer.done .stopwatch-shell{display:none}
 .mini-timer.done .timer-done-text{display:flex}
-.action-row{display:flex;gap:8px;margin-top:8px}
-.action-btn{flex:1;background:#22262e;border:1px solid var(--line);border-radius:10px;padding:8px 6px;font-size:12px;font-weight:800;color:var(--text)}
-.action-btn.primary{background:var(--blue);color:#07111b}
 
 
 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px}
-.exercise-title{font-size:20px;font-weight:900;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exercise-title{font-size:24px;font-weight:900;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .exercise-note{font-size:11px;color:var(--muted);margin-top:4px}
 .sep{height:1px;background:var(--line);margin:10px 0}
 .header-row,.grid-row{display:grid;grid-template-columns:.68fr .76fr 1.18fr .82fr;gap:8px;align-items:center}
@@ -94,20 +95,147 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .calc-field label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
 .calc-field input{width:100%;padding:10px 6px;border-radius:10px;border:1px solid var(--green-border);background:var(--green);color:#0a2012;font-size:18px;font-weight:900;text-align:center}
 .hint{color:var(--muted);font-size:12px;margin-top:10px}
+  @media (max-width: 430px){
+
+  .reps-cell{
+    justify-content: center;
+    gap:2px;
+  }
+
+  .rep-side{
+    width:24px;
+    min-width:24px;
+    font-size:9px;
+    padding:2px 2px;
+  }
+
+  select{
+    font-size:14px;
+    padding:6px 12px 6px 4px;
+  }
+
+}
+.slider-row{
+  display:grid;
+  grid-template-columns:22px 1fr 22px 70px;
+  gap:8px;
+  align-items:center;
+}
+
+.slider-edge{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-align:center;
+}
+
+.slider-wrap{
+  position:relative;
+}
+
+.wheel-slot{
+  width:70px;
+  height:42px;
+}
+
+#exerciseSlider{
+  -webkit-appearance:none;
+  width:100%;
+  height:8px;
+  border-radius:999px;
+  background:rgba(87,166,255,.2);
+}
+
+#exerciseSlider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:transparent;
+  border:none;
+  margin-top:-10px;
+}
+.slider-knob-label{
+  position:absolute;
+  top:50%;
+  left:0;
+  transform:translate(-50%, -50%);
+  min-width:58px;
+  height:36px;
+  padding:0 10px;
+  border-radius:999px;
+  background:var(--blue);
+  color:#07111b;
+  font-size:11px;
+  font-weight:900;
+  line-height:36px;
+  text-align:center;
+  white-space:nowrap;
+  pointer-events:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.24);
+  border:2px solid #d8ebff;
+}
+#exerciseSlider::-moz-range-thumb{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:transparent;
+  border:none;
+}
+
+.slider-bubble{
+  position:absolute;
+  top:-30px;
+  transform:translateX(-50%);
+  background:var(--blue);
+  color:#000;
+  font-weight:900;
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:12px;
+  pointer-events:none;
+} 
+ .wheel{
+  width:70px;
+  height:60px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:4px;
+}
+
+.wheel-item{
+  font-size:11px;
+  color:var(--muted);
+  opacity:.4;
+  transform:scale(.85);
+  transition:.2s;
+}
+
+.wheel-item.active{
+  color:var(--blue);
+  opacity:1;
+  transform:scale(1.1);
+  font-weight:900;
+}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="top">
     <div class="top-bar">
-      <div class="totali-box">
-        <div class="totali-label">Volume sessione</div>
-        <div class="totali-big" id="totVolume">0 kg</div>
+      <button class="top-action-btn save-btn primary" style="background:#60a5fa;color:#07111b;" id="saveSessionBtn" type="button">Salva</button>
+      <button class="top-action-btn lock-btn-top" id="toggleLockBtn" type="button">Sblocca</button>
+
+      <div class="top-action-btn lock-btn-bottom left-massimali" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:62px;">
+        <div class="totali-label" style="margin-bottom:2px;transform:translateY(-30px);"><span id="volWord" style="display:block;transform:translateY(50px);">Volume</span><span>sessione</span></div><style>#totVolumeLeft{margin-top:-4px;}</style>
+        <div class="massimali-big" id="totVolumeLeft" style="font-size:24px;line-height:1;text-align:center;transform:translateY(-52px);position:relative;top:0;">0 kg</div>
       </div>
 
-      <div class="massimali-box">
-        <div class="totali-label">Massimali</div>
-        <div class="massimali-big" id="totMax">0 kg</div>
+      <div class="top-action-btn lock-btn-bottom" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:62px;">
+        <div class="totali-label" style="margin-bottom:2px;transform:translateY(-10px);">Massimali</div>
+        <div class="massimali-big" id="totMax" style="font-size:24px;line-height:1;text-align:center;transform:translateY(-22px);position:relative;top:0;">0 kg</div>
       </div>
 
       <button id="miniTimer" class="mini-timer" type="button" aria-label="Timer recupero">
@@ -125,11 +253,6 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
         </div>
         <div class="timer-done-text" id="timerMessage">MUOVI IL CULO, VECCHIO BASTARDO!!</div>
       </button>
-    </div>
-    <div class="action-row">
-      <button class="action-btn" id="unlockBtn" type="button">Sblocca</button>
-      <button class="action-btn" id="lockBtn" type="button">Blocca</button>
-      <button class="action-btn primary" id="saveSessionBtn" type="button">Salva sessione</button>
     </div>
   </div>
 
@@ -165,12 +288,22 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
 <div class="bottom">
   <div class="bottom-inner">
-    <div class="slider-row">
-      <div>1</div>
-      <input type="range" id="exerciseSlider" min="0" max="0" step="1" value="0">
-      <div id="lastIdx">1</div>
-      <div class="counter" id="counter">1/1</div>
-    </div>
+<div class="slider-row" id="sliderRow">
+  <div class="slider-edge" id="sliderMin">1</div>
+
+  <div class="slider-wrap">
+    <input type="range" id="exerciseSlider" min="1" max="5" step="1" value="1">
+    <div class="slider-knob-label" id="sliderBubble">Day 1</div>
+  </div>
+
+  <div class="slider-edge" id="sliderMax">5</div>
+
+  <div class="wheel" id="modeWheel">
+ <div class="wheel-item active">DAY</div>
+<div class="wheel-item">EX</div>
+<div class="wheel-item">CALC</div>
+</div>
+</div>
     <div class="days" id="days"></div>
   </div>
 </div>
@@ -300,6 +433,7 @@ const appData = {
 let currentDay = "Day 1";
 let currentExercise = 0;
 let currentSection = "workout";
+let currentMode = "day";
 let unlocked = false;
 let timerValue = null;
 let timerHandle = null;
@@ -750,14 +884,17 @@ function renderWorkout(){
   });
 
   const summaryBox = document.getElementById("summaryBox");
-  if(summaryBox) summaryBox.style.display = item.cardio ? "none" : "grid";
   const slider = document.getElementById("exerciseSlider");
-  slider.max = Math.max(currentList().length - 1, 0);
-  slider.value = currentExercise;
-  document.getElementById("lastIdx").textContent = String(currentList().length || 1);
-  document.getElementById("counter").textContent = `${currentExercise + 1}/${currentList().length || 1}`;
-  slider.oninput = e=>{ stopTimer(); currentExercise = parseInt(e.target.value, 10); render(); };
-
+  if(summaryBox) summaryBox.style.display = item.cardio ? "none" : "grid";
+  if(currentMode === "ex"){
+  slider.min = 1;
+  slider.max = currentList().length;
+  slider.value = currentExercise + 1;
+} else {
+  slider.min = 1;
+  slider.max = 5;
+  slider.value = parseInt(currentDay.replace("Day ",""));
+}
   updateTimerDisplay();
   updateStats();
 }
@@ -766,10 +903,10 @@ function updateStats(){
   const item = currentItem();
   const maxVal = `${Math.round(calcMassimale(item))} kg`;
   const volVal = `${Math.round(calcVolumeSessione())} kg`;
+  const topVolLeft = document.getElementById("totVolumeLeft");
   const topMax = document.getElementById("totMax");
-  const topVol = document.getElementById("totVolume");
+  if(topVolLeft) topVolLeft.textContent = volVal;
   if(topMax) topMax.textContent = maxVal;
-  if(topVol) topVol.textContent = volVal;
   saveAppState();
 }
 
@@ -903,8 +1040,84 @@ window.addEventListener("pageshow", ()=>{
     runTimerLoop();
   }
 });
+  const slider = document.getElementById("exerciseSlider");
+const bubble = document.getElementById("sliderBubble");
+
+function updateSliderUI(){
+
+const sliderRow = document.getElementById("sliderRow");
+  let value = parseInt(slider.value);
+// MODALITÀ CALC
+if (currentMode === "calc") {
+  bubble.innerText = "CALC";
+
+  slider.disabled = true;
+  document.getElementById("sliderMin").style.opacity = 0;
+  document.getElementById("sliderMax").style.opacity = 0;
+  document.querySelector(".slider-wrap").style.opacity = 0.45;
+
+  const width = slider.offsetWidth;
+  bubble.style.left = (width / 2) + "px";
+
+  return;
+} else {
+  slider.disabled = false;
+  document.getElementById("sliderMin").style.opacity = 1;
+  document.getElementById("sliderMax").style.opacity = 1;
+  document.querySelector(".slider-wrap").style.opacity = 1;
+}
+  if(currentMode === "day"){
+    bubble.innerText = "Day " + value;
+  } else if(currentMode === "ex"){
+    bubble.innerText = "Ex " + value;
+  } else {
+    bubble.innerText = "Calc";
+  }
+
+  const min = parseInt(slider.min);
+  const max = parseInt(slider.max);
+  const percent = max > min ? (value - min) / (max - min) : 0;
+  const width = slider.offsetWidth;
+  const knobWidth = 28;
+const usableWidth = width - knobWidth;
+bubble.style.left = ((percent * usableWidth) + knobWidth / 2) + "px";
+}
+
+slider.addEventListener("input", () => {
+ let value = parseInt(slider.value);
+const bubble = document.getElementById("sliderBubble");
+
+if(currentMode === "day"){
+  currentDay = "Day " + value;
+  currentExercise = 0;
+  bubble.textContent = "Day " + value;
+}
+
+else if(currentMode === "ex"){
+  currentExercise = value - 1;
+  bubble.textContent = "Ex " + value;
+}
+
+else if(currentMode === "calc"){
+  currentSection = "calcoli";
+  bubble.textContent = "CALC";
+}
+
+render();  }
+
+ 
+});
 function render(){
-  renderDays();
+  const daysWrap = document.getElementById("days");
+
+  if(currentMode === "day"){
+    daysWrap.style.display = "grid";
+    renderDays();
+  } else {
+    daysWrap.style.display = "none";
+    daysWrap.innerHTML = "";
+  }
+
   if(currentSection === "calcoli"){
     document.getElementById("workoutCard").classList.add("hidden");
     document.getElementById("calcoliCard").classList.remove("hidden");
@@ -914,43 +1127,72 @@ function render(){
     document.getElementById("calcoliCard").classList.add("hidden");
     renderWorkout();
   }
-}
 
+  updateSliderUI();
+}
 document.getElementById("miniTimer").onclick = toggleMiniTimer;
 
 function updateLockButtons(){
-  const unlockBtn = document.getElementById("unlockBtn");
-  const lockBtn = document.getElementById("lockBtn");
-  if(unlocked){
-    unlockBtn.disabled = true;
-    lockBtn.disabled = false;
-    unlockBtn.style.opacity = ".45";
-    lockBtn.style.opacity = "1";
-  } else {
-    unlockBtn.disabled = false;
-    lockBtn.disabled = true;
-    unlockBtn.style.opacity = "1";
-    lockBtn.style.opacity = ".45";
-  }
+  const btn1 = document.getElementById("toggleLockBtn");
+  const btn2 = document.getElementById("toggleLockBtn2");
+  [btn1, btn2].forEach(btn=>{
+    if(!btn) return;
+    if(unlocked){
+      btn.textContent = "Blocca";
+      btn.classList.add("primary");
+    } else {
+      btn.textContent = "Sblocca";
+      btn.classList.remove("primary");
+    }
+  });
 }
 
-document.getElementById("unlockBtn").onclick = ()=>{
-  if(requirePasswordForGreenEdit()){
-    saveAppState();
-    render();
+function handleToggleLock(){
+  if(unlocked){
+    unlocked = false;
+    const access = document.getElementById("accessBox");
+    if(access) access.value = "Protetto";
+  } else {
+    if(!requirePasswordForGreenEdit()) return;
   }
-};
-
-document.getElementById("lockBtn").onclick = ()=>{
-  unlocked = false;
-  const access = document.getElementById("accessBox");
-  if(access) access.value = "Protetto";
   saveAppState();
   render();
-};
+}
 
+document.getElementById("toggleLockBtn").onclick = handleToggleLock;
+const lockBtn2 = document.getElementById("toggleLockBtn2");
+if (lockBtn2) lockBtn2.onclick = handleToggleLock;
 document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
 
+const wheel = document.getElementById("modeWheel");
+
+if (wheel) {
+  wheel.addEventListener("click", (e) => {
+    const item = e.target.closest(".wheel-item");
+    if (!item) return;
+
+    wheel.querySelectorAll(".wheel-item").forEach(el => {
+      el.classList.remove("active");
+    });
+
+    item.classList.add("active");
+
+    const text = item.textContent.trim();
+
+if(text === "DAY"){
+  currentMode = "day";
+  currentSection = "workout";
+} else if(text === "EX"){
+  currentMode = "ex";
+  currentSection = "workout";
+} else if(text === "CALC"){
+  currentMode = "calc";
+  currentSection = "calcoli";
+}
+
+render();
+  });
+}
 const originalRender = render;
 render = function(){
   originalRender();

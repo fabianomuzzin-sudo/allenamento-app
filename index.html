@@ -464,6 +464,7 @@ let timerValue = null;
 let timerHandle = null;
 let timerEndAt = null;
 let lastDuration = null;
+let lastCountdownBeepSecond = null;
 
 let audioCtx = null;
 const STORAGE_KEY = "allenamento_app_state_v54";
@@ -538,19 +539,27 @@ function unlockAudio(){
   }catch(e){}
 }
 
-function beepNow(){
+function beepNow(duration = 0.12, frequency = 1046, volume = 0.085){
   try{
     unlockAudio();
     if(!audioCtx) return;
+
+    const now = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
+
     osc.type = "square";
-    osc.frequency.value = 880;
-    gain.gain.value = 0.04;
+    osc.frequency.setValueAtTime(frequency, now);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(volume, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.18);
+
+    osc.start(now);
+    osc.stop(now + duration + 0.02);
   }catch(e){}
 }
 
@@ -935,6 +944,15 @@ function vibratePattern(pattern){
   }
 }
 
+function playFinalCountdownBeep(remaining){
+  if(!timerEndAt) return;
+  if(remaining > 5 || remaining <= 0) return;
+  if(lastCountdownBeepSecond === remaining) return;
+
+  lastCountdownBeepSecond = remaining;
+  beepNow(0.09, 1180, 0.09);
+}
+
 function updateTimerDisplay(){
   const item = currentItem();
   const el = document.getElementById("timer");
@@ -1001,12 +1019,16 @@ function runTimerLoop(){
       vibratePattern(60);
     }
 
+    playFinalCountdownBeep(remaining);
+
     if(remaining <= 0){
       clearInterval(timerHandle);
       timerHandle = null;
       timerEndAt = null;
       timerValue = 0;
-      vibratePattern([200,100,200,100,250]);
+      lastCountdownBeepSecond = null;
+      beepNow(0.42, 2092, 0.11);
+      vibratePattern(5000);
       updateTimerDisplay();
     }
   }, 250);
@@ -1021,6 +1043,7 @@ function startTimer(){
   }
 
   lastDuration = item.rest;
+  lastCountdownBeepSecond = null;
   timerEndAt = Date.now() + (item.rest * 1000);
   timerValue = item.rest;
   updateTimerDisplay();
@@ -1034,6 +1057,7 @@ function stopTimer(){
   }
   timerEndAt = null;
   timerValue = null;
+  lastCountdownBeepSecond = null;
   updateTimerDisplay();
 }
 

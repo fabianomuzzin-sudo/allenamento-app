@@ -1053,87 +1053,64 @@ window.addEventListener("pageshow", ()=>{
     runTimerLoop();
   }
 });
-  const slider = document.getElementById("exerciseSlider");
+
+const slider = document.getElementById("exerciseSlider");
 const bubble = document.getElementById("sliderBubble");
+const sliderMinLabel = document.getElementById("sliderMin");
+const sliderMaxLabel = document.getElementById("sliderMax");
+const sliderWrap = document.querySelector(".slider-wrap");
+const wheel = document.getElementById("modeWheel");
 
 function updateSliderUI(){
+  const value = parseInt(slider.value, 10) || 1;
+  sliderMinLabel.textContent = "1";
 
-const sliderRow = document.getElementById("sliderRow");
-  let value = parseInt(slider.value);
-
-document.getElementById("sliderMin").textContent = 1;
-
-if (currentMode === "ex") {
-  slider.min = 1;
-  slider.max = currentList().length;
-  document.getElementById("sliderMax").textContent = currentList().length;
-} else if (currentMode === "day") {
-  slider.min = 1;
-  slider.max = 5;
-  document.getElementById("sliderMax").textContent = 5;
-}
-
-if(currentMode === "day"){
-  bubble.innerText = "Day " + value;
-} else if(currentMode === "ex"){
-  bubble.innerText = "Ex " + value;
-} else {
-  bubble.innerText = "Calc";
-}
-
-// MODALITÀ CALC
-if (currentMode === "calc") {
-  bubble.innerText = "CALC";
-
-  slider.disabled = true;
-  document.getElementById("sliderMin").style.opacity = 0;
-  document.getElementById("sliderMax").style.opacity = 0;
-  document.querySelector(".slider-wrap").style.opacity = 0.45;
-
-  const width = slider.offsetWidth;
-  bubble.style.left = (width / 2) + "px";
-
-  return;
-} else {
-  slider.disabled = false;
-  document.getElementById("sliderMin").style.opacity = 1;
-  document.getElementById("sliderMax").style.opacity = 1;
-  document.querySelector(".slider-wrap").style.opacity = 1;
-}
-  if(currentMode === "day"){
-    bubble.innerText = "Day " + value;
-  } else if(currentMode === "ex"){
-    bubble.innerText = "Ex " + value;
+  if(currentMode === "ex"){
+    slider.min = 1;
+    slider.max = currentList().length;
+    sliderMaxLabel.textContent = String(currentList().length);
   } else {
-    bubble.innerText = "Calc";
+    slider.min = 1;
+    slider.max = 5;
+    sliderMaxLabel.textContent = "5";
   }
 
-  const min = parseInt(slider.min);
-  const max = parseInt(slider.max);
+  if(currentMode === "calc"){
+    bubble.textContent = "CALC";
+    slider.disabled = true;
+    sliderMinLabel.style.opacity = 0;
+    sliderMaxLabel.style.opacity = 0;
+    sliderWrap.style.opacity = 0.45;
+    bubble.style.left = (slider.offsetWidth / 2) + "px";
+    return;
+  }
+
+  slider.disabled = false;
+  sliderMinLabel.style.opacity = 1;
+  sliderMaxLabel.style.opacity = 1;
+  sliderWrap.style.opacity = 1;
+  bubble.textContent = currentMode === "day" ? `Day ${value}` : `Ex ${value}`;
+
+  const min = parseInt(slider.min, 10);
+  const max = parseInt(slider.max, 10);
   const percent = max > min ? (value - min) / (max - min) : 0;
-  const width = slider.offsetWidth;
   const knobWidth = 28;
-const usableWidth = width - knobWidth;
-bubble.style.left = ((percent * usableWidth) + knobWidth / 2) + "px";
+  const usableWidth = slider.offsetWidth - knobWidth;
+  bubble.style.left = ((percent * usableWidth) + knobWidth / 2) + "px";
 }
 
-
 slider.addEventListener("input", () => {
-  let value = parseInt(slider.value);
-  const bubble = document.getElementById("sliderBubble");
+  const value = parseInt(slider.value, 10) || 1;
 
-  if (currentMode === "day") {
-    currentDay = "Day " + value;
+  if(currentMode === "day"){
+    currentDay = `Day ${value}`;
     currentExercise = 0;
     currentSection = "workout";
-    bubble.textContent = "Day " + value;
-  } else if (currentMode === "ex") {
+  } else if(currentMode === "ex"){
     currentExercise = value - 1;
     currentSection = "workout";
-    bubble.textContent = "Ex " + value;
-  } else if (currentMode === "calc") {
+  } else {
     currentSection = "calcoli";
-    bubble.textContent = "CALC";
   }
 
   render();
@@ -1161,13 +1138,22 @@ function render(){
   }
 
   updateSliderUI();
+  updateLockButtons();
 }
+
 document.getElementById("miniTimer").onclick = toggleMiniTimer;
+
+document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
+
+document.getElementById("toggleLockBtn").onclick = handleToggleLock;
+const lockBtn2 = document.getElementById("toggleLockBtn2");
+if(lockBtn2) lockBtn2.onclick = handleToggleLock;
 
 function updateLockButtons(){
   const btn1 = document.getElementById("toggleLockBtn");
   const btn2 = document.getElementById("toggleLockBtn2");
-  [btn1, btn2].forEach(btn=>{
+
+  [btn1, btn2].forEach(btn => {
     if(!btn) return;
     if(unlocked){
       btn.textContent = "Blocca";
@@ -1184,21 +1170,16 @@ function handleToggleLock(){
     unlocked = false;
     const access = document.getElementById("accessBox");
     if(access) access.value = "Protetto";
-  } else {
-    if(!requirePasswordForGreenEdit()) return;
+  } else if(!requirePasswordForGreenEdit()) {
+    return;
   }
+
   saveAppState();
   render();
 }
 
-document.getElementById("toggleLockBtn").onclick = handleToggleLock;
-const lockBtn2 = document.getElementById("toggleLockBtn2");
-if (lockBtn2) lockBtn2.onclick = handleToggleLock;
-document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
-const wheel = document.getElementById("modeWheel");
-
 function updateWheelVisual(){
-  if (!wheel) return;
+  if(!wheel) return;
 
   const items = [...wheel.querySelectorAll(".wheel-item")];
   const wheelRect = wheel.getBoundingClientRect();
@@ -1214,49 +1195,41 @@ function updateWheelVisual(){
 
     item.classList.remove("active");
 
-    if (dist < minDist) {
+    if(dist < minDist){
       minDist = dist;
       closest = item;
     }
   });
 
-  if (closest) {
-    closest.classList.add("active");
+  if(!closest) return;
 
-    const text = closest.textContent.trim();
+  closest.classList.add("active");
 
-    if (text === "DAY") {
-      currentMode = "day";
-      currentSection = "workout";
-    } else if (text === "EX") {
-      currentMode = "ex";
-      currentSection = "workout";
-    } else if (text === "CALC") {
-      currentMode = "calc";
-      currentSection = "calcoli";
-    }
-
-    render();
+  const text = closest.textContent.trim();
+  if(text === "DAY"){
+    currentMode = "day";
+    currentSection = "workout";
+  } else if(text === "EX"){
+    currentMode = "ex";
+    currentSection = "workout";
+  } else if(text === "CALC"){
+    currentMode = "calc";
+    currentSection = "calcoli";
   }
+
+  render();
 }
 
-if (wheel) {
+if(wheel){
   wheel.addEventListener("scroll", updateWheelVisual);
-
   wheel.addEventListener("click", (e) => {
     const item = e.target.closest(".wheel-item");
-    if (!item) return;
+    if(!item) return;
 
     item.scrollIntoView({ behavior: "smooth", block: "center" });
     setTimeout(updateWheelVisual, 120);
   });
 }
-
-const originalRender = render;
-render = function(){
-  originalRender();
-  updateLockButtons();
-};
 
 loadAppState();
 render();

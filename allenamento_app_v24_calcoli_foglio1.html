@@ -196,8 +196,8 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   pointer-events:none;
 } 
 .wheel{
-  width:70px;
-  height:72px;
+  width:82px;
+  height:84px;
   overflow-y:auto;
   scrollbar-width:none;
   -ms-overflow-style:none;
@@ -205,7 +205,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   flex-direction:column;
   align-items:center;
   scroll-snap-type:y mandatory;
-  padding:24px 0;
+  padding:28px 0;
 }
 
 .wheel::-webkit-scrollbar{
@@ -213,25 +213,29 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 }
 
 .wheel-item{
-  height:24px;
-  min-height:24px;
+  height:28px;
+  min-height:28px;
   display:flex;
   align-items:center;
   justify-content:center;
   scroll-snap-align:center;
   font-size:11px;
-  color:var(--muted);
-  opacity:.35;
-  transform:scale(.85);
-  transition:.2s;
+  letter-spacing:.04em;
+  color:rgba(87,166,255,.72);
+  opacity:.72;
+  transform:scale(.92);
+  transition:transform .2s ease, opacity .2s ease, color .2s ease, text-shadow .2s ease;
+  text-shadow:0 0 8px rgba(87,166,255,.16);
   user-select:none;
 }
 
 .wheel-item.active{
-  color:var(--blue);
+  color:#dcebff;
   opacity:1;
-  transform:scale(1.1);
+  transform:scale(1);
+  font-size:22px;
   font-weight:900;
+  text-shadow:0 0 14px rgba(87,166,255,.42);
 }
 </style>
 </head>

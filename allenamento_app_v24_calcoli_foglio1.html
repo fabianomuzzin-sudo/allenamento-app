@@ -195,22 +195,36 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   border-radius:12px;
   pointer-events:none;
 } 
- .wheel{
+.wheel{
   width:70px;
-  height:60px;
+  height:72px;
+  overflow-y:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
   display:flex;
   flex-direction:column;
-  justify-content:center;
   align-items:center;
-  gap:4px;
+  scroll-snap-type:y mandatory;
+  padding:24px 0;
+}
+
+.wheel::-webkit-scrollbar{
+  display:none;
 }
 
 .wheel-item{
+  height:24px;
+  min-height:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  scroll-snap-align:center;
   font-size:11px;
   color:var(--muted);
-  opacity:.4;
+  opacity:.35;
   transform:scale(.85);
   transition:.2s;
+  user-select:none;
 }
 
 .wheel-item.active{
@@ -298,10 +312,16 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
   <div class="slider-edge" id="sliderMax">5</div>
 
-  <div class="wheel" id="modeWheel">
- <div class="wheel-item active">DAY</div>
-<div class="wheel-item">EX</div>
-<div class="wheel-item">CALC</div>
+<div class="wheel" id="modeWheel">
+  <div class="wheel-item">DAY</div>
+  <div class="wheel-item">EX</div>
+  <div class="wheel-item">CALC</div>
+  <div class="wheel-item">DAY</div>
+  <div class="wheel-item active">EX</div>
+  <div class="wheel-item">CALC</div>
+  <div class="wheel-item">DAY</div>
+  <div class="wheel-item">EX</div>
+  <div class="wheel-item">CALC</div>
 </div>
 </div>
     <div class="days" id="days"></div>
@@ -1175,49 +1195,71 @@ document.getElementById("toggleLockBtn").onclick = handleToggleLock;
 const lockBtn2 = document.getElementById("toggleLockBtn2");
 if (lockBtn2) lockBtn2.onclick = handleToggleLock;
 document.getElementById("saveSessionBtn").onclick = saveSessionHistory;
-
 const wheel = document.getElementById("modeWheel");
 
+function updateWheelVisual(){
+  if (!wheel) return;
+
+  const items = [...wheel.querySelectorAll(".wheel-item")];
+  const wheelRect = wheel.getBoundingClientRect();
+  const centerY = wheelRect.top + wheelRect.height / 2;
+
+  let closest = null;
+  let minDist = Infinity;
+
+  items.forEach(item => {
+    const rect = item.getBoundingClientRect();
+    const itemCenter = rect.top + rect.height / 2;
+    const dist = Math.abs(itemCenter - centerY);
+
+    item.classList.remove("active");
+
+    if (dist < minDist) {
+      minDist = dist;
+      closest = item;
+    }
+  });
+
+  if (closest) {
+    closest.classList.add("active");
+
+    const text = closest.textContent.trim();
+
+    if (text === "DAY") {
+      currentMode = "day";
+      currentSection = "workout";
+    } else if (text === "EX") {
+      currentMode = "ex";
+      currentSection = "workout";
+    } else if (text === "CALC") {
+      currentMode = "calc";
+      currentSection = "calcoli";
+    }
+
+    render();
+  }
+}
+
 if (wheel) {
+  wheel.addEventListener("scroll", updateWheelVisual);
+
   wheel.addEventListener("click", (e) => {
     const item = e.target.closest(".wheel-item");
     if (!item) return;
 
-    wheel.querySelectorAll(".wheel-item").forEach(el => {
-      el.classList.remove("active");
-    });
-
-    item.classList.add("active");
-
-    const text = item.textContent.trim();
-
-if(text === "DAY"){
-  currentMode = "day";
-  currentSection = "workout";
-} else if(text === "EX"){
-  currentMode = "ex";
-  currentSection = "workout";
-} else if(text === "CALC"){
-  currentMode = "calc";
-  currentSection = "calcoli";
-}
-
-render();
+    item.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(updateWheelVisual, 120);
   });
 }
+
 const originalRender = render;
 render = function(){
   originalRender();
   updateLockButtons();
 };
 
-// loadAppState();
-// FIX RESET STATO ROTTO
-currentMode = "day";
-currentSection = "workout";
-currentExercise = 0;
+loadAppState();
 render();
-
 </script>
 </body>
 </html>

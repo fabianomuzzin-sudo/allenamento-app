@@ -205,6 +205,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   flex-direction:column;
   align-items:center;
   scroll-snap-type:y mandatory;
+  scroll-behavior:smooth;
   padding:28px 0;
 }
 
@@ -1183,6 +1184,7 @@ function handleToggleLock(){
 }
 
 let wheelIsRecentering = false;
+let wheelMagnetTimer = null;
 
 function getWheelMetrics(){
   if(!wheel) return null;
@@ -1244,6 +1246,50 @@ function recenterInfiniteWheel(activeIndex){
   return activeIndex;
 }
 
+function getClosestWheelIndex(){
+  const metrics = getWheelMetrics();
+  if(!metrics) return 0;
+
+  const wheelRect = wheel.getBoundingClientRect();
+  const centerY = wheelRect.top + wheelRect.height / 2;
+
+  let closestIndex = 0;
+  let minDist = Infinity;
+
+  metrics.items.forEach((item, index) => {
+    const rect = item.getBoundingClientRect();
+    const itemCenter = rect.top + rect.height / 2;
+    const dist = Math.abs(itemCenter - centerY);
+
+    if(dist < minDist){
+      minDist = dist;
+      closestIndex = index;
+    }
+  });
+
+  return recenterInfiniteWheel(closestIndex);
+}
+
+function snapWheelToClosest(behavior = "smooth"){
+  if(!wheel || wheelIsRecentering) return;
+
+  const metrics = getWheelMetrics();
+  if(!metrics) return;
+
+  const targetIndex = getClosestWheelIndex();
+  const targetItem = metrics.items[targetIndex];
+  if(!targetItem) return;
+
+  wheelIsRecentering = true;
+  targetItem.scrollIntoView({ behavior, block: "center" });
+
+  const unlockDelay = behavior === "smooth" ? 180 : 40;
+  setTimeout(() => {
+    wheelIsRecentering = false;
+    updateWheelVisual();
+  }, unlockDelay);
+}
+
 function applyWheelModeFromText(text){
   if(text === "DAY"){
     currentMode = "day";
@@ -1300,18 +1346,26 @@ if(wheel){
   window.addEventListener("load", () => {
     centerWheelOnMode(currentMode, "auto");
     setTimeout(updateWheelVisual, 40);
+setTimeout(() => snapWheelToClosest("auto"), 60);
   });
 
   wheel.addEventListener("scroll", () => {
     updateWheelVisual();
+    clearTimeout(wheelMagnetTimer);
+    wheelMagnetTimer = setTimeout(() => {
+      snapWheelToClosest("smooth");
+    }, 90);
   });
 
   wheel.addEventListener("click", (e) => {
     const item = e.target.closest(".wheel-item");
     if(!item) return;
 
+    clearTimeout(wheelMagnetTimer);
     item.scrollIntoView({ behavior: "smooth", block: "center" });
-    setTimeout(updateWheelVisual, 140);
+    wheelMagnetTimer = setTimeout(() => {
+      snapWheelToClosest("smooth");
+    }, 120);
   });
 }
 

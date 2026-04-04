@@ -1182,34 +1182,69 @@ function handleToggleLock(){
   render();
 }
 
-function updateWheelVisual(){
-  if(!wheel) return;
+let wheelIsRecentering = false;
+
+function getWheelMetrics(){
+  if(!wheel) return null;
 
   const items = [...wheel.querySelectorAll(".wheel-item")];
-  const wheelRect = wheel.getBoundingClientRect();
-  const centerY = wheelRect.top + wheelRect.height / 2;
+  if(!items.length) return null;
 
-  let closest = null;
-  let minDist = Infinity;
+  const itemHeight = items[0].offsetHeight || 28;
+  const setSize = 3;
+  const totalSets = Math.max(1, Math.round(items.length / setSize));
+  const middleSetIndex = Math.floor(totalSets / 2);
 
-  items.forEach(item => {
-    const rect = item.getBoundingClientRect();
-    const itemCenter = rect.top + rect.height / 2;
-    const dist = Math.abs(itemCenter - centerY);
+  return { items, itemHeight, setSize, totalSets, middleSetIndex };
+}
 
-    item.classList.remove("active");
+function getMiddleWheelIndexForMode(mode){
+  const metrics = getWheelMetrics();
+  if(!metrics) return 0;
 
-    if(dist < minDist){
-      minDist = dist;
-      closest = item;
-    }
-  });
+  const modeMap = { day: 0, ex: 1, calc: 2 };
+  const offset = modeMap[mode] ?? 0;
+  return (metrics.middleSetIndex * metrics.setSize) + offset;
+}
 
-  if(!closest) return;
+function centerWheelOnMode(mode, behavior = "auto"){
+  if(!wheel) return;
 
-  closest.classList.add("active");
+  const metrics = getWheelMetrics();
+  if(!metrics) return;
 
-  const text = closest.textContent.trim();
+  const targetIndex = getMiddleWheelIndexForMode(mode);
+  const targetItem = metrics.items[targetIndex];
+  if(!targetItem) return;
+
+  targetItem.scrollIntoView({ behavior, block: "center" });
+}
+
+function recenterInfiniteWheel(activeIndex){
+  const metrics = getWheelMetrics();
+  if(!metrics) return activeIndex;
+
+  let nextIndex = activeIndex;
+
+  if(activeIndex < metrics.setSize){
+    nextIndex = activeIndex + metrics.setSize;
+  } else if(activeIndex >= metrics.setSize * 2){
+    nextIndex = activeIndex - metrics.setSize;
+  }
+
+  if(nextIndex !== activeIndex && metrics.items[nextIndex]){
+    wheelIsRecentering = true;
+    metrics.items[nextIndex].scrollIntoView({ behavior: "auto", block: "center" });
+    requestAnimationFrame(() => {
+      wheelIsRecentering = false;
+    });
+    return nextIndex;
+  }
+
+  return activeIndex;
+}
+
+function applyWheelModeFromText(text){
   if(text === "DAY"){
     currentMode = "day";
     currentSection = "workout";
@@ -1220,23 +1255,70 @@ function updateWheelVisual(){
     currentMode = "calc";
     currentSection = "calcoli";
   }
+}
 
+function updateWheelVisual(){
+  if(!wheel) return;
+
+  const metrics = getWheelMetrics();
+  if(!metrics) return;
+
+  const wheelRect = wheel.getBoundingClientRect();
+  const centerY = wheelRect.top + wheelRect.height / 2;
+
+  let closest = null;
+  let closestIndex = 0;
+  let minDist = Infinity;
+
+  metrics.items.forEach((item, index) => {
+    const rect = item.getBoundingClientRect();
+    const itemCenter = rect.top + rect.height / 2;
+    const dist = Math.abs(itemCenter - centerY);
+
+    item.classList.remove("active");
+
+    if(dist < minDist){
+      minDist = dist;
+      closest = item;
+      closestIndex = index;
+    }
+  });
+
+  if(!closest) return;
+
+  const stableIndex = recenterInfiniteWheel(closestIndex);
+  const activeItem = metrics.items[stableIndex] || closest;
+  activeItem.classList.add("active");
+
+  if(wheelIsRecentering) return;
+
+  applyWheelModeFromText(activeItem.textContent.trim());
   render();
 }
 
 if(wheel){
-  wheel.addEventListener("scroll", updateWheelVisual);
+  window.addEventListener("load", () => {
+    centerWheelOnMode(currentMode, "auto");
+    setTimeout(updateWheelVisual, 40);
+  });
+
+  wheel.addEventListener("scroll", () => {
+    updateWheelVisual();
+  });
+
   wheel.addEventListener("click", (e) => {
     const item = e.target.closest(".wheel-item");
     if(!item) return;
 
     item.scrollIntoView({ behavior: "smooth", block: "center" });
-    setTimeout(updateWheelVisual, 120);
+    setTimeout(updateWheelVisual, 140);
   });
 }
 
 loadAppState();
 render();
+setTimeout(() => centerWheelOnMode(currentMode, "auto"), 0);
+setTimeout(updateWheelVisual, 40);
 </script>
 </body>
 </html>

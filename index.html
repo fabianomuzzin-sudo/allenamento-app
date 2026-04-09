@@ -314,6 +314,14 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   color:rgba(10,32,18,.78);
 }
 
+
+.exercise-picker-group-title{display:flex;align-items:center;justify-content:space-between}
+.exercise-picker-option.preferred{border-color:rgba(87,166,255,.5);box-shadow:0 0 0 1px rgba(87,166,255,.15) inset}
+
+
+.calc-equipment-grid .calc-equipment-card textarea{font-family:inherit}
+
+.calc-action-secondary{background:#2a2f39;color:var(--text)}
 </style>
 </head>
 <body>
@@ -387,13 +395,13 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   </div>
 
   <div class="card hidden" id="calcoliCard">
-    <div class="exercise-title" id="calcPageTitle">Calcoli</div>
-    <div class="exercise-note" id="calcPageNote">Menu CALC · cataloghi separati e navigazione più comoda su telefono</div>
+    <div class="exercise-title" id="calcPageTitle">Setup</div>
+    <div class="exercise-note" id="calcPageNote">Menu SETUP · cataloghi separati e navigazione più comoda su telefono</div>
     <div class="sep"></div>
 
     <div class="calc-toolbar">
       <button class="calc-action hidden" id="calcBackBtn" type="button">← Indietro</button>
-      <button class="calc-action" id="resetCalcBtn" type="button">Reset CALC</button>
+      <button class="calc-action" id="resetCalcBtn" type="button">Reset Setup</button>
       <div class="calc-status" id="calcSyncLabel">Foglio1 caricato · catalogo v1 incluso</div>
     </div>
 
@@ -427,12 +435,40 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
       </div>
     </div>
 
-    <div id="calcPlaceholderView" class="hidden">
+    <div id="calcEquipmentView" class="hidden">
+      <div class="calc-edit-controls" id="equipmentEditControls"></div>
       <div class="calc-section">
-        <div class="calc-section-title" id="calcPlaceholderTitle">Sezione</div>
+        <div class="calc-section-title">Pesi attrezzi</div>
+        <div class="calc-equipment-grid" id="calcEquipmentGrid"></div>
+      </div>
+
+      <div class="calc-section">
+        <div class="calc-section-title">Collegamento esercizi → attrezzo</div>
+        <div class="calc-table-wrap">
+          <table class="calc-table">
+            <thead>
+              <tr><th>Esercizio app</th><th>Attrezzo</th><th>Foglio1</th></tr>
+            </thead>
+            <tbody id="calcExerciseMapBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="calcMuscoliView" class="hidden">
+      <div class="calc-section">
         <div class="calc-placeholder-box">
-          <div class="calc-placeholder-main">Questa sezione la costruiamo nel prossimo step.</div>
-          <div class="calc-placeholder-sub">Per ora è pronta solo la voce <strong>Catalogo esercizi</strong>, così andiamo davvero un passo alla volta.</div>
+          <div class="calc-placeholder-main">Sezione Muscoli in preparazione.</div>
+          <div class="calc-placeholder-sub">Qui metteremo categorie, filtri e organizzazione del catalogo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="calcGiorniView" class="hidden">
+      <div class="calc-section">
+        <div class="calc-placeholder-box">
+          <div class="calc-placeholder-main">Sezione Giorni in preparazione.</div>
+          <div class="calc-placeholder-sub">Qui costruiremo ruoli slot, struttura dei day e scheda automatica.</div>
         </div>
       </div>
     </div>
@@ -455,13 +491,13 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 <div class="wheel" id="modeWheel">
   <div class="wheel-item">DAY</div>
   <div class="wheel-item">EX</div>
-  <div class="wheel-item">CALC</div>
+  <div class="wheel-item">SETUP</div>
   <div class="wheel-item">DAY</div>
   <div class="wheel-item active">EX</div>
-  <div class="wheel-item">CALC</div>
+  <div class="wheel-item">SETUP</div>
   <div class="wheel-item">DAY</div>
   <div class="wheel-item">EX</div>
-  <div class="wheel-item">CALC</div>
+  <div class="wheel-item">SETUP</div>
 </div>
 </div>
     <div class="days" id="days"></div>
@@ -663,6 +699,9 @@ let lastDuration = null;
 let lastCountdownBeepSecond = null;
 
 let calcMenuView = "home";
+let equipmentEditable = false;
+let equipmentDraftWeights = null;
+let equipmentDraftMap = null;
 
 let audioCtx = null;
 const STORAGE_KEY = "allenamento_app_state_v56";
@@ -1199,11 +1238,13 @@ const item = list[currentExercise];
   const exercisePickerBtn = document.getElementById("exercisePickerBtn");
   if(exercisePickerBtn){
     exercisePickerBtn.onclick = () => {
-      if(!unlocked){
-        if(!requirePasswordForGreenEdit()) return;
-        render();
+      const p = prompt("Inserisci password");
+      if(p !== PASSWORD){
+        if(p !== null) alert("Password errata");
         return;
       }
+      unlocked = true;
+      saveAppState();
       openExercisePicker(currentDay, currentExercise);
     };
   }
@@ -1398,7 +1439,7 @@ function updateSliderUI(){
   sliderMinLabel.textContent = "1";
 
   if(currentMode === "calc"){
-    bubble.textContent = "CALC";
+    bubble.textContent = "SETUP";
     slider.disabled = true;
     sliderMinLabel.style.opacity = 0;
     sliderMaxLabel.style.opacity = 0;
@@ -1459,6 +1500,71 @@ function render(){
 }
 
 
+
+function cloneObjectDeep(obj){
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function getEquipmentWeightsSource(){
+  return equipmentEditable && equipmentDraftWeights ? equipmentDraftWeights : calcState.equipmentWeights;
+}
+
+function getExerciseMapSource(){
+  return equipmentEditable && equipmentDraftMap ? equipmentDraftMap : calcState.exerciseMap;
+}
+
+function enterEquipmentEdit(){
+  equipmentEditable = true;
+  equipmentDraftWeights = cloneObjectDeep(calcState.equipmentWeights || {});
+  equipmentDraftMap = cloneObjectDeep(calcState.exerciseMap || {});
+  renderEquipmentEditControls();
+  renderCalcEquipment();
+  renderCalcExerciseMap();
+}
+
+function saveEquipmentEdit(){
+  if(equipmentDraftWeights && equipmentDraftMap){
+    calcState.equipmentWeights = cloneObjectDeep(equipmentDraftWeights);
+    calcState.exerciseMap = cloneObjectDeep(equipmentDraftMap);
+    saveAppState();
+  }
+  equipmentEditable = false;
+  equipmentDraftWeights = null;
+  equipmentDraftMap = null;
+  renderEquipmentEditControls();
+  renderCalcEquipment();
+  renderCalcExerciseMap();
+  render();
+}
+
+function cancelEquipmentEdit(){
+  equipmentEditable = false;
+  equipmentDraftWeights = null;
+  equipmentDraftMap = null;
+  renderEquipmentEditControls();
+  renderCalcEquipment();
+  renderCalcExerciseMap();
+}
+
+function renderEquipmentEditControls(){
+  const wrap = document.getElementById("equipmentEditControls");
+  if(!wrap) return;
+  if(equipmentEditable){
+    wrap.innerHTML = `
+      <button class="calc-action" type="button" id="equipmentSaveBtn">Salva</button>
+      <button class="calc-action calc-action-secondary" type="button" id="equipmentCancelBtn">Annulla</button>
+    `;
+    document.getElementById("equipmentSaveBtn").onclick = saveEquipmentEdit;
+    document.getElementById("equipmentCancelBtn").onclick = cancelEquipmentEdit;
+  } else {
+    wrap.innerHTML = `<button class="calc-action" type="button" id="equipmentEditBtn">Modifica attrezzi</button>`;
+    document.getElementById("equipmentEditBtn").onclick = () => {
+      if(!requirePasswordForGreenEdit()) return;
+      enterEquipmentEdit();
+    };
+  }
+}
+
 function parseCalcWeightList(text){
   return String(text || "")
     .split(/[\n,;]+/)
@@ -1518,12 +1624,14 @@ function renderCalcExerciseMap(){
   if(!body) return;
   body.innerHTML = "";
 
-  const equipmentNames = Object.keys(calcState.equipmentWeights);
+  const weightsSource = getEquipmentWeightsSource() || {};
+  const mapSource = getExerciseMapSource() || {};
+  const equipmentNames = Object.keys(weightsSource);
   const appNames = [...new Set(Object.values(appData).flat().map(item => item.name))];
 
   appNames.forEach(name => {
-    if(!calcState.exerciseMap[name]){
-      calcState.exerciseMap[name] = { equipment: equipmentNames[0] || "Macchina 1", catalogName: "" };
+    if(!mapSource[name]){
+      mapSource[name] = { equipment: equipmentNames[0] || "Macchina 1", catalogName: "" };
     }
 
     const tr = document.createElement("tr");
@@ -1532,9 +1640,23 @@ function renderCalcExerciseMap(){
     tdName.textContent = name;
 
     const tdEq = document.createElement("td");
-    tdEq.appendChild(calcMakeSelect(equipmentNames, calcState.exerciseMap[name].equipment, (val) => {
-      calcState.exerciseMap[name].equipment = val;
-    }));
+    if(equipmentEditable){
+      const sel = document.createElement("select");
+      sel.className = "calc-select";
+      equipmentNames.forEach(v => {
+        const o = document.createElement("option");
+        o.value = v;
+        o.textContent = v;
+        if(String(v) === String(mapSource[name].equipment)) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.onchange = () => {
+        mapSource[name].equipment = sel.value;
+      };
+      tdEq.appendChild(sel);
+    } else {
+      tdEq.textContent = mapSource[name].equipment || "—";
+    }
 
     const tdRef = document.createElement("td");
     const found = CALC_IMPORT.exerciseCatalog.find(x => calcSlug(x.name) === calcSlug(name));
@@ -1552,21 +1674,37 @@ function renderCalcEquipment(){
   if(!wrap) return;
   wrap.innerHTML = "";
 
-  Object.keys(calcState.equipmentWeights).forEach(name => {
+  const weightsSource = getEquipmentWeightsSource() || {};
+
+  Object.keys(weightsSource).forEach(name => {
     const card = document.createElement("div");
     card.className = "calc-equipment-card";
 
     const head = document.createElement("div");
     head.className = "calc-equipment-head";
-    head.innerHTML = "<div class='calc-equipment-name'>" + name + "</div><div class='calc-equipment-count'>" + calcState.equipmentWeights[name].length + " valori</div>";
-
-    const ta = calcMakeTextarea(calcState.equipmentWeights[name].join(", "), (raw) => {
-      const parsed = parseCalcWeightList(raw);
-      if(parsed.length) calcState.equipmentWeights[name] = parsed;
-    });
-
+    head.innerHTML = "<div class='calc-equipment-name'>" + name + "</div><div class='calc-equipment-count'>" + (weightsSource[name] || []).length + " valori</div>";
     card.appendChild(head);
-    card.appendChild(ta);
+
+    if(equipmentEditable){
+      const ta = document.createElement("textarea");
+      ta.className = "calc-textarea";
+      ta.value = (weightsSource[name] || []).join(", ");
+      ta.onchange = () => {
+        const parsed = parseCalcWeightList(ta.value);
+        if(parsed.length && equipmentDraftWeights){
+          equipmentDraftWeights[name] = parsed;
+          renderCalcEquipment();
+        }
+      };
+      card.appendChild(ta);
+    } else {
+      const preview = document.createElement("div");
+      preview.className = "calc-ref";
+      preview.style.lineHeight = "1.45";
+      preview.textContent = (weightsSource[name] || []).join(", ");
+      card.appendChild(preview);
+    }
+
     wrap.appendChild(card);
   });
 }
@@ -1652,44 +1790,53 @@ function setCalcMenuView(view){
 
   const home = document.getElementById("calcHomeView");
   const catalog = document.getElementById("calcCatalogView");
-  const placeholder = document.getElementById("calcPlaceholderView");
+  const equipment = document.getElementById("calcEquipmentView");
+  const muscoli = document.getElementById("calcMuscoliView");
+  const giorni = document.getElementById("calcGiorniView");
   const backBtn = document.getElementById("calcBackBtn");
   const resetBtn = document.getElementById("resetCalcBtn");
-  const title = document.getElementById("calcPlaceholderTitle");
   const pageTitle = document.getElementById("calcPageTitle");
   const pageNote = document.getElementById("calcPageNote");
 
   if(home) home.classList.toggle("hidden", calcMenuView !== "home");
   if(catalog) catalog.classList.toggle("hidden", calcMenuView !== "catalogo");
-  if(placeholder) placeholder.classList.toggle("hidden", !["attrezzi","muscoli","giorni"].includes(calcMenuView));
+  if(equipment) equipment.classList.toggle("hidden", calcMenuView !== "attrezzi");
+  if(muscoli) muscoli.classList.toggle("hidden", calcMenuView !== "muscoli");
+  if(giorni) giorni.classList.toggle("hidden", calcMenuView !== "giorni");
   if(backBtn) backBtn.classList.toggle("hidden", calcMenuView === "home");
   if(resetBtn) resetBtn.classList.toggle("hidden", calcMenuView !== "home");
 
   if(pageTitle){
-    pageTitle.textContent = calcMenuView === "catalogo" ? "Catalogo esercizi" : "Calcoli";
-  }
-  if(pageNote){
-    if(calcMenuView === "catalogo"){
-      pageNote.textContent = "Modifica il catalogo degli esercizi direttamente da qui";
-    } else if(["attrezzi","muscoli","giorni"].includes(calcMenuView)){
-      const labels = {attrezzi:"Attrezzi", muscoli:"Muscoli", giorni:"Giorni"};
-      pageNote.textContent = labels[calcMenuView] + " · sezione in preparazione";
-    } else {
-      pageNote.textContent = "Menu CALC · cataloghi separati e navigazione più comoda su telefono";
-    }
-  }
-
-  if(title){
     const labels = {
+      home: "Setup",
+      catalogo: "Catalogo esercizi",
       attrezzi: "Attrezzi",
       muscoli: "Muscoli",
       giorni: "Giorni"
     };
-    title.textContent = labels[calcMenuView] || "Sezione";
+    pageTitle.textContent = labels[calcMenuView] || "Setup";
+  }
+
+  if(pageNote){
+    if(calcMenuView === "catalogo"){
+      pageNote.textContent = "Modifica il catalogo degli esercizi direttamente da qui";
+    } else if(calcMenuView === "attrezzi"){
+      pageNote.textContent = "Gestisci pesi attrezzi e collegamenti con gli esercizi";
+    } else if(calcMenuView === "muscoli"){
+      pageNote.textContent = "Categorie e organizzazione del catalogo";
+    } else if(calcMenuView === "giorni"){
+      pageNote.textContent = "Struttura futura dei Day collegati al catalogo";
+    } else {
+      pageNote.textContent = "Menu SETUP · cataloghi separati e navigazione più comoda su telefono";
+    }
   }
 
   if(calcMenuView === "catalogo"){
     renderCatalogView();
+  } else if(calcMenuView === "attrezzi"){
+    renderEquipmentEditControls();
+    renderCalcEquipment();
+    renderCalcExerciseMap();
   }
 }
 
@@ -1702,6 +1849,29 @@ function renderCalcScreen(){
   setCalcMenuView(calcMenuView || "home");
 }
 
+
+
+function inferSlotMuscle(dayName, exerciseIndex, item){
+  const day = String(dayName || "");
+  const idx = Number(exerciseIndex || 0);
+  const currentCatalog = findCatalogEntryForWorkoutItem(item);
+  if(currentCatalog && currentCatalog.muscle) return currentCatalog.muscle;
+
+  if(item && item.cardio) return "Cardio";
+
+  const maps = {
+    "Day 1": ["Pettorali","Dorsali","Spalle","Spalle","Spalle","Spalle"],
+    "Day 2": ["Gambe","Gambe","Gambe","Gambe","Gambe","Gambe"],
+    "Day 3": ["Pettorali","Pettorali","Dorsali","Spalle","Braccia","Braccia"]
+  };
+  const arr = maps[day];
+  if(arr && arr[idx]) return arr[idx];
+  return "";
+}
+
+function getTierRank(tier){
+  return ({S:0,A:1,B:2})[tier] ?? 9;
+}
 
 function normalizeText(v=""){
   return String(v || "")
@@ -1720,23 +1890,31 @@ function findCatalogEntryForWorkoutItem(item){
   ) || null;
 }
 
-function getCatalogGroupsForPicker(){
+function getCatalogGroupsForPicker(targetMuscle = ""){
   const groups = {};
-  (exerciseCatalog || []).filter(ex => ex.enabled !== false).forEach(ex => {
+  const activeCatalog = (exerciseCatalog || []).filter(ex => ex.enabled !== false);
+
+  activeCatalog.forEach(ex => {
     const group = ex.muscle || "Altro";
     if(!groups[group]) groups[group] = [];
     groups[group].push(ex);
   });
 
-  const order = ["Pettorali","Dorsali","Spalle","Gambe","Braccia","Core","Cardio"];
-  const keys = [...order.filter(k => groups[k]), ...Object.keys(groups).filter(k => !order.includes(k)).sort()];
+  const preferredOrder = ["Pettorali","Dorsali","Spalle","Gambe","Braccia","Core","Cardio"];
+  const keys = [...preferredOrder.filter(k => groups[k]), ...Object.keys(groups).filter(k => !preferredOrder.includes(k)).sort()];
 
-  return keys.map(group => ({
+  const orderedKeys = [];
+  if(targetMuscle && groups[targetMuscle]) orderedKeys.push(targetMuscle);
+  keys.forEach(k => {
+    if(!orderedKeys.includes(k)) orderedKeys.push(k);
+  });
+
+  return orderedKeys.map(group => ({
     group,
+    preferred: !!targetMuscle && group === targetMuscle,
     items: groups[group].sort((a,b) => {
-      const tierOrder = {S:0, A:1, B:2};
-      const ta = tierOrder[a.tier] ?? 9;
-      const tb = tierOrder[b.tier] ?? 9;
+      const ta = getTierRank(a.tier);
+      const tb = getTierRank(b.tier);
       if(ta !== tb) return ta - tb;
       return String(a.name || "").localeCompare(String(b.name || ""), "it");
     })
@@ -1786,7 +1964,8 @@ function openExercisePicker(dayName, exerciseIndex){
 
   const currentItemRef = appData?.[dayName]?.[exerciseIndex];
   const currentEx = findCatalogEntryForWorkoutItem(currentItemRef);
-  const groups = getCatalogGroupsForPicker();
+  const targetMuscle = inferSlotMuscle(dayName, exerciseIndex, currentItemRef);
+  const groups = getCatalogGroupsForPicker(targetMuscle);
 
   const overlay = document.createElement("div");
   overlay.className = "exercise-picker-overlay";
@@ -1794,7 +1973,7 @@ function openExercisePicker(dayName, exerciseIndex){
   overlay.innerHTML = `
     <div class="exercise-picker-sheet">
       <div class="exercise-picker-head">
-        <div class="exercise-picker-title">Scegli esercizio</div>
+        <div class="exercise-picker-title">Scegli esercizio${targetMuscle ? " · " + targetMuscle : ""}</div>
         <button class="exercise-picker-close" type="button" id="exercisePickerCloseBtn">Chiudi</button>
       </div>
       <div class="exercise-picker-body" id="exercisePickerBody"></div>
@@ -1813,7 +1992,7 @@ function openExercisePicker(dayName, exerciseIndex){
     section.className = "exercise-picker-group";
     const title = document.createElement("div");
     title.className = "exercise-picker-group-title";
-    title.textContent = group.group;
+    title.textContent = group.preferred ? (group.group + " · consigliati") : group.group;
     section.appendChild(title);
 
     group.items.forEach(ex => {
@@ -1824,6 +2003,7 @@ function openExercisePicker(dayName, exerciseIndex){
         <div class="exercise-picker-option-name">${ex.name}${currentEx && currentEx.id === ex.id ? " ✓" : ""}</div>
         <div class="exercise-picker-option-meta">Tier ${ex.tier || "—"} · ${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + ex.movement : ""}</div>
       `;
+      if(group.preferred) btn.classList.add("preferred");
       btn.onclick = () => applyCatalogExerciseToWorkout(dayName, exerciseIndex, ex.id);
       section.appendChild(btn);
     });
@@ -1983,7 +2163,7 @@ function applyWheelModeFromText(text){
   } else if(text === "EX"){
     currentMode = "ex";
     currentSection = "workout";
-  } else if(text === "CALC"){
+  } else if(text === "SETUP" || text === "CALC"){
     currentMode = "calc";
     currentSection = "calcoli";
   }

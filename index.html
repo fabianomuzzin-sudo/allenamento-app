@@ -326,6 +326,18 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .exercise-role-row{display:flex;align-items:center;gap:8px;margin-top:8px}
 .exercise-role-label{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.05em;text-transform:uppercase;min-width:42px}
 .exercise-role-select{flex:1;background:var(--green);border:1px solid var(--green-border);color:#0a2012;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:900}
+.calc-day-card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
+.calc-day-card+.calc-day-card{margin-top:12px}
+.calc-day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.calc-day-title{font-size:14px;font-weight:900;color:#dcebff}
+.calc-day-count{font-size:11px;color:var(--muted)}
+.calc-day-slots{display:flex;flex-direction:column;gap:10px}
+.calc-day-slot{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px}
+.calc-day-slot-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.calc-day-slot-label{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.calc-day-slot-meta{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.35}
+.calc-day-slot .exercise-picker-btn{font-size:15px;padding:10px 12px}
+.calc-day-slot .exercise-picker-btn small{font-size:10px}
 
 </style>
 </head>
@@ -471,10 +483,11 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
     <div id="calcGiorniView" class="hidden">
       <div class="calc-section">
-        <div class="calc-placeholder-box">
-          <div class="calc-placeholder-main">Sezione Giorni in preparazione.</div>
-          <div class="calc-placeholder-sub">Qui costruiremo ruoli slot, struttura dei day e scheda automatica.</div>
+        <div class="calc-placeholder-box" style="margin-bottom:12px;">
+          <div class="calc-placeholder-main">Giorni collegati al picker esercizi.</div>
+          <div class="calc-placeholder-sub">Ogni slot del Day può aprire il picker catalogo. Il ruolo guida i suggerimenti mostrati in alto.</div>
         </div>
+        <div id="calcDaysEditor"></div>
       </div>
     </div>
 </div>
@@ -707,10 +720,67 @@ let calcMenuView = "home";
 let equipmentEditable = false;
 let equipmentDraftWeights = null;
 let equipmentDraftMap = null;
+let weekSetup = createDefaultWeekSetup();
+let weekSetupDraft = null;
+let weekSetupEditing = false;
 
 let audioCtx = null;
 const STORAGE_KEY = "allenamento_app_state_v56";
 const HISTORY_KEY = "allenamento_app_history_v54";
+
+function createDefaultWeekSetup(){
+  return {
+    structure: "Multifrequenza",
+    dayTypes: {
+      "Day 1": "Push",
+      "Day 2": "Legs",
+      "Day 3": "Pull",
+      "Day 4": "Upper",
+      "Day 5": "Lower"
+    }
+  };
+}
+
+function getWeekStructureOptions(){
+  return ["Multifrequenza", "Monofrequenza"];
+}
+
+function getDayTypeOptions(){
+  return ["", "Push", "Pull", "Legs", "Upper", "Lower", "Full Body", "Cardio", "Arms", "Rest"];
+}
+
+function ensureWeekSetup(){
+  const base = createDefaultWeekSetup();
+  if(!weekSetup || typeof weekSetup !== "object") weekSetup = base;
+  if(!weekSetup.structure) weekSetup.structure = base.structure;
+  if(!weekSetup.dayTypes || typeof weekSetup.dayTypes !== "object") weekSetup.dayTypes = calcClone(base.dayTypes);
+  ["Day 1","Day 2","Day 3","Day 4","Day 5"].forEach(day => {
+    if(weekSetup.dayTypes[day] === undefined) weekSetup.dayTypes[day] = base.dayTypes[day] || "";
+  });
+}
+
+function startWeekSetupEdit(){
+  ensureWeekSetup();
+  weekSetupDraft = calcClone(weekSetup);
+  weekSetupEditing = true;
+  renderCalcDaysView();
+}
+
+function cancelWeekSetupEdit(){
+  weekSetupDraft = null;
+  weekSetupEditing = false;
+  renderCalcDaysView();
+}
+
+function saveWeekSetupEdit(){
+  if(!weekSetupDraft) return;
+  weekSetup = calcClone(weekSetupDraft);
+  ensureWeekSetup();
+  weekSetupDraft = null;
+  weekSetupEditing = false;
+  saveAppState();
+  renderCalcDaysView();
+}
 
 function saveAppState(){
   try{
@@ -720,7 +790,8 @@ function saveAppState(){
       currentExercise,
       currentSection,
       unlocked,
-      calcState
+      calcState,
+      weekSetup
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }catch(e){}
@@ -737,8 +808,12 @@ function loadAppState(){
       if(state && state.currentSection) currentSection = state.currentSection;
       if(state && typeof state.unlocked === "boolean") unlocked = state.unlocked;
       if(state && state.calcState) calcState = Object.assign(createDefaultCalcState(), state.calcState);
+      if(state && state.weekSetup) weekSetup = Object.assign(createDefaultWeekSetup(), state.weekSetup);
     }
   }catch(e){}
+
+  ensureWorkoutRoles();
+  ensureWeekSetup();
 
   const validDays = Object.keys(appData).filter(k => Array.isArray(appData[k]) && appData[k].length > 0);
   if(!validDays.length) return;
@@ -1846,6 +1921,8 @@ function setCalcMenuView(view){
     renderEquipmentEditControls();
     renderCalcEquipment();
     renderCalcExerciseMap();
+  } else if(calcMenuView === "giorni"){
+    renderCalcDaysView();
   }
 }
 
@@ -1860,15 +1937,230 @@ function renderCalcScreen(){
 
 
 
+
+function renderCalcDaysView(){
+  const wrap = document.getElementById("calcDaysEditor");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  ensureWeekSetup();
+
+  const config = weekSetupEditing && weekSetupDraft ? weekSetupDraft : weekSetup;
+  const weekCard = document.createElement("div");
+  weekCard.className = "calc-week-card";
+
+  const isEditing = !!weekSetupEditing;
+  const structureOptions = getWeekStructureOptions().map(v => `<option value="${v}" ${String(config.structure||"")===String(v)?"selected":""}>${v}</option>`).join("");
+  const dayRows = ["Day 1","Day 2","Day 3","Day 4","Day 5"].map(day => {
+    const val = config?.dayTypes?.[day] || "";
+    const options = getDayTypeOptions().map(type => `<option value="${type}" ${String(val)===String(type)?"selected":""}>${type || "—"}</option>`).join("");
+    return `<tr><td>${day}</td><td>${isEditing ? `<select class="calc-select" data-week-day="${day}">${options}</select>` : `<span class="calc-week-badge">${val || "—"}</span>`}</td></tr>`;
+  }).join("");
+
+  weekCard.innerHTML = `
+    <div class="calc-week-top">
+      <div>
+        <div class="calc-week-title">Struttura settimanale</div>
+        <div class="calc-week-sub">Configura schema settimana e tipo di Day senza toccare slot, ruoli o picker esistente.</div>
+      </div>
+      <div class="calc-week-actions">
+        ${isEditing
+          ? '<button class="calc-action" type="button" id="weekSetupSaveBtn">Salva</button><button class="calc-ghost-btn" type="button" id="weekSetupCancelBtn">Annulla</button>'
+          : '<button class="calc-action" type="button" id="weekSetupEditBtn">Modifica</button>'}
+      </div>
+    </div>
+    <div class="calc-week-grid">
+      <div class="calc-week-structure">
+        <div class="calc-week-label">Struttura</div>
+        ${isEditing
+          ? `<select class="calc-select" id="weekStructureSelect">${structureOptions}</select>`
+          : `<span class="calc-week-badge">${config.structure || "Multifrequenza"}</span>`}
+      </div>
+      <div>
+        <div class="calc-week-label" style="margin-bottom:6px;">Day 1–5</div>
+        <div class="calc-week-table-wrap">
+          <table class="calc-week-table">
+            <thead><tr><th>Day</th><th>Tipo</th></tr></thead>
+            <tbody>${dayRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+  wrap.appendChild(weekCard);
+
+  if(isEditing){
+    const structureSel = weekCard.querySelector("#weekStructureSelect");
+    if(structureSel){
+      structureSel.onchange = () => {
+        if(weekSetupDraft) weekSetupDraft.structure = structureSel.value;
+      };
+    }
+    weekCard.querySelectorAll("[data-week-day]").forEach(sel => {
+      sel.onchange = () => {
+        if(!weekSetupDraft) return;
+        weekSetupDraft.dayTypes[sel.getAttribute("data-week-day")] = sel.value;
+      };
+    });
+    const saveBtn = weekCard.querySelector("#weekSetupSaveBtn");
+    const cancelBtn = weekCard.querySelector("#weekSetupCancelBtn");
+    if(saveBtn) saveBtn.onclick = saveWeekSetupEdit;
+    if(cancelBtn) cancelBtn.onclick = cancelWeekSetupEdit;
+  } else {
+    const editBtn = weekCard.querySelector("#weekSetupEditBtn");
+    if(editBtn) editBtn.onclick = startWeekSetupEdit;
+  }
+
+  const days = Object.keys(appData || {}).filter(day => Array.isArray(appData[day]) && appData[day].length);
+  if(!days.length){
+    const empty = document.createElement("div");
+    empty.className = "calc-placeholder-box";
+    empty.innerHTML = '<div class="calc-placeholder-main">Nessun Day disponibile.</div><div class="calc-placeholder-sub">Aggiungi almeno un giorno di allenamento per collegarlo al picker.</div>';
+    wrap.appendChild(empty);
+    return;
+  }
+
+  days.forEach(dayName => {
+    const list = appData[dayName] || [];
+    const card = document.createElement("div");
+    card.className = "calc-day-card";
+
+    const head = document.createElement("div");
+    head.className = "calc-day-head";
+    const typeLabel = weekSetup?.dayTypes?.[dayName] || "";
+    head.innerHTML = `
+      <div>
+        <div class="calc-day-title">${dayName}</div>
+        <div class="calc-day-slot-meta" style="margin-top:4px;">${typeLabel ? 'Tipo: ' + typeLabel + ' · ' : ''}${list.length} slot</div>
+      </div>
+      <div class="calc-day-count">${list.length} slot</div>
+    `;
+    card.appendChild(head);
+
+    const slots = document.createElement("div");
+    slots.className = "calc-day-slots";
+
+    list.forEach((item, index) => {
+      const slot = document.createElement("div");
+      slot.className = "calc-day-slot";
+
+      const top = document.createElement("div");
+      top.className = "calc-day-slot-top";
+      const slotLabel = document.createElement("div");
+      slotLabel.className = "calc-day-slot-label";
+      slotLabel.textContent = `Slot ${index + 1}${item && item.cardio ? ' · cardio' : ''}`;
+      top.appendChild(slotLabel);
+      slot.appendChild(top);
+
+      const pickerRow = document.createElement("div");
+      pickerRow.className = "exercise-picker-row";
+      const pickerBtn = document.createElement("button");
+      pickerBtn.type = "button";
+      pickerBtn.className = "exercise-picker-btn";
+      const targetMuscle = inferSlotMuscle(dayName, index, item);
+      const subtitleParts = [];
+      subtitleParts.push(targetMuscle ? `Ruolo: ${targetMuscle}` : 'Ruolo automatico');
+      if(item && item.note) subtitleParts.push(item.note);
+      pickerBtn.innerHTML = `${item?.name || 'Scegli esercizio'}<small>${subtitleParts.join(' · ')}</small>`;
+      pickerBtn.onclick = () => {
+        if(!requirePasswordForGreenEdit()) return;
+        openExercisePicker(dayName, index);
+      };
+      pickerRow.appendChild(pickerBtn);
+      slot.appendChild(pickerRow);
+
+      const roleRow = document.createElement("div");
+      roleRow.className = "exercise-role-row";
+      const roleLabel = document.createElement("div");
+      roleLabel.className = "exercise-role-label";
+      roleLabel.textContent = "Ruolo";
+      const sel = document.createElement("select");
+      sel.className = "exercise-role-select";
+      getRoleOptions().forEach(v => {
+        const o = document.createElement("option");
+        o.value = v;
+        o.textContent = v || 'Automatico';
+        if(String(v) === String(item?.role || '')) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.onmousedown = (e) => {
+        if(!unlocked){
+          e.preventDefault();
+          if(requirePasswordForGreenEdit()) renderCalcDaysView();
+        }
+      };
+      sel.ontouchstart = (e) => {
+        if(!unlocked){
+          e.preventDefault();
+          if(requirePasswordForGreenEdit()) renderCalcDaysView();
+        }
+      };
+      sel.onchange = () => {
+        item.role = sel.value;
+        saveAppState();
+        renderCalcDaysView();
+      };
+      roleRow.appendChild(roleLabel);
+      roleRow.appendChild(sel);
+      slot.appendChild(roleRow);
+
+      const meta = document.createElement("div");
+      meta.className = "calc-day-slot-meta";
+      const workSets = Array.isArray(item?.rows) ? item.rows.filter(r => !r.warm).length : 0;
+      const rest = Number(item?.rest || 0);
+      meta.textContent = `${workSets} serie lavoro${rest ? ' · recupero ' + rest + 's' : ''}`;
+      slot.appendChild(meta);
+
+      slots.appendChild(slot);
+    });
+
+    card.appendChild(slots);
+    wrap.appendChild(card);
+  });
+}
+
+function getDayMeta(dayName){
+  ensureWeekSetup();
+  const type = (weekSetup?.dayTypes?.[dayName] || "").trim();
+  const normalizedType = normalizeText(type);
+
+  const base = {
+    day: String(dayName || ""),
+    structure: weekSetup?.structure || "Multifrequenza",
+    type,
+    titleFocus: type || "",
+    focusLabel: type || "",
+    focusMuscles: [],
+    preferredMovements: [],
+    strictCardio: false,
+    isRest: false
+  };
+
+  const presets = {
+    push: { focusMuscles:["Pettorali","Spalle","Braccia"], preferredMovements:["Push"] },
+    pull: { focusMuscles:["Dorsali","Spalle","Braccia"], preferredMovements:["Pull"] },
+    legs: { focusMuscles:["Gambe","Core"], preferredMovements:[] },
+    lower: { focusMuscles:["Gambe","Core"], preferredMovements:[] },
+    upper: { focusMuscles:["Pettorali","Dorsali","Spalle","Braccia"], preferredMovements:["Push","Pull"] },
+    'full body': { focusMuscles:["Pettorali","Dorsali","Spalle","Gambe","Braccia","Core"], preferredMovements:["Push","Pull"] },
+    cardio: { focusMuscles:["Cardio"], preferredMovements:["Cardio"], strictCardio:true },
+    arms: { focusMuscles:["Braccia","Spalle"], preferredMovements:["Push","Pull"] },
+    rest: { focusMuscles:[], preferredMovements:[], isRest:true }
+  };
+
+  return Object.assign(base, presets[normalizedType] || {});
+}
+
 function inferSlotMuscle(dayName, exerciseIndex, item){
   const day = String(dayName || "");
   const idx = Number(exerciseIndex || 0);
+  const dayMeta = getDayMeta(dayName);
 
   if(item && item.role) return item.role;
   const currentCatalog = findCatalogEntryForWorkoutItem(item);
   if(currentCatalog && currentCatalog.muscle) return currentCatalog.muscle;
 
   if(item && item.cardio) return "Cardio";
+  if(dayMeta.strictCardio) return "Cardio";
 
   const maps = {
     "Day 1": ["Pettorali","Dorsali","Spalle","Spalle","Spalle","Spalle"],
@@ -1877,6 +2169,7 @@ function inferSlotMuscle(dayName, exerciseIndex, item){
   };
   const arr = maps[day];
   if(arr && arr[idx]) return arr[idx];
+  if(dayMeta.focusMuscles && dayMeta.focusMuscles.length) return dayMeta.focusMuscles[0];
   return "";
 }
 
@@ -1958,11 +2251,28 @@ function findCatalogEntryForWorkoutItem(item){
   ) || null;
 }
 
-function getCatalogGroupsForPicker(targetMuscle = ""){
+function getCatalogGroupsForPicker(targetMuscle = "", dayMeta = null){
   const groups = {};
   const activeCatalog = (exerciseCatalog || []).filter(ex => ex.enabled !== false);
+  const focusMuscles = Array.isArray(dayMeta?.focusMuscles) ? dayMeta.focusMuscles : [];
+  const preferredMovements = Array.isArray(dayMeta?.preferredMovements) ? dayMeta.preferredMovements : [];
+  const strictCardio = !!dayMeta?.strictCardio;
+
+  function getExerciseFocusScore(ex){
+    let score = 0;
+    const muscle = ex?.muscle || "";
+    const movement = ex?.movement || "";
+
+    if(targetMuscle && muscle === targetMuscle) score += 120;
+    if(focusMuscles.includes(muscle)) score += 60;
+    if(preferredMovements.includes(movement)) score += 35;
+    if(strictCardio && muscle === "Cardio") score += 500;
+    if(strictCardio && muscle !== "Cardio") score -= 500;
+    return score;
+  }
 
   activeCatalog.forEach(ex => {
+    if(strictCardio && (ex?.muscle || "") !== "Cardio") return;
     const group = ex.muscle || "Altro";
     if(!groups[group]) groups[group] = [];
     groups[group].push(ex);
@@ -1973,14 +2283,22 @@ function getCatalogGroupsForPicker(targetMuscle = ""){
 
   const orderedKeys = [];
   if(targetMuscle && groups[targetMuscle]) orderedKeys.push(targetMuscle);
+  focusMuscles.forEach(k => {
+    if(groups[k] && !orderedKeys.includes(k)) orderedKeys.push(k);
+  });
   keys.forEach(k => {
     if(!orderedKeys.includes(k)) orderedKeys.push(k);
   });
 
   return orderedKeys.map(group => ({
     group,
-    preferred: !!targetMuscle && group === targetMuscle,
+    preferred: (!!targetMuscle && group === targetMuscle) || focusMuscles.includes(group),
+    preferredByRole: !!targetMuscle && group === targetMuscle,
+    preferredByFocus: focusMuscles.includes(group),
     items: groups[group].sort((a,b) => {
+      const sa = getExerciseFocusScore(a);
+      const sb = getExerciseFocusScore(b);
+      if(sa !== sb) return sb - sa;
       const ta = getTierRank(a.tier);
       const tb = getTierRank(b.tier);
       if(ta !== tb) return ta - tb;
@@ -2033,8 +2351,12 @@ function openExercisePicker(dayName, exerciseIndex){
 
   const currentItemRef = appData?.[dayName]?.[exerciseIndex];
   const currentEx = findCatalogEntryForWorkoutItem(currentItemRef);
+  const dayMeta = getDayMeta(dayName);
   const targetMuscle = inferSlotMuscle(dayName, exerciseIndex, currentItemRef);
-  const groups = getCatalogGroupsForPicker(targetMuscle);
+  const groups = getCatalogGroupsForPicker(targetMuscle, dayMeta);
+  const titleParts = ["Scegli esercizio"];
+  if(dayMeta?.type) titleParts.push(dayMeta.type);
+  if(targetMuscle && targetMuscle !== dayMeta?.type) titleParts.push(targetMuscle);
 
   const overlay = document.createElement("div");
   overlay.className = "exercise-picker-overlay";
@@ -2042,7 +2364,7 @@ function openExercisePicker(dayName, exerciseIndex){
   overlay.innerHTML = `
     <div class="exercise-picker-sheet">
       <div class="exercise-picker-head">
-        <div class="exercise-picker-title">Scegli esercizio${targetMuscle ? " · " + targetMuscle : ""}</div>
+        <div class="exercise-picker-title">${titleParts.join(" · ")}</div>
         <button class="exercise-picker-close" type="button" id="exercisePickerCloseBtn">Chiudi</button>
       </div>
       <div class="exercise-picker-body" id="exercisePickerBody"></div>
@@ -2061,16 +2383,22 @@ function openExercisePicker(dayName, exerciseIndex){
     section.className = "exercise-picker-group";
     const title = document.createElement("div");
     title.className = "exercise-picker-group-title";
-    title.textContent = group.preferred ? (group.group + " · consigliati") : group.group;
+
+    let suffix = "";
+    if(group.preferredByRole && group.preferredByFocus) suffix = " · ruolo + focus";
+    else if(group.preferredByRole) suffix = " · ruolo";
+    else if(group.preferredByFocus) suffix = " · focus day";
+    title.textContent = group.group + suffix;
     section.appendChild(title);
 
     group.items.forEach(ex => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "exercise-picker-option";
+      const coherent = (dayMeta?.focusMuscles || []).includes(ex.muscle || "") || (dayMeta?.preferredMovements || []).includes(ex.movement || "");
       btn.innerHTML = `
         <div class="exercise-picker-option-name">${ex.name}${currentEx && currentEx.id === ex.id ? " ✓" : ""}</div>
-        <div class="exercise-picker-option-meta">Tier ${ex.tier || "—"} · ${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + ex.movement : ""}</div>
+        <div class="exercise-picker-option-meta">Tier ${ex.tier || "—"} · ${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + ex.movement : ""}${coherent && dayMeta?.type ? " · focus " + dayMeta.type : ""}</div>
       `;
       if(group.preferred) btn.classList.add("preferred");
       btn.onclick = () => applyCatalogExerciseToWorkout(dayName, exerciseIndex, ex.id);

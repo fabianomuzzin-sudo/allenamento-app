@@ -287,6 +287,33 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .calc-edit-controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
 .calc-action-secondary{background:#2a2f39;color:var(--text)}
 
+
+.exercise-picker-row{display:flex;align-items:center;gap:8px}
+.exercise-picker-btn{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);text-align:left;font-size:18px;font-weight:900}
+.exercise-picker-btn small{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-top:4px}
+.exercise-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:80;display:flex;align-items:flex-end;justify-content:center;padding:10px}
+.exercise-picker-sheet{width:100%;max-width:460px;max-height:80vh;background:var(--panel);border:1px solid var(--line);border-radius:18px 18px 14px 14px;overflow:hidden;display:flex;flex-direction:column}
+.exercise-picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;border-bottom:1px solid var(--line)}
+.exercise-picker-title{font-size:15px;font-weight:900}
+.exercise-picker-close{background:#22262e;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800}
+.exercise-picker-body{overflow:auto;padding:12px}
+.exercise-picker-group+.exercise-picker-group{margin-top:12px}
+.exercise-picker-group-title{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.exercise-picker-option{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);text-align:left}
+.exercise-picker-option+.exercise-picker-option{margin-top:8px}
+.exercise-picker-option-name{font-size:14px;font-weight:900}
+.exercise-picker-option-meta{font-size:11px;color:var(--muted);margin-top:3px}
+
+
+.exercise-picker-btn{
+  background:var(--green);
+  border:1px solid var(--green-border);
+  color:#0a2012;
+}
+.exercise-picker-btn small{
+  color:rgba(10,32,18,.78);
+}
+
 </style>
 </head>
 <body>
@@ -1035,8 +1062,15 @@ if (currentExercise < 0 || currentExercise >= list.length) {
 }
 
 const item = list[currentExercise];
-  document.getElementById("exerciseTitle").textContent = item.name;
-  document.getElementById("exerciseNote").textContent = item.note || "";
+  document.getElementById("exerciseTitle").innerHTML = `
+    <div class="exercise-picker-row">
+      <button class="exercise-picker-btn" id="exercisePickerBtn" type="button">
+        ${item.name}
+        <small>${item.note || "Tocca per scegliere dal catalogo"}</small>
+      </button>
+    </div>
+  `;
+  document.getElementById("exerciseNote").textContent = "";
   document.getElementById("h2").textContent = item.cardio ? "Min" : "Ripetizioni";
   document.getElementById("h3").textContent = item.cardio ? "Sforzo" : "Peso";
   document.getElementById("h4").textContent = item.cardio ? "Pendenza" : "RIR";
@@ -1162,6 +1196,18 @@ const item = list[currentExercise];
   slider.max = 5;
   slider.value = parseInt(currentDay.replace("Day ",""));
 }
+  const exercisePickerBtn = document.getElementById("exercisePickerBtn");
+  if(exercisePickerBtn){
+    exercisePickerBtn.onclick = () => {
+      if(!unlocked){
+        if(!requirePasswordForGreenEdit()) return;
+        render();
+        return;
+      }
+      openExercisePicker(currentDay, currentExercise);
+    };
+  }
+
   updateTimerDisplay();
   updateStats();
 }
@@ -1394,14 +1440,8 @@ slider.addEventListener("input", () => {
 
 function render(){
   const daysWrap = document.getElementById("days");
-
-  if(currentMode === "day"){
-    daysWrap.style.display = "grid";
-    renderDays();
-  } else {
-    daysWrap.style.display = "none";
-    daysWrap.innerHTML = "";
-  }
+  daysWrap.style.display = "none";
+  daysWrap.innerHTML = "";
 
   if(currentSection === "calcoli"){
     document.getElementById("workoutCard").classList.add("hidden");
@@ -1662,6 +1702,135 @@ function renderCalcScreen(){
   setCalcMenuView(calcMenuView || "home");
 }
 
+
+function normalizeText(v=""){
+  return String(v || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function findCatalogEntryForWorkoutItem(item){
+  if(!item) return null;
+  const itemName = normalizeText(item.name);
+  return (exerciseCatalog || []).find(ex =>
+    normalizeText(ex.sourceName) === itemName ||
+    normalizeText(ex.name) === itemName
+  ) || null;
+}
+
+function getCatalogGroupsForPicker(){
+  const groups = {};
+  (exerciseCatalog || []).filter(ex => ex.enabled !== false).forEach(ex => {
+    const group = ex.muscle || "Altro";
+    if(!groups[group]) groups[group] = [];
+    groups[group].push(ex);
+  });
+
+  const order = ["Pettorali","Dorsali","Spalle","Gambe","Braccia","Core","Cardio"];
+  const keys = [...order.filter(k => groups[k]), ...Object.keys(groups).filter(k => !order.includes(k)).sort()];
+
+  return keys.map(group => ({
+    group,
+    items: groups[group].sort((a,b) => {
+      const tierOrder = {S:0, A:1, B:2};
+      const ta = tierOrder[a.tier] ?? 9;
+      const tb = tierOrder[b.tier] ?? 9;
+      if(ta !== tb) return ta - tb;
+      return String(a.name || "").localeCompare(String(b.name || ""), "it");
+    })
+  }));
+}
+
+function closeExercisePicker(){
+  const overlay = document.getElementById("exercisePickerOverlay");
+  if(overlay) overlay.remove();
+}
+
+function applyCatalogExerciseToWorkout(dayName, exerciseIndex, catalogId){
+  const item = appData?.[dayName]?.[exerciseIndex];
+  const ex = (exerciseCatalog || []).find(x => x.id === catalogId);
+  if(!item || !ex) return;
+
+  item.name = ex.sourceName || ex.name;
+  item.note = ex.equipment || "";
+
+  if(item.cardio){
+    saveAppState();
+    render();
+    closeExercisePicker();
+    return;
+  }
+
+  const linkedWeights = getLinkedWeightsForExercise(item.name, false)
+    .map(v => parseNum(v))
+    .filter(v => !Number.isNaN(v));
+
+  item.rows.forEach(r => {
+    if(linkedWeights.length){
+      const current = parseNum(r.pesoVal) || linkedWeights[0];
+      const next = nextAvailableWeight(current, linkedWeights, item.name);
+      r.peso = linkedWeights.map(v => formatWeight(v, item.name));
+      r.pesoVal = formatWeight(next, item.name);
+    }
+  });
+
+  saveAppState();
+  render();
+  closeExercisePicker();
+}
+
+function openExercisePicker(dayName, exerciseIndex){
+  closeExercisePicker();
+
+  const currentItemRef = appData?.[dayName]?.[exerciseIndex];
+  const currentEx = findCatalogEntryForWorkoutItem(currentItemRef);
+  const groups = getCatalogGroupsForPicker();
+
+  const overlay = document.createElement("div");
+  overlay.className = "exercise-picker-overlay";
+  overlay.id = "exercisePickerOverlay";
+  overlay.innerHTML = `
+    <div class="exercise-picker-sheet">
+      <div class="exercise-picker-head">
+        <div class="exercise-picker-title">Scegli esercizio</div>
+        <button class="exercise-picker-close" type="button" id="exercisePickerCloseBtn">Chiudi</button>
+      </div>
+      <div class="exercise-picker-body" id="exercisePickerBody"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener("click", (e) => {
+    if(e.target === overlay) closeExercisePicker();
+  });
+  document.getElementById("exercisePickerCloseBtn").onclick = closeExercisePicker;
+
+  const body = document.getElementById("exercisePickerBody");
+  groups.forEach(group => {
+    const section = document.createElement("div");
+    section.className = "exercise-picker-group";
+    const title = document.createElement("div");
+    title.className = "exercise-picker-group-title";
+    title.textContent = group.group;
+    section.appendChild(title);
+
+    group.items.forEach(ex => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "exercise-picker-option";
+      btn.innerHTML = `
+        <div class="exercise-picker-option-name">${ex.name}${currentEx && currentEx.id === ex.id ? " ✓" : ""}</div>
+        <div class="exercise-picker-option-meta">Tier ${ex.tier || "—"} · ${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + ex.movement : ""}</div>
+      `;
+      btn.onclick = () => applyCatalogExerciseToWorkout(dayName, exerciseIndex, ex.id);
+      section.appendChild(btn);
+    });
+
+    body.appendChild(section);
+  });
+}
 document.getElementById("miniTimer").onclick = toggleMiniTimer;
 
 
@@ -1946,6 +2115,10 @@ function updateCatalogDraftField(id, field, value){
   const ex = catalogDraft.find(e => e.id === id);
   if(!ex) return;
   ex[field] = value;
+
+  if(field === "name" && (!ex.sourceName || ex.sourceName === "") && (String(ex.id).startsWith("nuovo_esercizio") || String(ex.id).startsWith("new_exercise"))){
+    ex.id = makeUniqueExerciseId(slugifyExerciseId(value));
+  }
 }
 
 function enterCatalogEdit(){
@@ -1970,6 +2143,63 @@ function cancelCatalogEdit(){
   renderCatalogView();
 }
 
+
+function getEquipmentOptions(){
+  const opts = [];
+  try{
+    if(calcState && calcState.equipmentWeights){
+      Object.keys(calcState.equipmentWeights).forEach(k => {
+        if(k && k !== "Attrezzi" && !opts.includes(k)) opts.push(k);
+      });
+    }
+  }catch(e){}
+  if(Array.isArray(CALC_IMPORT?.equipmentWeights?.Attrezzi)){
+    CALC_IMPORT.equipmentWeights.Attrezzi.forEach(k => {
+      if(k && !opts.includes(k)) opts.push(k);
+    });
+  }
+  if(!opts.includes("Ellittica")) opts.unshift("Ellittica");
+  return opts;
+}
+
+function getMovementOptions(){
+  return ["Push","Pull","Cardio","Altro"];
+}
+
+function slugifyExerciseId(value){
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "nuovo_esercizio";
+}
+
+function makeUniqueExerciseId(baseId){
+  const source = Array.isArray(catalogDraft) ? catalogDraft : (exerciseCatalog || []);
+  const taken = new Set(source.map(ex => ex.id));
+  if(!taken.has(baseId)) return baseId;
+  let i = 2;
+  while(taken.has(baseId + "_" + i)) i++;
+  return baseId + "_" + i;
+}
+
+function addNewExercise(){
+  if(!catalogEditable || !Array.isArray(catalogDraft)) return;
+  const nextId = makeUniqueExerciseId("nuovo_esercizio");
+  catalogDraft.push({
+    id: nextId,
+    name: "Nuovo esercizio",
+    sourceName: "",
+    muscle: "Braccia",
+    tier: "B",
+    movement: "Altro",
+    equipment: getEquipmentOptions()[0] || "Macchina 1",
+    enabled: true
+  });
+  renderCatalogView();
+}
+
 function getCatalogDataForRender(){
   return catalogEditable && Array.isArray(catalogDraft) ? catalogDraft : (exerciseCatalog || []);
 }
@@ -1980,14 +2210,17 @@ function buildCatalogEditControls(container){
   controls.innerHTML = `
     <button class="calc-action" type="button" id="catalogSaveBtn">Salva</button>
     <button class="calc-action calc-action-secondary" type="button" id="catalogCancelBtn">Annulla</button>
+    <button class="calc-action calc-action-secondary" type="button" id="catalogAddBtn">Nuovo esercizio</button>
   `;
   container.appendChild(controls);
 
   const saveBtn = controls.querySelector("#catalogSaveBtn");
   const cancelBtn = controls.querySelector("#catalogCancelBtn");
+  const addBtn = controls.querySelector("#catalogAddBtn");
 
   if(saveBtn) saveBtn.onclick = saveCatalogEdit;
   if(cancelBtn) cancelBtn.onclick = cancelCatalogEdit;
+  if(addBtn) addBtn.onclick = addNewExercise;
 }
 
 function buildCatalogEditButton(container){
@@ -2029,6 +2262,21 @@ function renderCatalogView(){
       row.className = "calc-ex-row";
 
       if(catalogEditable){
+        const equipmentOptions = getEquipmentOptions();
+        const movementOptions = getMovementOptions();
+
+        const equipmentSelect = `
+          <select class="calc-select" data-id="${ex.id}" data-field="equipment">
+            ${equipmentOptions.map(opt => `<option value="${opt}" ${ex.equipment===opt?'selected':''}>${opt}</option>`).join("")}
+          </select>
+        `;
+
+        const movementSelect = `
+          <select class="calc-select" data-id="${ex.id}" data-field="movement">
+            ${movementOptions.map(opt => `<option value="${opt}" ${ex.movement===opt?'selected':''}>${opt}</option>`).join("")}
+          </select>
+        `;
+
         row.innerHTML = `
           <div style="display:grid;grid-template-columns:1fr;gap:8px;width:100%;">
             <input class="calc-input" value="${(ex.name || "").replace(/"/g, '&quot;')}" data-id="${ex.id}" data-field="name">
@@ -2040,10 +2288,21 @@ function renderCatalogView(){
               </select>
               <input class="calc-input" value="${(ex.muscle || "").replace(/"/g, '&quot;')}" data-id="${ex.id}" data-field="muscle">
             </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              ${equipmentSelect}
+              ${movementSelect}
+            </div>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;">
+              <input class="calc-input" value="${(ex.sourceName || "").replace(/"/g, '&quot;')}" data-id="${ex.id}" data-field="sourceName" placeholder="Nome sorgente (opzionale)">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--text);">
+                <input type="checkbox" ${ex.enabled !== false ? "checked" : ""} data-id="${ex.id}" data-field="enabled" style="width:16px;height:16px;">
+                Attivo
+              </label>
+            </div>
           </div>
         `;
       } else {
-        row.innerHTML = `<div class="calc-ex-name">${ex.name || ""} <span class="calc-ref">(${ex.tier || ""})</span></div>`;
+        row.innerHTML = `<div><div class="calc-ex-name">${ex.name || ""} <span class="calc-ref">(${ex.tier || ""})</span></div><div class="calc-ex-meta">${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + ex.movement : ""}</div></div>`;
       }
 
       wrap.appendChild(row);
@@ -2053,7 +2312,8 @@ function renderCatalogView(){
   if(catalogEditable){
     wrap.querySelectorAll("[data-id][data-field]").forEach(el => {
       const handler = () => {
-        updateCatalogDraftField(el.getAttribute("data-id"), el.getAttribute("data-field"), el.value);
+        const value = el.type === "checkbox" ? el.checked : el.value;
+        updateCatalogDraftField(el.getAttribute("data-id"), el.getAttribute("data-field"), value);
       };
       el.addEventListener("input", handler);
       el.addEventListener("change", handler);

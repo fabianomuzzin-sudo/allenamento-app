@@ -322,6 +322,11 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .calc-equipment-grid .calc-equipment-card textarea{font-family:inherit}
 
 .calc-action-secondary{background:#2a2f39;color:var(--text)}
+
+.exercise-role-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.exercise-role-label{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.05em;text-transform:uppercase;min-width:42px}
+.exercise-role-select{flex:1;background:var(--green);border:1px solid var(--green-border);color:#0a2012;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:900}
+
 </style>
 </head>
 <body>
@@ -845,7 +850,9 @@ function currentItem(){ return currentList()[currentExercise]; }
 function requirePasswordForGreenEdit(){
   if(unlocked) return true;
   const p = prompt("Inserisci password");
-  if(p !== PASSWORD){
+  const normalized = String(p ?? "").trim().toLowerCase();
+  const expected = String(PASSWORD).trim().toLowerCase();
+  if(normalized !== expected){
     if(p !== null) alert("Password errata");
     return false;
   }
@@ -1239,7 +1246,9 @@ const item = list[currentExercise];
   if(exercisePickerBtn){
     exercisePickerBtn.onclick = () => {
       const p = prompt("Inserisci password");
-      if(p !== PASSWORD){
+      const normalized = String(p ?? "").trim().toLowerCase();
+      const expected = String(PASSWORD).trim().toLowerCase();
+      if(normalized !== expected){
         if(p !== null) alert("Password errata");
         return;
       }
@@ -1854,6 +1863,8 @@ function renderCalcScreen(){
 function inferSlotMuscle(dayName, exerciseIndex, item){
   const day = String(dayName || "");
   const idx = Number(exerciseIndex || 0);
+
+  if(item && item.role) return item.role;
   const currentCatalog = findCatalogEntryForWorkoutItem(item);
   if(currentCatalog && currentCatalog.muscle) return currentCatalog.muscle;
 
@@ -1871,6 +1882,63 @@ function inferSlotMuscle(dayName, exerciseIndex, item){
 
 function getTierRank(tier){
   return ({S:0,A:1,B:2})[tier] ?? 9;
+}
+
+
+function getRoleOptions(){
+  return ["", "Cardio", "Pettorali", "Dorsali", "Spalle", "Gambe", "Braccia", "Core"];
+}
+
+function ensureWorkoutRoles(){
+  Object.values(appData || {}).forEach(dayList => {
+    (dayList || []).forEach(item => {
+      if(item.role === undefined) item.role = "";
+    });
+  });
+}
+
+function renderWorkoutRoleControl(item){
+  const titleEl = document.getElementById("exerciseTitle");
+  if(!titleEl || !item) return;
+
+  const row = document.createElement("div");
+  row.className = "exercise-role-row";
+
+  const lab = document.createElement("div");
+  lab.className = "exercise-role-label";
+  lab.textContent = "Ruolo";
+
+  const sel = document.createElement("select");
+  sel.className = "exercise-role-select";
+  getRoleOptions().forEach(v => {
+    const o = document.createElement("option");
+    o.value = v;
+    o.textContent = v || "Automatico";
+    if(String(v) === String(item.role || "")) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  sel.onmousedown = (e) => {
+    if(!unlocked){
+      e.preventDefault();
+      if(requirePasswordForGreenEdit()) render();
+    }
+  };
+  sel.ontouchstart = (e) => {
+    if(!unlocked){
+      e.preventDefault();
+      if(requirePasswordForGreenEdit()) render();
+    }
+  };
+  sel.onchange = () => {
+    item.role = sel.value;
+    saveAppState();
+    render();
+  };
+
+  row.appendChild(lab);
+  row.appendChild(sel);
+  titleEl.appendChild(row);
 }
 
 function normalizeText(v=""){
@@ -1933,6 +2001,7 @@ function applyCatalogExerciseToWorkout(dayName, exerciseIndex, catalogId){
 
   item.name = ex.sourceName || ex.name;
   item.note = ex.equipment || "";
+  if(!item.role) item.role = ex.muscle || "";
 
   if(item.cardio){
     saveAppState();
@@ -2260,6 +2329,7 @@ if(calcBackBtn){
 }
 
 loadAppState();
+ensureWorkoutRoles();
 render();
 setTimeout(() => centerWheelOnMode(currentMode, "auto"), 0);
 setTimeout(updateWheelVisual, 40);

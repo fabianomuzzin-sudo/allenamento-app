@@ -82,7 +82,12 @@ select{width:auto;min-width:68px;max-width:100%;justify-self:center;padding:6px 
 .box-value{font-size:24px;font-weight:900;margin-top:2px}
 .bottom{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(0deg,#171a1f 0%, #111317 100%);border-top:1px solid var(--line);padding:12px}
 .bottom-inner{max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
-.slider-row{display:grid;grid-template-columns:16px 1fr 16px auto;gap:8px;align-items:center}
+.slider-row{
+  display:grid;
+  grid-template-columns:22px 1fr 22px 90px;
+  gap:8px;
+  align-items:center;
+}
 .counter{font-size:12px;color:var(--muted);text-align:right;min-width:28px}
 input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .days{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
@@ -90,6 +95,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .day-btn.active{background:var(--blue);color:#07111b}
 .day-btn.disabled{opacity:.45}
 .hidden{display:none !important}
+.top.hidden-top{display:none !important}
 .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .calc-field{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
 .calc-field label{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
@@ -117,7 +123,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 }
 .slider-row{
   display:grid;
-  grid-template-columns:22px 1fr 22px 148px;
+  grid-template-columns:22px 1fr 22px 90px;
   gap:8px;
   align-items:center;
 }
@@ -134,8 +140,8 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 }
 
 .wheel-slot{
-  width:148px;
-  height:130px;
+  width:90px;
+  height:84px;
 }
 
 #exerciseSlider{
@@ -196,6 +202,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   pointer-events:none;
 } 
 .wheel{
+  transform: translateX(6px);
   width:82px;
   height:96px;
   overflow-y:auto;
@@ -395,6 +402,45 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .calc-compact-select{min-width:0;width:100%}
 @media (max-width:430px){.calc-grid-2{grid-template-columns:1fr}}
 
+
+.calc-simple-stack{display:flex;flex-direction:column;gap:12px}
+.calc-simple-card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
+.calc-simple-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.calc-simple-title{font-size:14px;font-weight:900;color:#dcebff}
+.calc-simple-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.calc-kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.calc-kpi-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px}
+.calc-kpi-value{font-size:24px;font-weight:900;line-height:1.1}
+.calc-kpi-label{font-size:11px;color:var(--muted);margin-top:4px}
+.calc-muscle-list{display:flex;flex-direction:column;gap:8px}
+.calc-muscle-line{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 12px}
+.calc-muscle-main{min-width:0}
+.calc-muscle-name{font-size:13px;font-weight:900;line-height:1.2}
+.calc-muscle-meta{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35}
+.calc-simple-text-list{display:flex;flex-direction:column;gap:10px}
+.calc-simple-text-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:2px}
+.calc-simple-text-item strong{display:block;font-size:13px;margin-bottom:6px}
+.calc-coach-line1{font-size:13px;font-weight:800;line-height:1.4;color:var(--text)}
+.calc-coach-line2{font-size:12px;line-height:1.45;color:#dcebff;margin-top:6px}
+@media (max-width:430px){.calc-kpi-grid{grid-template-columns:1fr}}
+
+
+.calc-proposal-day{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
+.calc-proposal-day+.calc-proposal-day{margin-top:12px}
+.calc-proposal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.calc-proposal-title{font-size:14px;font-weight:900;color:#dcebff}
+.calc-proposal-count{font-size:11px;color:var(--muted)}
+.calc-proposal-list{display:flex;flex-direction:column;gap:10px}
+.calc-proposal-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px}
+.calc-proposal-tag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 8px;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.calc-proposal-tag.add{background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.45);color:#b8f1cf}
+.calc-proposal-tag.remove{background:rgba(224,90,90,.12);border-color:rgba(224,90,90,.45);color:#ffb3b3}
+.calc-proposal-tag.replace{background:rgba(87,166,255,.12);border-color:rgba(87,166,255,.42);color:#dcebff}
+.calc-proposal-line{font-size:14px;font-weight:800;line-height:1.35;margin-top:8px}
+.calc-proposal-subline{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}
+.calc-proposal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+@media (max-width:430px){.calc-proposal-actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -537,6 +583,12 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
     <div id="calcGiorniView" class="hidden">
       <div class="calc-section">
         <div id="calcDaysEditor"></div>
+      </div>
+    </div>
+
+    <div id="calcPropostaView" class="hidden">
+      <div class="calc-section">
+        <div id="calcProposalEditor"></div>
       </div>
     </div>
 </div>
@@ -763,6 +815,7 @@ let lastDuration = null;
 let lastCountdownBeepSecond = null;
 
 let calcMenuView = "home";
+let coachView = "home";
 let equipmentEditable = false;
 let equipmentDraftWeights = null;
 let equipmentDraftMap = null;
@@ -1653,6 +1706,13 @@ slider.addEventListener("input", () => {
   render();
 });
 
+function updateTopVisibility(){
+  const topBar = document.querySelector(".top");
+  if(!topBar) return;
+  const showTop = ["ex", "day"].includes(currentMode);
+  topBar.classList.toggle("hidden-top", !showTop);
+}
+
 function render(){
   const daysWrap = document.getElementById("days");
   daysWrap.style.display = "none";
@@ -1669,6 +1729,7 @@ function render(){
     renderWorkout();
   }
 
+  updateTopVisibility();
   updateSliderUI();
   updateLockButtons();
 }
@@ -1967,6 +2028,7 @@ function setCalcMenuView(view){
   const equipment = document.getElementById("calcEquipmentView");
   const muscoli = document.getElementById("calcMuscoliView");
   const giorni = document.getElementById("calcGiorniView");
+  const proposta = document.getElementById("calcPropostaView");
   const backBtn = document.getElementById("calcBackBtn");
   const resetBtn = document.getElementById("resetCalcBtn");
   const pageTitle = document.getElementById("calcPageTitle");
@@ -1977,6 +2039,7 @@ function setCalcMenuView(view){
   if(equipment) equipment.classList.toggle("hidden", calcMenuView !== "attrezzi");
   if(muscoli) muscoli.classList.toggle("hidden", calcMenuView !== "muscoli");
   if(giorni) giorni.classList.toggle("hidden", calcMenuView !== "giorni");
+  if(proposta) proposta.classList.toggle("hidden", calcMenuView !== "proposta");
   if(backBtn) backBtn.classList.toggle("hidden", calcMenuView === "home");
   if(resetBtn) resetBtn.classList.toggle("hidden", calcMenuView !== "home");
 
@@ -1986,20 +2049,15 @@ function setCalcMenuView(view){
       catalogo: "Catalogo esercizi",
       attrezzi: "Attrezzi",
       muscoli: "Muscoli",
-      giorni: "Giorni"
+      giorni: "Giorni",
+      proposta: "Proposta Allenatore"
     };
     pageTitle.textContent = labels[calcMenuView] || "Impostaz";
   }
 
   if(pageNote){
-    if(calcMenuView === "catalogo"){
-      pageNote.textContent = "";
-    } else if(calcMenuView === "attrezzi"){
-      pageNote.textContent = "";
-    } else if(calcMenuView === "muscoli"){
-      pageNote.textContent = "";
-    } else if(calcMenuView === "giorni"){
-      pageNote.textContent = "";
+    if(calcMenuView === "proposta"){
+      pageNote.textContent = "Modifiche suggerite giorno per giorno, senza cambiare la pagina Allenatore esistente.";
     } else {
       pageNote.textContent = "";
     }
@@ -2015,21 +2073,421 @@ function setCalcMenuView(view){
     renderCalcMuscleView();
   } else if(calcMenuView === "giorni"){
     renderCalcDaysView();
+  } else if(calcMenuView === "proposta"){
+    renderCoachProposalView();
   }
 }
 
 function renderCalcScreen(){
   const label = document.getElementById("calcSyncLabel");
   if(label){
-    const total = Array.isArray(exerciseCatalog) ? exerciseCatalog.length : 0;
     label.textContent = "";
   }
+
+  if(currentMode === "analysis"){
+    renderAnalysisScreen();
+    return;
+  }
+
+  if(currentMode === "coach"){
+    if(coachView === "proposal"){
+      renderCoachProposalView();
+    } else {
+      renderCoachScreen();
+    }
+    return;
+  }
+
   setCalcMenuView(calcMenuView || "home");
 }
 
 
 
 
+
+function resetCalcViewsToHome(){
+  const ids = ["calcHomeView","calcCatalogView","calcEquipmentView","calcMuscoliView","calcGiorniView","calcPropostaView"];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add("hidden");
+  });
+  const backBtn = document.getElementById("calcBackBtn");
+  const resetBtn = document.getElementById("resetCalcBtn");
+  const pageNote = document.getElementById("calcPageNote");
+  if(backBtn) backBtn.classList.add("hidden");
+  if(resetBtn) resetBtn.classList.add("hidden");
+  if(pageNote) pageNote.textContent = "";
+}
+
+function renderAnalysisScreen(){
+  resetCalcViewsToHome();
+  const pageTitle = document.getElementById("calcPageTitle");
+  if(pageTitle) pageTitle.textContent = "Analisi";
+
+  const card = document.getElementById("calcoliCard");
+  if(!card) return;
+
+  const volume = computeMuscleVolumeSummary();
+  const rows = Array.isArray(volume?.primaryRows) ? volume.primaryRows : [];
+  const activeRows = rows.filter(row => Number(row.sets || 0) > 0);
+  const issueRows = Array.isArray(volume?.issues) ? volume.issues : [];
+  const body = `
+    <div class="calc-simple-stack">
+      <div class="calc-simple-card">
+        <div class="calc-simple-head"><div class="calc-simple-title">Riepilogo</div></div>
+        <div class="calc-kpi-grid">
+          <div class="calc-kpi-box"><div class="calc-kpi-value">${Number(volume?.totalSets || 0)}</div><div class="calc-kpi-label">Serie lavoro totali</div></div>
+          <div class="calc-kpi-box"><div class="calc-kpi-value">${Number(volume?.activeDays || 0)}</div><div class="calc-kpi-label">Giorni attivi</div></div>
+          <div class="calc-kpi-box"><div class="calc-kpi-value">${Number(volume?.averageSets || 0).toFixed(1)}</div><div class="calc-kpi-label">Media serie per gruppo attivo</div></div>
+        </div>
+      </div>
+
+      <div class="calc-simple-card">
+        <div class="calc-simple-head"><div class="calc-simple-title">Muscoli</div></div>
+        <div class="calc-muscle-list">
+          ${activeRows.length ? activeRows.map(row => {
+            const subBits = Object.entries(row.subs || {}).filter(([,sets]) => Number(sets) > 0).sort((a,b) => b[1] - a[1]).slice(0,3).map(([sub,sets]) => `${sub} ${sets}`).join(' · ');
+            return `<div class="calc-muscle-line"><div class="calc-muscle-main"><div class="calc-muscle-name">${row.group}</div><div class="calc-muscle-meta">${subBits || 'Nessun dettaglio sotto-muscoli'}${row.dayTypes?.length ? ' · Focus: ' + row.dayTypes.map(type => translateDayTypeLabel(type)).join(', ') : ''}</div></div><span class="calc-balance-pill ${row.balance?.cls || 'calc-balance-empty'}">${row.sets} serie</span></div>`;
+          }).join('') : `<div class="calc-simple-text-item"><strong>Nessun dato</strong>Non ci sono ancora serie lavoro registrate.</div>`}
+        </div>
+      </div>
+
+      <div class="calc-simple-card">
+        <div class="calc-simple-head"><div class="calc-simple-title">Squilibri</div></div>
+        <div class="calc-simple-text-list">
+          ${issueRows.length ? issueRows.map(issue => `<div class="calc-simple-text-item"><strong>${issue.kind === 'high' ? 'Alto' : 'Basso'}</strong>${issue.text}</div>`).join('') : `<div class="calc-simple-text-item"><strong>Ok</strong>Nessuno squilibrio evidente sui gruppi attivi.</div>`}
+        </div>
+      </div>
+
+      <div class="calc-simple-card">
+        <div class="calc-simple-head"><div class="calc-simple-title">Progressi</div></div>
+        <div class="calc-simple-text-item"><strong>Placeholder</strong>Qui potrai vedere andamento, confronti storici e trend dei volumi.</div>
+      </div>
+    </div>`;
+
+  const nodes = Array.from(card.children);
+  nodes.forEach(node => {
+    if(!node.classList.contains('exercise-title') && !node.classList.contains('exercise-note') && !node.classList.contains('sep')){
+      node.remove();
+    }
+  });
+  card.insertAdjacentHTML('beforeend', body);
+}
+
+function renderCoachScreen(){
+  resetCalcViewsToHome();
+  const pageTitle = document.getElementById("calcPageTitle");
+  if(pageTitle) pageTitle.textContent = "Allenatore";
+
+  const card = document.getElementById("calcoliCard");
+  if(!card) return;
+
+  const volume = (typeof getMuscleRecommendationData === 'function') ? getMuscleRecommendationData() : computeMuscleVolumeSummary();
+  const recommendations = Array.isArray(volume?.recommendations) ? volume.recommendations.filter(rec => rec.priority && rec.priority.level !== 'ok') : [];
+  const issueRows = Array.isArray(volume?.issues) ? volume.issues : [];
+
+  const actionRangeText = (delta) => {
+    const min = Math.max(1, Math.round(delta));
+    const max = Math.max(min, Math.round(delta + 2));
+    return `${min}–${max}`;
+  };
+
+  const uniqueNames = (arr) => [...new Set((arr || []).filter(Boolean))];
+
+  const priorityItems = [];
+  recommendations.forEach(rec => {
+    const currentSets = Number(rec.sets || 0);
+    const minSets = Number(rec.minTarget || 0);
+    const maxSets = Number(rec.maxTarget || 0);
+    const topExercises = uniqueNames((rec.candidateExercises || []).slice(0,3).map(ex => ex.name));
+    const topDays = uniqueNames((rec.suggestedDays || []).slice(0,2).map(d => d.dayName));
+    const avgTarget = ((minSets > 0 && maxSets > 0) ? ((minSets + maxSets) / 2) : (maxSets || minSets || 0));
+
+    if(rec.priority.level === 'very_low' || rec.priority.level === 'low'){
+      const delta = Math.max(2, (minSets || currentSets + 2) - currentSets);
+      let desc = `${rec.group}: ${currentSets} serie, sotto media${avgTarget ? ` (${avgTarget.toFixed(1)})` : ''}`;
+      let action = `👉 Aggiungi ${actionRangeText(delta)} serie`;
+      if(topDays.length) action += ` in ${topDays.join(' o ')}`;
+      if(topExercises.length) action += ` · Valuta: ${topExercises.join(', ')}`;
+      priorityItems.push({icon:'🔥', desc, action});
+      return;
+    }
+
+    if(rec.priority.level === 'high' || rec.priority.level === 'very_high'){
+      const delta = Math.max(2, currentSets - (maxSets || currentSets - 2));
+      let desc = `${rec.group}: ${currentSets} serie, sopra media${avgTarget ? ` (${avgTarget.toFixed(1)})` : ''}`;
+      let action = `👉 Taglia ${actionRangeText(delta)} serie`;
+      if(topDays.length) action += ` nei giorni ${topDays.join(' e ')}`;
+      priorityItems.push({icon:'🔥', desc, action});
+    }
+  });
+
+  if(!priorityItems.length && issueRows.length){
+    issueRows.slice(0,4).forEach(issue => {
+      if(issue.kind === 'high'){
+        priorityItems.push({icon:'⚠️', desc: issue.text, action:'👉 Taglia 2–4 serie nel gruppo più carico'});
+      }else{
+        priorityItems.push({icon:'⚠️', desc: issue.text, action:'👉 Aggiungi 2–4 serie nel gruppo più indietro'});
+      }
+    });
+  }
+
+  const workoutState = priorityItems.length >= 3
+    ? '⚠️ Allenamento da correggere: ci sono più priorità aperte.'
+    : priorityItems.length >= 1
+      ? '👉 Allenamento discreto, ma ci sono pochi punti chiave da sistemare.'
+      : '💡 Allenamento solido: non emergono problemi da correggere adesso.';
+
+  const renderCoachItem = (item) => `<div class="calc-simple-text-item"><div class="calc-coach-line1">${item.icon} ${item.desc}</div><div class="calc-coach-line2">${item.action}</div></div>`;
+
+  const body = `
+    <div class="calc-simple-stack">
+      <div class="calc-simple-card">
+        <div class="calc-simple-head"><div class="calc-simple-title">Stato allenamento</div></div>
+        <div class="calc-simple-sub">${workoutState}</div>
+      </div>
+      <div class="calc-simple-card">
+        <div class="calc-simple-head"><div class="calc-simple-title">🔥 PRIORITÀ</div></div>
+        <div class="calc-simple-text-list">
+          ${priorityItems.length ? priorityItems.map(renderCoachItem).join('') : `<div class="calc-simple-text-item"><div class="calc-coach-line1">💡 Nessun problema evidente</div><div class="calc-coach-line2">👉 Continua così</div></div>`}
+        </div>
+        <div class="calc-proposal-actions" style="margin-top:12px;justify-content:flex-start">
+          <button class="top-action-btn primary" style="background:#60a5fa;color:#07111b;" id="openCoachProposalBtn" type="button">👉 Vedi proposta Allenatore</button>
+        </div>
+      </div>
+    </div>`;
+
+  const nodes = Array.from(card.children);
+  nodes.forEach(node => {
+    if(!node.classList.contains('exercise-title') && !node.classList.contains('exercise-note') && !node.classList.contains('sep')){
+      node.remove();
+    }
+  });
+  card.insertAdjacentHTML('beforeend', body);
+  const openProposalBtn = document.getElementById('openCoachProposalBtn');
+  if(openProposalBtn){
+    openProposalBtn.onclick = () => {
+      coachView = 'proposal';
+      render();
+    };
+  }
+}
+
+
+function getWorkoutPrimaryGroup(item){
+  const ex = findCatalogEntryForWorkoutItem(item);
+  if(!ex) return '';
+  const link = getExerciseMuscleLink(ex);
+  return link.primary || (getLegacyMuscleToGroupMap()[ex.muscle] || ex.muscle || '');
+}
+
+function createWorkoutItemFromCatalogExercise(exercise){
+  const sourceName = exercise?.sourceName || exercise?.name || 'Nuovo esercizio';
+  const equipmentName = exercise?.equipment || APP_EXERCISE_DEFAULTS[sourceName] || 'Macchina 1';
+  const weights = getWeightOptionsForEquipment(equipmentName);
+  const light = weights.length ? String(weights[Math.max(0, Math.min(2, weights.length - 1))]) : '0';
+  const work = weights.length ? String(weights[Math.max(0, Math.min(6, weights.length - 1))]) : light;
+  return {
+    name: sourceName,
+    note: 'Proposta Allenatore',
+    rest: 90,
+    rows: [
+      {label:'R1', warm:true, reps:['10'], repsVal:'10', peso:[light], pesoVal:light, extra:['-'], extraVal:'-'},
+      {label:'1', reps:['10'], repsVal:'10', peso:[work], pesoVal:work, extra:['2'], extraVal:'2'},
+      {label:'2', reps:['10'], repsVal:'10', peso:[work], pesoVal:work, extra:['2'], extraVal:'2'},
+      {label:'3', reps:['10'], repsVal:'10', peso:[work], pesoVal:work, extra:['1'], extraVal:'1'}
+    ]
+  };
+}
+
+function generateCoachProposal(){
+  const basePlan = calcClone(appData || {});
+  const volume = (typeof getMuscleRecommendationData === 'function') ? getMuscleRecommendationData() : null;
+  const recommendations = Array.isArray(volume?.recommendations) ? volume.recommendations.filter(rec => rec.priority && rec.priority.level !== 'ok') : [];
+  const issues = Array.isArray(volume?.issues) ? volume.issues : [];
+  const proposalByDay = {};
+  const touchedDays = new Set();
+
+  Object.keys(basePlan).forEach(day => proposalByDay[day] = []);
+
+  const usedLowGroups = new Set();
+  const highPool = [];
+  Object.keys(basePlan).forEach(dayName => {
+    const items = Array.isArray(basePlan[dayName]) ? basePlan[dayName] : [];
+    items.forEach((item, index) => {
+      const group = getWorkoutPrimaryGroup(item);
+      if(!group || item?.cardio) return;
+      highPool.push({dayName, index, item, group});
+    });
+  });
+
+  const highIssues = issues.filter(issue => issue.kind === 'high');
+  const highGroups = highIssues.map(issue => String(issue.text || '').split(':')[0].trim()).filter(Boolean);
+
+  recommendations.forEach(rec => {
+    if(usedLowGroups.has(rec.group)) return;
+    const candidate = (rec.candidateExercises || []).find(ex => ex && ex.sourceName && Object.values(basePlan).flat().every(item => calcSlug(item?.name) !== calcSlug(ex.sourceName) || true));
+    const exercise = candidate || (rec.candidateExercises || [])[0];
+    if(!exercise) return;
+
+    const targetDay = (rec.suggestedDays || []).find(d => basePlan[d.dayName])?.dayName || Object.keys(basePlan)[0];
+    if(!targetDay || !basePlan[targetDay]) return;
+
+    let replaced = null;
+    const replaceIndex = basePlan[targetDay].findIndex(item => {
+      const group = getWorkoutPrimaryGroup(item);
+      return !item?.cardio && highGroups.includes(group);
+    });
+
+    if(replaceIndex >= 0){
+      replaced = basePlan[targetDay][replaceIndex];
+      basePlan[targetDay][replaceIndex] = createWorkoutItemFromCatalogExercise(exercise);
+      proposalByDay[targetDay].push({
+        type:'replace',
+        icon:'🔁',
+        oldName: replaced?.name || '—',
+        newName: exercise.sourceName || exercise.name || '—',
+        reason: `${rec.group} basso: inserito esercizio coerente al posto di un gruppo oggi più carico.`
+      });
+    } else {
+      basePlan[targetDay].push(createWorkoutItemFromCatalogExercise(exercise));
+      proposalByDay[targetDay].push({
+        type:'add',
+        icon:'➕',
+        newName: exercise.sourceName || exercise.name || '—',
+        reason: `${rec.group} basso: aggiunta una proposta nel giorno più coerente.`
+      });
+    }
+
+    touchedDays.add(targetDay);
+    usedLowGroups.add(rec.group);
+  });
+
+  highGroups.forEach(group => {
+    const existingTouch = Array.from(touchedDays).some(day => proposalByDay[day].some(change => change.type === 'replace' && change.reason.includes('basso')));
+    const entry = highPool.find(row => row.group === group && !proposalByDay[row.dayName].some(change => change.oldName === row.item.name));
+    if(!entry) return;
+    const lowCovered = recommendations.some(rec => rec.group === group);
+    if(lowCovered) return;
+    if(proposalByDay[entry.dayName].some(change => change.type === 'replace' && change.oldName === entry.item.name)) return;
+
+    basePlan[entry.dayName].splice(entry.index, 1);
+    proposalByDay[entry.dayName].push({
+      type:'remove',
+      icon:'➖',
+      oldName: entry.item?.name || '—',
+      reason: `${group} alto: proposta una rimozione per riequilibrare il volume.`
+    });
+    touchedDays.add(entry.dayName);
+  });
+
+  const days = Object.keys(basePlan).map(dayName => ({
+    dayName,
+    changes: proposalByDay[dayName] || []
+  })).filter(day => day.changes.length > 0);
+
+  return { plan: basePlan, days, volume };
+}
+
+function renderCoachProposalView(){
+  resetCalcViewsToHome();
+  const pageTitle = document.getElementById('calcPageTitle');
+  const pageNote = document.getElementById('calcPageNote');
+  const proposalView = document.getElementById('calcPropostaView');
+  if(pageTitle) pageTitle.textContent = 'Proposta Allenatore';
+  if(pageNote) pageNote.textContent = 'Modifiche suggerite giorno per giorno dal flusso Allenatore.';
+  if(proposalView) proposalView.classList.remove('hidden');
+
+  const wrap = document.getElementById('calcProposalEditor');
+  if(!wrap) return;
+
+  const proposal = generateCoachProposal();
+  wrap.innerHTML = '';
+
+  const summary = document.createElement('div');
+  summary.className = 'calc-pro-card';
+  summary.innerHTML = `
+    <div class="calc-pro-head"><div class="calc-pro-title">Proposta Allenatore</div></div>
+    <div class="calc-volume-sub">Formato giorno per giorno simile alla scheda allenamento. Le modifiche restano solo proposte finché non premi <strong>Aggiorna con Allenatore</strong>.</div>
+  `;
+  wrap.appendChild(summary);
+
+  if(!proposal.days.length){
+    const empty = document.createElement('div');
+    empty.className = 'calc-pro-card';
+    empty.innerHTML = `<div class="calc-volume-sub">Nessuna modifica suggerita in questo momento.</div>`;
+    wrap.appendChild(empty);
+  } else {
+    proposal.days.forEach(day => {
+      const dayCard = document.createElement('div');
+      dayCard.className = 'calc-proposal-day';
+      dayCard.innerHTML = `
+        <div class="calc-proposal-head">
+          <div class="calc-proposal-title">${day.dayName}</div>
+          <div class="calc-proposal-count">${day.changes.length} modifiche</div>
+        </div>
+        <div class="header-row">
+          <div>Serie</div>
+          <div>Modifica</div>
+          <div>Esercizio</div>
+          <div>Esito</div>
+        </div>
+        <div class="calc-proposal-list">
+          ${day.changes.map((change, idx) => {
+            const tagCls = change.type === 'add' ? 'add' : (change.type === 'remove' ? 'remove' : 'replace');
+            const line = change.type === 'add'
+              ? `${change.icon} ${change.newName}`
+              : change.type === 'remove'
+                ? `${change.icon} ${change.oldName}`
+                : `${change.icon} ${change.oldName} → ${change.newName}`;
+            const side = change.type === 'add' ? 'Nuovo' : (change.type === 'remove' ? 'Tolto' : 'Cambio');
+            return `
+              <div class="calc-proposal-row">
+                <div class="grid-row">
+                  <div class="series">${idx + 1}</div>
+                  <div><span class="calc-proposal-tag ${tagCls}">${change.icon} ${change.type === 'add' ? 'Aggiunta' : (change.type === 'remove' ? 'Rimozione' : 'Sostituzione')}</span></div>
+                  <div class="calc-proposal-line">${line}</div>
+                  <div class="series warm">${side}</div>
+                </div>
+                <div class="calc-proposal-subline">${change.reason}</div>
+              </div>`;
+          }).join('')}
+        </div>
+      `;
+      wrap.appendChild(dayCard);
+    });
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'calc-proposal-actions';
+  actions.innerHTML = `
+    <button class="calc-ghost-btn" id="keepMyWorkoutBtn" type="button">Tieni il mio allenamento</button>
+    <button class="calc-action" id="applyCoachProposalBtn" type="button">Aggiorna con Allenatore</button>
+  `;
+  wrap.appendChild(actions);
+
+  const keepBtn = document.getElementById('keepMyWorkoutBtn');
+  const applyBtn = document.getElementById('applyCoachProposalBtn');
+  if(keepBtn){
+    keepBtn.onclick = () => {
+      coachView = 'home';
+      render();
+    };
+  }
+  if(applyBtn){
+    applyBtn.onclick = () => {
+      Object.keys(appData).forEach(day => delete appData[day]);
+      Object.entries(proposal.plan || {}).forEach(([day, items]) => appData[day] = calcClone(items));
+      saveAppState();
+      coachView = 'home';
+      currentMode = 'day';
+      currentDay = Object.keys(appData)[0] || currentDay;
+      currentExercise = 0;
+      currentSection = 'workout';
+      render();
+    };
+  }
+}
 
 function createDefaultMuscleSetup(){
   return {
@@ -3061,6 +3519,7 @@ function applyWheelMode(mode){
     currentSection = "workout";
   } else if(["calc","analysis","coach"].includes(mode)){
     currentMode = mode;
+  if(mode !== 'coach') coachView = 'home';
     currentSection = "calcoli";
   }
 }
@@ -3143,6 +3602,11 @@ document.querySelectorAll("[data-calc-view]").forEach(btn => {
 const calcBackBtn = document.getElementById("calcBackBtn");
 if(calcBackBtn){
   calcBackBtn.onclick = () => {
+    if(currentMode === 'coach' && coachView === 'proposal'){
+      coachView = 'home';
+      render();
+      return;
+    }
     setCalcMenuView("home");
   };
 }

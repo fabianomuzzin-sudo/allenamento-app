@@ -117,7 +117,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 }
 .slider-row{
   display:grid;
-  grid-template-columns:22px 1fr 22px 70px;
+  grid-template-columns:22px 1fr 22px 148px;
   gap:8px;
   align-items:center;
 }
@@ -134,15 +134,15 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 }
 
 .wheel-slot{
-  width:70px;
-  height:42px;
+  width:148px;
+  height:130px;
 }
 
 #exerciseSlider{
   -webkit-appearance:none;
   width:100%;
   height:8px;
-  border-radius:999px;
+  border-radius:0;
   background:rgba(87,166,255,.2);
 }
 
@@ -160,19 +160,19 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   top:50%;
   left:0;
   transform:translate(-50%, -50%);
-  min-width:58px;
-  height:36px;
+  min-width:46px;
+  height:28px;
   padding:0 10px;
   border-radius:999px;
   background:var(--blue);
-  color:#07111b;
-  font-size:11px;
+  color:#ffffff;
+  font-size:10px;
   font-weight:900;
-  line-height:36px;
+  line-height:28px;
   text-align:center;
   white-space:nowrap;
   pointer-events:none;
-  box-shadow:0 2px 8px rgba(0,0,0,.24);
+  box-shadow:0 2px 6px rgba(0,0,0,.22);
   border:2px solid #d8ebff;
 }
 #exerciseSlider::-moz-range-thumb{
@@ -196,17 +196,23 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   pointer-events:none;
 } 
 .wheel{
-  width:82px;
-  height:84px;
+  position:relative;
+  width:148px;
+  height:130px;
   overflow-y:auto;
   scrollbar-width:none;
   -ms-overflow-style:none;
   display:flex;
   flex-direction:column;
-  align-items:center;
+  align-items:stretch;
   scroll-snap-type:y mandatory;
   scroll-behavior:smooth;
-  padding:28px 0;
+  padding:49px 0;
+}
+
+.wheel::before{
+  content:none;
+  display:none;
 }
 
 .wheel::-webkit-scrollbar{
@@ -222,21 +228,33 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   scroll-snap-align:center;
   font-size:11px;
   letter-spacing:.04em;
-  color:rgba(87,166,255,.72);
+  color:rgba(87,166,255,.68);
   opacity:.72;
-  transform:scale(.92);
-  transition:transform .2s ease, opacity .2s ease, color .2s ease, text-shadow .2s ease;
-  text-shadow:0 0 8px rgba(87,166,255,.16);
+  transform:scale(1);
+  transition:transform .18s ease, opacity .18s ease, color .18s ease, text-shadow .18s ease;
+  text-shadow:none;
   user-select:none;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  box-shadow:none;
 }
 
 .wheel-item.active{
-  color:#dcebff;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  box-shadow:none;
+  color:#eef6ff;
   opacity:1;
-  transform:scale(1);
-  font-size:22px;
+  transform:scale(1.14);
+  font-size:12px;
   font-weight:900;
-  text-shadow:0 0 14px rgba(87,166,255,.42);
+  text-shadow:none;
+}
+
+.wheel-center-label{
+  display:none;
 }
 
 .calc-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
@@ -280,7 +298,7 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .calc-ex-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:rgba(255,255,255,.03);border-radius:10px;padding:8px 10px}
 .calc-ex-name{font-size:13px;font-weight:800;line-height:1.25}
 .calc-ex-meta{font-size:11px;color:var(--muted);margin-top:2px}
-.calc-tier-pill{flex:0 0 auto;border:1px solid rgba(87,166,255,.4);background:rgba(87,166,255,.12);color:#dcebff;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:900}
+.calc-tier-pill{flex:0 0 auto;border:none;background:transparent;color:#dcebff;border-radius:0;padding:4px 8px;font-size:10px;font-weight:900}
 .calc-placeholder-box{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
 .calc-placeholder-main{font-size:14px;font-weight:900}
 .calc-placeholder-sub{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
@@ -353,10 +371,23 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 .calc-group-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px}
 .calc-group-name{font-size:13px;font-weight:900;margin-bottom:8px}
 .calc-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.calc-chip{border:1px solid rgba(87,166,255,.35);background:rgba(87,166,255,.12);color:#dcebff;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:900}
+.calc-chip{border:1px solid rgba(87,166,255,.35);background:transparent;color:#dcebff;border-radius:0;padding:4px 8px;font-size:10px;font-weight:900}
 .calc-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .calc-ghost-btn{background:#2a2f39;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:800}
 .calc-muscle-table td,.calc-muscle-table th{text-align:left}
+.calc-volume-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.calc-volume-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.calc-volume-box{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.calc-volume-big{font-size:24px;font-weight:900;line-height:1.1}
+.calc-volume-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.calc-balance-pill{display:inline-flex;align-items:center;gap:6px;border-radius:0;padding:4px 8px;font-size:10px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--line)}
+.calc-balance-ok{background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.45);color:#b8f1cf}
+.calc-balance-low{background:rgba(250,239,180,.12);border-color:rgba(226,208,122,.45);color:#faefb4}
+.calc-balance-high{background:rgba(224,90,90,.12);border-color:rgba(224,90,90,.45);color:#ffb3b3}
+.calc-balance-empty{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);color:var(--muted)}
+.calc-issue-list{display:flex;flex-direction:column;gap:8px}
+.calc-issue-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+@media (max-width:430px){.calc-volume-summary{grid-template-columns:1fr}}
 .calc-compact-select{min-width:0;width:100%}
 @media (max-width:430px){.calc-grid-2{grid-template-columns:1fr}}
 
@@ -433,13 +464,13 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   </div>
 
   <div class="card hidden" id="calcoliCard">
-    <div class="exercise-title" id="calcPageTitle">Setup</div>
+    <div class="exercise-title" id="calcPageTitle">Impostazioni</div>
     <div class="exercise-note" id="calcPageNote"></div>
     <div class="sep"></div>
 
     <div class="calc-toolbar">
       <button class="calc-action hidden" id="calcBackBtn" type="button">← Indietro</button>
-      <button class="calc-action" id="resetCalcBtn" type="button">Reset Setup</button>
+      <button class="calc-action" id="resetCalcBtn" type="button">Reset Impostazioni</button>
       <div class="calc-status" id="calcSyncLabel"></div>
     </div>
 
@@ -515,22 +546,19 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 
   <div class="slider-wrap">
     <input type="range" id="exerciseSlider" min="1" max="5" step="1" value="1">
-    <div class="slider-knob-label" id="sliderBubble">Day 1</div>
+    <div class="slider-knob-label" id="sliderBubble">Giorno 1</div>
   </div>
 
   <div class="slider-edge" id="sliderMax">5</div>
 
 <div class="wheel" id="modeWheel">
-  <div class="wheel-item">DAY</div>
-  <div class="wheel-item">EX</div>
-  <div class="wheel-item">SETUP</div>
-  <div class="wheel-item">DAY</div>
-  <div class="wheel-item active">EX</div>
-  <div class="wheel-item">SETUP</div>
-  <div class="wheel-item">DAY</div>
-  <div class="wheel-item">EX</div>
-  <div class="wheel-item">SETUP</div>
+  <div class="wheel-item" data-mode="ex">ESERCIZI</div>
+  <div class="wheel-item" data-mode="day">GIORNI</div>
+  <div class="wheel-item active" data-mode="calc">IMPOSTAZIONI</div>
+  <div class="wheel-item" data-mode="analysis">ANALISI</div>
+  <div class="wheel-item" data-mode="coach">ALLENATORE</div>
 </div>
+<div class="wheel-center-label" id="wheelCenterLabel">IMPOSTAZIONI</div>
 </div>
     <div class="days" id="days"></div>
   </div>
@@ -598,7 +626,7 @@ function createDefaultCalcState(){
 let calcState = null;
 
 const appData = {
-"Day 1":[
+"Giorno 1":[
 {name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
 {label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
 ]},
@@ -635,7 +663,7 @@ const appData = {
 {label:"2",reps:["15"],repsVal:"15",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"}
 ]}
 ],
-"Day 2":[
+"Giorno 2":[
 {name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
 {label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
 ]},
@@ -672,7 +700,7 @@ const appData = {
 {label:"3",reps:["16"],repsVal:"16",peso:["27"],pesoVal:"27",extra:["1"],extraVal:"1"}
 ]}
 ],
-"Day 3":[
+"Giorno 3":[
 {name:"Elliptical machine",note:"Cardio iniziale",cardio:true,rest:0,rows:[
 {label:"Min",reps:["5","10","15","20"],repsVal:"10",peso:["10","12","14","16","18"],pesoVal:"14",extra:["0","1","2","3","4","5","6"],extraVal:"0"}
 ]},
@@ -719,7 +747,7 @@ const appData = {
 
 calcState = createDefaultCalcState();
 
-let currentDay = "Day 1";
+let currentDay = "Giorno 1";
 let currentExercise = 0;
 let currentSection = "workout";
 let currentMode = "day";
@@ -742,15 +770,55 @@ let audioCtx = null;
 const STORAGE_KEY = "allenamento_app_state_v57";
 const HISTORY_KEY = "allenamento_app_history_v54";
 
+
+function translateDayTypeLabel(value){
+  const map = {
+    "Push": "Spinta",
+    "Pull": "Trazione",
+    "Legs": "Gambe",
+    "Upper": "Parte alta",
+    "Lower": "Parte bassa",
+    "Full Body": "Total body",
+    "Cardio": "Cardio",
+    "Arms": "Braccia",
+    "Rest": "Riposo"
+  };
+  return map[value] || value || "";
+}
+
+function translateMovementLabel(value){
+  const map = {
+    "Push": "Spinta",
+    "Pull": "Trazione",
+    "Cardio": "Cardio",
+    "Altro": "Altro"
+  };
+  return map[value] || value || "";
+}
+
+function translateUiLabel(value){
+  const map = {
+    "Tier": "Livello",
+    "Analysis": "Analisi",
+    "Allenatore": "Allenatore",
+    "Summary": "Riepilogo",
+    "Imbalance": "Squilibri",
+    "Focus Day": "Focus giorno",
+    "Focus": "Focus",
+    "Machine": "Macchina"
+  };
+  return map[value] || value || "";
+}
+
 function createDefaultWeekSetup(){
   return {
     structure: "Multifrequenza",
     dayTypes: {
-      "Day 1": "Push",
-      "Day 2": "Legs",
-      "Day 3": "Pull",
-      "Day 4": "Upper",
-      "Day 5": "Lower"
+      "Giorno 1": "Push",
+      "Giorno 2": "Legs",
+      "Giorno 3": "Pull",
+      "Giorno 4": "Upper",
+      "Giorno 5": "Lower"
     }
   };
 }
@@ -768,7 +836,7 @@ function ensureWeekSetup(){
   if(!weekSetup || typeof weekSetup !== "object") weekSetup = base;
   if(!weekSetup.structure) weekSetup.structure = base.structure;
   if(!weekSetup.dayTypes || typeof weekSetup.dayTypes !== "object") weekSetup.dayTypes = calcClone(base.dayTypes);
-  ["Day 1","Day 2","Day 3","Day 4","Day 5"].forEach(day => {
+  ["Giorno 1","Giorno 2","Giorno 3","Giorno 4","Giorno 5"].forEach(day => {
     if(weekSetup.dayTypes[day] === undefined) weekSetup.dayTypes[day] = base.dayTypes[day] || "";
   });
 }
@@ -843,9 +911,9 @@ function loadAppState(){
     currentSection = "workout";
   }
 
-  if(currentSection === "calcoli"){
+  if(currentSection === "calcoli" && !["calc","analysis","coach"].includes(currentMode)){
     currentMode = "calc";
-  } else if(currentExercise > 0){
+  } else if(currentSection !== "calcoli" && currentExercise > 0){
     currentMode = "ex";
   } else {
     currentMode = "day";
@@ -1102,7 +1170,7 @@ function renderDays(){
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "day-btn" + (day === currentDay ? " active" : "");
-    btn.textContent = day.replace("Day ", "D");
+    btn.textContent = day.replace("Day ", "Giorno ");
     btn.addEventListener("click", () => {
       currentDay = day;
       currentExercise = 0;
@@ -1539,8 +1607,9 @@ function updateSliderUI(){
   const value = parseInt(slider.value, 10) || 1;
   sliderMinLabel.textContent = "1";
 
-  if(currentMode === "calc"){
-    bubble.textContent = "SETUP";
+  if(["calc","analysis","coach"].includes(currentMode)){
+    const staticBubbleMap = { calc: "IMPOST", analysis: "ANALISI", coach: "ALLENATORE" };
+    bubble.textContent = staticBubbleMap[currentMode] || "IMPOST";
     slider.disabled = true;
     sliderMinLabel.style.opacity = 0;
     sliderMaxLabel.style.opacity = 0;
@@ -1553,7 +1622,7 @@ function updateSliderUI(){
   sliderMinLabel.style.opacity = 1;
   sliderMaxLabel.style.opacity = 1;
   sliderWrap.style.opacity = 1;
-  bubble.textContent = currentMode === "day" ? `Day ${value}` : `Ex ${value}`;
+  bubble.textContent = currentMode === "day" ? `Giorno ${value}` : `Ese ${value}`;
 
   const min = parseInt(slider.min, 10);
   const max = parseInt(slider.max, 10);
@@ -1857,7 +1926,7 @@ function renderCatalogView(){
 
       const title = document.createElement("div");
       title.className = "calc-tier-title";
-      title.textContent = "Tier " + tier;
+      title.textContent = translateUiLabel("Tier") + " " + tier;
       block.appendChild(title);
 
       const rows = document.createElement("div");
@@ -1874,7 +1943,7 @@ function renderCatalogView(){
             ((ex.sourceName && ex.sourceName !== ex.name) ? " · sorgente: " + ex.sourceName : "") +
             "</div>" +
           "</div>" +
-          "<div class='calc-tier-pill'>Tier " + (ex.tier || "B") + "</div>";
+          "<div class='calc-tier-pill'>" + translateUiLabel("Tier") + " " + (ex.tier || "B") + "</div>";
         rows.appendChild(row);
       });
 
@@ -1909,13 +1978,13 @@ function setCalcMenuView(view){
 
   if(pageTitle){
     const labels = {
-      home: "Setup",
+      home: "Impostazioni",
       catalogo: "Catalogo esercizi",
       attrezzi: "Attrezzi",
       muscoli: "Muscoli",
       giorni: "Giorni"
     };
-    pageTitle.textContent = labels[calcMenuView] || "Setup";
+    pageTitle.textContent = labels[calcMenuView] || "Impostazioni";
   }
 
   if(pageNote){
@@ -2078,6 +2147,114 @@ function getActiveMuscleSetup(){
   return muscleSetupEditing && muscleSetupDraft ? muscleSetupDraft : muscleSetup;
 }
 
+function getWorkSetCountForItem(item){
+  const rows = Array.isArray(item?.rows) ? item.rows : [];
+  return rows.filter(row => !row?.warm).length;
+}
+
+function getVolumeBalanceLabel(sets, avg, expected){
+  if(!sets) return expected ? {label:'Scoperto', cls:'calc-balance-low'} : {label:'Vuoto', cls:'calc-balance-empty'};
+  if(avg <= 0) return {label:'Attivo', cls:'calc-balance-ok'};
+  if(expected && sets === 0) return {label:'Scoperto', cls:'calc-balance-low'};
+  if(sets < avg * 0.65) return {label:'Basso', cls:'calc-balance-low'};
+  if(sets > avg * 1.4) return {label:'Alto', cls:'calc-balance-high'};
+  return {label:'Ok', cls:'calc-balance-ok'};
+}
+
+function computeMuscleVolumeSummary(){
+  ensureWeekSetup();
+  ensureMuscleSetup();
+  const config = getActiveMuscleSetup();
+  const allGroups = getAllPrimaryGroups();
+  const primaryTotals = {};
+  const primarySubTotals = {};
+  const dayTypeUsage = {};
+  const dayRows = [];
+
+  allGroups.forEach(group => {
+    primaryTotals[group] = 0;
+    primarySubTotals[group] = {};
+    (config.groups[group] || []).forEach(sub => {
+      primarySubTotals[group][sub] = 0;
+    });
+  });
+
+  Object.keys(weekSetup?.dayTypes || {}).forEach(dayName => {
+    const type = (weekSetup?.dayTypes?.[dayName] || '').trim();
+    if(type){
+      dayTypeUsage[type] = dayTypeUsage[type] || { days: [], groups: config.dayTypeGroups?.[type] || [] };
+      dayTypeUsage[type].days.push(dayName);
+    }
+
+    const items = Array.isArray(appData?.[dayName]) ? appData[dayName] : [];
+    items.forEach(item => {
+      const ex = findCatalogEntryForWorkoutItem(item);
+      if(!ex) return;
+      const sets = getWorkSetCountForItem(item);
+      if(!sets) return;
+      const link = getExerciseMuscleLink(ex);
+      const primary = link.primary || (getLegacyMuscleToGroupMap()[ex.muscle] || ex.muscle || 'Altro');
+      const sub = link.sub || '';
+      if(primaryTotals[primary] === undefined) primaryTotals[primary] = 0;
+      primaryTotals[primary] += sets;
+      if(sub){
+        if(!primarySubTotals[primary]) primarySubTotals[primary] = {};
+        if(primarySubTotals[primary][sub] === undefined) primarySubTotals[primary][sub] = 0;
+        primarySubTotals[primary][sub] += sets;
+      }
+      dayRows.push({ dayName, dayType: type, exercise: item.name || ex.name || '—', primary, sub, sets });
+    });
+  });
+
+  const activeGroups = Object.keys(primaryTotals).filter(group => primaryTotals[group] > 0);
+  const averageSets = activeGroups.length ? activeGroups.reduce((sum, g) => sum + primaryTotals[g], 0) / activeGroups.length : 0;
+  const expectedGroups = {};
+  Object.entries(dayTypeUsage).forEach(([type, meta]) => {
+    (meta.groups || []).forEach(group => {
+      expectedGroups[group] = expectedGroups[group] || { dayTypes: [] };
+      if(!expectedGroups[group].dayTypes.includes(type)) expectedGroups[group].dayTypes.push(type);
+    });
+  });
+
+  const primaryRows = Object.keys(primaryTotals).map(group => {
+    const sets = primaryTotals[group] || 0;
+    const subs = primarySubTotals[group] || {};
+    const expected = !!expectedGroups[group];
+    return {
+      group,
+      sets,
+      subs,
+      expected,
+      dayTypes: expectedGroups[group]?.dayTypes || [],
+      balance: getVolumeBalanceLabel(sets, averageSets, expected)
+    };
+  }).sort((a,b) => {
+    if(b.sets !== a.sets) return b.sets - a.sets;
+    return a.group.localeCompare(b.group, 'it');
+  });
+
+  const issues = [];
+  primaryRows.forEach(row => {
+    if(row.expected && row.sets === 0){
+      issues.push({ kind:'low', text:`${row.group}: 0 serie ma richiesto da ${row.dayTypes.join(', ')}` });
+    } else if(row.balance.label === 'Basso'){
+      issues.push({ kind:'low', text:`${row.group}: ${row.sets} serie, sotto media (${averageSets.toFixed(1)})` });
+    } else if(row.balance.label === 'Alto'){
+      issues.push({ kind:'high', text:`${row.group}: ${row.sets} serie, sopra media (${averageSets.toFixed(1)})` });
+    }
+  });
+
+  return {
+    totalSets: dayRows.reduce((sum, row) => sum + row.sets, 0),
+    activeDays: Object.keys(appData || {}).filter(day => Array.isArray(appData[day]) && appData[day].length).length,
+    mappedExercises: (exerciseCatalog || []).filter(ex => !!getExerciseMuscleLink(ex).primary).length,
+    averageSets,
+    primaryRows,
+    issues,
+    dayRows
+  };
+}
+
 function renderCalcMuscleView(){
   const wrap = document.getElementById("calcMuscleEditor");
   if(!wrap) return;
@@ -2117,7 +2294,7 @@ function renderCalcMuscleView(){
 
   const dayCard = document.createElement("div");
   dayCard.className = "calc-pro-card";
-  dayCard.innerHTML = '<div class="calc-pro-head"><div class="calc-pro-title">Focus Day → gruppi muscolari</div></div>';
+  dayCard.innerHTML = '<div class="calc-pro-head"><div class="calc-pro-title">Focus giorno → gruppi muscolari</div></div>';
   const dayWrap = document.createElement("div");
   dayWrap.className = "calc-table-wrap";
   const dayTypes = getDayTypeOptions().filter(Boolean);
@@ -2127,13 +2304,52 @@ function renderCalcMuscleView(){
       <tbody>
         ${dayTypes.map(type => `
           <tr>
-            <td>${type}</td>
+            <td>${translateDayTypeLabel(type)}</td>
             <td>${editing ? `<input class="calc-input" data-day-type="${type}" value="${((config.dayTypeGroups[type] || []).join(', ')).replace(/"/g,'&quot;')}">` : `<div class="calc-chip-row">${(config.dayTypeGroups[type] || []).map(g => `<span class="calc-chip">${g}</span>`).join('')}</div>`}</td>
           </tr>`).join('')}
       </tbody>
     </table>`;
   dayCard.appendChild(dayWrap);
   wrap.appendChild(dayCard);
+
+  const volume = computeMuscleVolumeSummary();
+
+  const volumeCard = document.createElement("div");
+  volumeCard.className = "calc-pro-card";
+  volumeCard.innerHTML = `
+    <div class="calc-pro-head"><div class="calc-pro-title">Riepilogo volume per muscolo</div></div>
+    <div class="calc-volume-grid">
+      <div class="calc-volume-summary">
+        <div class="calc-volume-box"><div class="calc-volume-big">${volume.totalSets}</div><div class="calc-volume-sub">serie lavoro totali dai giorni</div></div>
+        <div class="calc-volume-box"><div class="calc-volume-big">${volume.activeDays}</div><div class="calc-volume-sub">Giorni con dati attivi</div></div>
+        <div class="calc-volume-box"><div class="calc-volume-big">${volume.averageSets ? volume.averageSets.toFixed(1) : '0.0'}</div><div class="calc-volume-sub">media serie per gruppo attivo</div></div>
+      </div>
+      <div class="calc-table-wrap">
+        <table class="calc-table calc-muscle-table">
+          <thead><tr><th>Gruppo</th><th>Serie</th><th>Sotto-muscoli</th><th>Focus giorno</th><th>Equilibrio</th></tr></thead>
+          <tbody>
+            ${volume.primaryRows.map(row => {
+              const subBits = Object.entries(row.subs || {}).filter(([,sets]) => sets > 0).sort((a,b) => b[1]-a[1]);
+              return `<tr>
+                <td>${row.group}</td>
+                <td>${row.sets}</td>
+                <td>${subBits.length ? subBits.map(([sub,sets]) => `<span class="calc-chip">${sub} · ${sets}</span>`).join('') : '—'}</td>
+                <td>${row.dayTypes.length ? row.dayTypes.map(type => `<span class="calc-chip">${translateDayTypeLabel(type)}</span>`).join('') : '—'}</td>
+                <td><span class="calc-balance-pill ${row.balance.cls}">${row.balance.label}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="calc-pro-head" style="margin-bottom:8px"><div class="calc-pro-title">Squilibri</div></div>
+        <div class="calc-issue-list">
+          ${volume.issues.length ? volume.issues.map(issue => `<div class="calc-issue-item"><span class="calc-balance-pill ${issue.kind === 'high' ? 'calc-balance-high' : 'calc-balance-low'}">${issue.kind === 'high' ? 'Alto' : 'Basso'}</span><div class="calc-volume-sub" style="margin-top:8px">${issue.text}</div></div>`).join('') : `<div class="calc-issue-item"><span class="calc-balance-pill calc-balance-ok">Ok</span><div class="calc-volume-sub" style="margin-top:8px">Nessuno squilibrio evidente sui gruppi attivi.</div></div>`}
+        </div>
+      </div>
+    </div>
+  `;
+  wrap.appendChild(volumeCard);
 
   const exCard = document.createElement("div");
   exCard.className = "calc-pro-card";
@@ -2213,10 +2429,10 @@ function renderCalcDaysView(){
 
   const isEditing = !!weekSetupEditing;
   const structureOptions = getWeekStructureOptions().map(v => `<option value="${v}" ${String(config.structure||"")===String(v)?"selected":""}>${v}</option>`).join("");
-  const dayRows = ["Day 1","Day 2","Day 3","Day 4","Day 5"].map(day => {
+  const dayRows = ["Giorno 1","Giorno 2","Giorno 3","Giorno 4","Giorno 5"].map(day => {
     const val = config?.dayTypes?.[day] || "";
-    const options = getDayTypeOptions().map(type => `<option value="${type}" ${String(val)===String(type)?"selected":""}>${type || "—"}</option>`).join("");
-    return `<tr><td>${day}</td><td>${isEditing ? `<select class="calc-select" data-week-day="${day}">${options}</select>` : `<span class="calc-week-badge">${val || "—"}</span>`}</td></tr>`;
+    const options = getDayTypeOptions().map(type => `<option value="${type}" ${String(val)===String(type)?"selected":""}>${type ? translateDayTypeLabel(type) : "—"}</option>`).join("");
+    return `<tr><td>${day}</td><td>${isEditing ? `<select class="calc-select" data-week-day="${day}">${options}</select>` : `<span class="calc-week-badge">${val ? translateDayTypeLabel(val) : "—"}</span>`}</td></tr>`;
   }).join("");
 
   weekCard.innerHTML = `
@@ -2238,10 +2454,10 @@ function renderCalcDaysView(){
           : `<span class="calc-week-badge">${config.structure || "Multifrequenza"}</span>`}
       </div>
       <div>
-        <div class="calc-week-label" style="margin-bottom:6px;">Day 1–5</div>
+        <div class="calc-week-label" style="margin-bottom:6px;">Giorno 1–5</div>
         <div class="calc-week-table-wrap">
           <table class="calc-week-table">
-            <thead><tr><th>Day</th><th>Tipo</th></tr></thead>
+            <thead><tr><th>Giorno</th><th>Tipo</th></tr></thead>
             <tbody>${dayRows}</tbody>
           </table>
         </div>
@@ -2286,7 +2502,7 @@ function getDayMeta(dayName){
     structure: weekSetup?.structure || "Multifrequenza",
     type,
     titleFocus: type || "",
-    focusLabel: type || "",
+    focusLabel: translateDayTypeLabel(type) || "",
     focusGroups: linkedGroups,
     focusMuscles: [],
     preferredMovements: [],
@@ -2336,9 +2552,9 @@ function inferSlotMuscle(dayName, exerciseIndex, item){
   if(dayMeta.strictCardio) return "Cardio";
 
   const maps = {
-    "Day 1": ["Pettorali","Dorsali","Spalle","Spalle","Spalle","Spalle"],
-    "Day 2": ["Gambe","Gambe","Gambe","Gambe","Gambe","Gambe"],
-    "Day 3": ["Pettorali","Pettorali","Dorsali","Spalle","Braccia","Braccia"]
+    "Giorno 1": ["Pettorali","Dorsali","Spalle","Spalle","Spalle","Spalle"],
+    "Giorno 2": ["Gambe","Gambe","Gambe","Gambe","Gambe","Gambe"],
+    "Giorno 3": ["Pettorali","Pettorali","Dorsali","Spalle","Braccia","Braccia"]
   };
   const arr = maps[day];
   if(arr && arr[idx]) return arr[idx];
@@ -2431,6 +2647,10 @@ function getCatalogGroupsForPicker(targetMuscle = "", dayMeta = null){
   const focusGroups = Array.isArray(dayMeta?.focusGroups) ? dayMeta.focusGroups : [];
   const preferredMovements = Array.isArray(dayMeta?.preferredMovements) ? dayMeta.preferredMovements : [];
   const strictCardio = !!dayMeta?.strictCardio;
+  const legacyMap = getLegacyMuscleToGroupMap();
+  const roleGroup = targetMuscle ? (legacyMap[targetMuscle] || targetMuscle) : "";
+  const normalizedRole = normalizeText(targetMuscle || "");
+  const normalizedFocusType = normalizeText(dayMeta?.type || "");
 
   function getExerciseFocusScore(ex){
     let score = 0;
@@ -2438,12 +2658,22 @@ function getCatalogGroupsForPicker(targetMuscle = "", dayMeta = null){
     const movement = ex?.movement || "";
     const link = getExerciseMuscleLink(ex);
     const primaryGroup = link.primary || "";
+    const subGroup = link.sub || "";
+    const normalizedPrimary = normalizeText(primaryGroup);
+    const normalizedSub = normalizeText(subGroup);
 
     if(targetMuscle && muscle === targetMuscle) score += 120;
-    if(targetMuscle && primaryGroup && getLegacyMuscleToGroupMap()[targetMuscle] === primaryGroup) score += 45;
-    if(focusGroups.includes(primaryGroup)) score += 70;
+    if(roleGroup && primaryGroup === roleGroup) score += 110;
+    if(normalizedRole && normalizedSub === normalizedRole) score += 105;
+    if(normalizedRole && normalizedPrimary === normalizedRole) score += 85;
+
+    if(focusGroups.includes(primaryGroup)) score += 90;
     if(focusMuscles.includes(muscle)) score += 60;
+    if(focusMuscles.length && primaryGroup && focusMuscles.some(m => legacyMap[m] === primaryGroup)) score += 45;
+    if(normalizedFocusType && normalizedSub.includes(normalizedFocusType)) score += 25;
     if(preferredMovements.includes(movement)) score += 35;
+
+    if(subGroup) score += 8;
     if(strictCardio && muscle === "Cardio") score += 500;
     if(strictCardio && muscle !== "Cardio") score -= 500;
     return score;
@@ -2452,7 +2682,7 @@ function getCatalogGroupsForPicker(targetMuscle = "", dayMeta = null){
   activeCatalog.forEach(ex => {
     if(strictCardio && (ex?.muscle || "") !== "Cardio") return;
     const link = getExerciseMuscleLink(ex);
-    const group = link.primary || ex.muscle || "Altro";
+    const group = link.primary || legacyMap[ex.muscle] || ex.muscle || "Altro";
     if(!groups[group]) groups[group] = [];
     groups[group].push(ex);
   });
@@ -2461,32 +2691,54 @@ function getCatalogGroupsForPicker(targetMuscle = "", dayMeta = null){
   const keys = [...preferredOrder.filter(k => groups[k]), ...Object.keys(groups).filter(k => !preferredOrder.includes(k)).sort()];
 
   const orderedKeys = [];
-  if(targetMuscle && groups[targetMuscle]) orderedKeys.push(targetMuscle);
+  if(roleGroup && groups[roleGroup]) orderedKeys.push(roleGroup);
   focusGroups.forEach(k => {
     if(groups[k] && !orderedKeys.includes(k)) orderedKeys.push(k);
   });
   focusMuscles.forEach(k => {
-    if(groups[k] && !orderedKeys.includes(k)) orderedKeys.push(k);
+    const linkedGroup = legacyMap[k] || k;
+    if(groups[linkedGroup] && !orderedKeys.includes(linkedGroup)) orderedKeys.push(linkedGroup);
   });
   keys.forEach(k => {
     if(!orderedKeys.includes(k)) orderedKeys.push(k);
   });
 
-  return orderedKeys.map(group => ({
+  const mappedGroups = orderedKeys.map(group => ({
     group,
-    preferred: (!!targetMuscle && group === targetMuscle) || focusMuscles.includes(group),
-    preferredByRole: !!targetMuscle && group === targetMuscle,
-    preferredByFocus: focusMuscles.includes(group),
+    preferred: (!!roleGroup && group === roleGroup) || focusGroups.includes(group) || focusMuscles.some(m => (legacyMap[m] || m) === group),
+    preferredByRole: !!roleGroup && group === roleGroup,
+    preferredByFocus: focusGroups.includes(group) || focusMuscles.some(m => (legacyMap[m] || m) === group),
     items: groups[group].sort((a,b) => {
       const sa = getExerciseFocusScore(a);
       const sb = getExerciseFocusScore(b);
       if(sa !== sb) return sb - sa;
+      const aLink = getExerciseMuscleLink(a);
+      const bLink = getExerciseMuscleLink(b);
+      const aHasSub = aLink?.sub ? 1 : 0;
+      const bHasSub = bLink?.sub ? 1 : 0;
+      if(aHasSub !== bHasSub) return bHasSub - aHasSub;
       const ta = getTierRank(a.tier);
       const tb = getTierRank(b.tier);
       if(ta !== tb) return ta - tb;
       return String(a.name || "").localeCompare(String(b.name || ""), "it");
     })
   }));
+
+  const topSuggestions = activeCatalog
+    .filter(ex => !strictCardio || (ex?.muscle || "") === "Cardio")
+    .map(ex => ({ ex, score: getExerciseFocusScore(ex) }))
+    .sort((a,b) => {
+      if(a.score !== b.score) return b.score - a.score;
+      const ta = getTierRank(a.ex?.tier);
+      const tb = getTierRank(b.ex?.tier);
+      if(ta !== tb) return ta - tb;
+      return String(a.ex?.name || "").localeCompare(String(b.ex?.name || ""), "it");
+    })
+    .filter(entry => entry.score > 0)
+    .slice(0, 6)
+    .map(entry => entry.ex);
+
+  return { groups: mappedGroups, topSuggestions };
 }
 
 function closeExercisePicker(){
@@ -2535,10 +2787,30 @@ function openExercisePicker(dayName, exerciseIndex){
   const currentEx = findCatalogEntryForWorkoutItem(currentItemRef);
   const dayMeta = getDayMeta(dayName);
   const targetMuscle = inferSlotMuscle(dayName, exerciseIndex, currentItemRef);
-  const groups = getCatalogGroupsForPicker(targetMuscle, dayMeta);
+  const pickerData = getCatalogGroupsForPicker(targetMuscle, dayMeta);
+  const groups = pickerData.groups || [];
+  const topSuggestions = pickerData.topSuggestions || [];
   const titleParts = ["Scegli esercizio"];
-  if(dayMeta?.type) titleParts.push(dayMeta.type);
+  if(dayMeta?.type) titleParts.push(translateDayTypeLabel(dayMeta.type));
   if(targetMuscle && targetMuscle !== dayMeta?.type) titleParts.push(targetMuscle);
+
+  function renderPickerOption(ex, preferredSection = false){
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "exercise-picker-option";
+    const link = getExerciseMuscleLink(ex);
+    const coherent = (dayMeta?.focusMuscles || []).includes(ex.muscle || "") || (dayMeta?.preferredMovements || []).includes(ex.movement || "") || (dayMeta?.focusGroups || []).includes(link.primary || "");
+    const muscleBits = [];
+    if(link.primary) muscleBits.push(link.primary);
+    if(link.sub) muscleBits.push(link.sub);
+    btn.innerHTML = `
+      <div class="exercise-picker-option-name">${ex.name}${currentEx && currentEx.id === ex.id ? " ✓" : ""}</div>
+      <div class="exercise-picker-option-meta">${muscleBits.length ? muscleBits.join(" · ") + " · " : ""}${translateUiLabel("Tier")} ${ex.tier || "—"} · ${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + translateMovementLabel(ex.movement) : ""}${coherent && dayMeta?.type ? " · focus " + translateDayTypeLabel(dayMeta.type) : ""}</div>
+    `;
+    if(preferredSection) btn.classList.add("preferred");
+    btn.onclick = () => applyCatalogExerciseToWorkout(dayName, exerciseIndex, ex.id);
+    return btn;
+  }
 
   const overlay = document.createElement("div");
   overlay.className = "exercise-picker-overlay";
@@ -2560,6 +2832,18 @@ function openExercisePicker(dayName, exerciseIndex){
   document.getElementById("exercisePickerCloseBtn").onclick = closeExercisePicker;
 
   const body = document.getElementById("exercisePickerBody");
+
+  if(topSuggestions.length){
+    const topSection = document.createElement("div");
+    topSection.className = "exercise-picker-group";
+    const topTitle = document.createElement("div");
+    topTitle.className = "exercise-picker-group-title";
+    topTitle.textContent = "Più coerenti";
+    topSection.appendChild(topTitle);
+    topSuggestions.forEach(ex => topSection.appendChild(renderPickerOption(ex, true)));
+    body.appendChild(topSection);
+  }
+
   groups.forEach(group => {
     const section = document.createElement("div");
     section.className = "exercise-picker-group";
@@ -2569,21 +2853,12 @@ function openExercisePicker(dayName, exerciseIndex){
     let suffix = "";
     if(group.preferredByRole && group.preferredByFocus) suffix = " · ruolo + focus";
     else if(group.preferredByRole) suffix = " · ruolo";
-    else if(group.preferredByFocus) suffix = " · focus day";
+    else if(group.preferredByFocus) suffix = " · focus giorno";
     title.textContent = group.group + suffix;
     section.appendChild(title);
 
     group.items.forEach(ex => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "exercise-picker-option";
-      const coherent = (dayMeta?.focusMuscles || []).includes(ex.muscle || "") || (dayMeta?.preferredMovements || []).includes(ex.movement || "");
-      btn.innerHTML = `
-        <div class="exercise-picker-option-name">${ex.name}${currentEx && currentEx.id === ex.id ? " ✓" : ""}</div>
-        <div class="exercise-picker-option-meta">Tier ${ex.tier || "—"} · ${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + ex.movement : ""}${coherent && dayMeta?.type ? " · focus " + dayMeta.type : ""}</div>
-      `;
-      if(group.preferred) btn.classList.add("preferred");
-      btn.onclick = () => applyCatalogExerciseToWorkout(dayName, exerciseIndex, ex.id);
+      const btn = renderPickerOption(ex, group.preferred);
       section.appendChild(btn);
     });
 
@@ -2630,6 +2905,14 @@ function handleToggleLock(){
 
 let wheelIsRecentering = false;
 let wheelMagnetTimer = null;
+const wheelCenterLabel = document.getElementById("wheelCenterLabel");
+const wheelModeLabels = {
+  ex: "ESERCIZI",
+  day: "GIORNI",
+  calc: "IMPOSTAZIONI",
+  analysis: "ANALISI",
+  coach: "ALLENATORE"
+};
 
 function getWheelMetrics(){
   if(!wheel) return null;
@@ -2637,92 +2920,48 @@ function getWheelMetrics(){
   const items = [...wheel.querySelectorAll(".wheel-item")];
   if(!items.length) return null;
 
-  const itemHeight = items[0].offsetHeight || 28;
-  const setSize = 3;
-  const totalSets = Math.max(1, Math.round(items.length / setSize));
-  const middleSetIndex = Math.floor(totalSets / 2);
-
-  return { items, itemHeight, setSize, totalSets, middleSetIndex };
+  return { items, itemHeight: items[0].offsetHeight || 32 };
 }
 
-function getMiddleWheelIndexForMode(mode){
+function getWheelItemByMode(mode){
   const metrics = getWheelMetrics();
-  if(!metrics) return 0;
-
-  const modeMap = { day: 0, ex: 1, calc: 2 };
-  const offset = modeMap[mode] ?? 0;
-  return (metrics.middleSetIndex * metrics.setSize) + offset;
+  if(!metrics) return null;
+  return metrics.items.find(item => item.dataset.mode === mode) || null;
 }
 
 function centerWheelOnMode(mode, behavior = "auto"){
   if(!wheel) return;
-
-  const metrics = getWheelMetrics();
-  if(!metrics) return;
-
-  const targetIndex = getMiddleWheelIndexForMode(mode);
-  const targetItem = metrics.items[targetIndex];
+  const targetItem = getWheelItemByMode(mode) || getWheelItemByMode("calc");
   if(!targetItem) return;
-
   targetItem.scrollIntoView({ behavior, block: "center" });
 }
 
-function recenterInfiniteWheel(activeIndex){
+function getClosestWheelItem(){
   const metrics = getWheelMetrics();
-  if(!metrics) return activeIndex;
-
-  let nextIndex = activeIndex;
-
-  if(activeIndex < metrics.setSize){
-    nextIndex = activeIndex + metrics.setSize;
-  } else if(activeIndex >= metrics.setSize * 2){
-    nextIndex = activeIndex - metrics.setSize;
-  }
-
-  if(nextIndex !== activeIndex && metrics.items[nextIndex]){
-    wheelIsRecentering = true;
-    metrics.items[nextIndex].scrollIntoView({ behavior: "auto", block: "center" });
-    requestAnimationFrame(() => {
-      wheelIsRecentering = false;
-    });
-    return nextIndex;
-  }
-
-  return activeIndex;
-}
-
-function getClosestWheelIndex(){
-  const metrics = getWheelMetrics();
-  if(!metrics) return 0;
+  if(!metrics) return null;
 
   const wheelRect = wheel.getBoundingClientRect();
   const centerY = wheelRect.top + wheelRect.height / 2;
 
-  let closestIndex = 0;
+  let closest = null;
   let minDist = Infinity;
 
-  metrics.items.forEach((item, index) => {
+  metrics.items.forEach(item => {
     const rect = item.getBoundingClientRect();
     const itemCenter = rect.top + rect.height / 2;
     const dist = Math.abs(itemCenter - centerY);
-
     if(dist < minDist){
       minDist = dist;
-      closestIndex = index;
+      closest = item;
     }
   });
 
-  return recenterInfiniteWheel(closestIndex);
+  return closest;
 }
 
 function snapWheelToClosest(behavior = "smooth"){
   if(!wheel || wheelIsRecentering) return;
-
-  const metrics = getWheelMetrics();
-  if(!metrics) return;
-
-  const targetIndex = getClosestWheelIndex();
-  const targetItem = metrics.items[targetIndex];
+  const targetItem = getClosestWheelItem();
   if(!targetItem) return;
 
   wheelIsRecentering = true;
@@ -2735,63 +2974,48 @@ function snapWheelToClosest(behavior = "smooth"){
   }, unlockDelay);
 }
 
-function applyWheelModeFromText(text){
-  if(text === "DAY"){
+function applyWheelMode(mode){
+  if(mode === "day"){
     currentMode = "day";
     currentSection = "workout";
-  } else if(text === "EX"){
+  } else if(mode === "ex"){
     currentMode = "ex";
     currentSection = "workout";
-  } else if(text === "SETUP" || text === "CALC"){
-    currentMode = "calc";
+  } else if(["calc","analysis","coach"].includes(mode)){
+    currentMode = mode;
     currentSection = "calcoli";
   }
 }
 
 function updateWheelVisual(){
   if(!wheel) return;
-
   const metrics = getWheelMetrics();
   if(!metrics) return;
 
-  const wheelRect = wheel.getBoundingClientRect();
-  const centerY = wheelRect.top + wheelRect.height / 2;
+  const activeItem = getClosestWheelItem() || getWheelItemByMode(currentMode) || getWheelItemByMode("calc");
+  if(!activeItem) return;
 
-  let closest = null;
-  let closestIndex = 0;
-  let minDist = Infinity;
+  metrics.items.forEach(item => item.classList.toggle("active", item === activeItem));
 
-  metrics.items.forEach((item, index) => {
-    const rect = item.getBoundingClientRect();
-    const itemCenter = rect.top + rect.height / 2;
-    const dist = Math.abs(itemCenter - centerY);
-
-    item.classList.remove("active");
-
-    if(dist < minDist){
-      minDist = dist;
-      closest = item;
-      closestIndex = index;
-    }
-  });
-
-  if(!closest) return;
-
-  const stableIndex = recenterInfiniteWheel(closestIndex);
-  const activeItem = metrics.items[stableIndex] || closest;
-  activeItem.classList.add("active");
+  const activeMode = activeItem.dataset.mode || "calc";
+  if(wheelCenterLabel){
+    wheelCenterLabel.textContent = wheelModeLabels[activeMode] || activeItem.textContent.trim();
+  }
 
   if(wheelIsRecentering) return;
 
-  applyWheelModeFromText(activeItem.textContent.trim());
+  applyWheelMode(activeMode);
   render();
 }
 
 if(wheel){
   window.addEventListener("load", () => {
+    if(!wheelModeLabels[currentMode]){
+      currentMode = currentSection === "calcoli" ? "calc" : (currentExercise > 0 ? "ex" : "day");
+    }
     centerWheelOnMode(currentMode, "auto");
     setTimeout(updateWheelVisual, 40);
-setTimeout(() => snapWheelToClosest("auto"), 60);
+    setTimeout(() => snapWheelToClosest("auto"), 60);
   });
 
   wheel.addEventListener("scroll", () => {
@@ -2807,10 +3031,13 @@ setTimeout(() => snapWheelToClosest("auto"), 60);
     if(!item) return;
 
     clearTimeout(wheelMagnetTimer);
+    wheelIsRecentering = true;
     item.scrollIntoView({ behavior: "smooth", block: "center" });
-    wheelMagnetTimer = setTimeout(() => {
-      snapWheelToClosest("smooth");
-    }, 120);
+    setTimeout(() => {
+      wheelIsRecentering = false;
+      updateWheelVisual();
+      snapWheelToClosest("auto");
+    }, 180);
   });
 }
 
@@ -3033,7 +3260,7 @@ function renderCatalogView(){
 
         const movementSelect = `
           <select class="calc-select" data-id="${ex.id}" data-field="movement">
-            ${movementOptions.map(opt => `<option value="${opt}" ${ex.movement===opt?'selected':''}>${opt}</option>`).join("")}
+            ${movementOptions.map(opt => `<option value="${opt}" ${ex.movement===opt?'selected':''}>${translateMovementLabel(opt)}</option>`).join("")}
           </select>
         `;
 
@@ -3062,7 +3289,7 @@ function renderCatalogView(){
           </div>
         `;
       } else {
-        row.innerHTML = `<div><div class="calc-ex-name">${ex.name || ""} <span class="calc-ref">(${ex.tier || ""})</span></div><div class="calc-ex-meta">${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + ex.movement : ""}</div></div>`;
+        row.innerHTML = `<div><div class="calc-ex-name">${ex.name || ""} <span class="calc-ref">(${ex.tier || ""})</span></div><div class="calc-ex-meta">${ex.equipment || "Attrezzo da definire"}${ex.movement ? " · " + translateMovementLabel(ex.movement) : ""}</div></div>`;
       }
 
       wrap.appendChild(row);
@@ -3085,6 +3312,218 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCatalogFromStorage();
 });
 </script>
+
+<script>
+(function(){
+  function getMuscleImbalancePriority(volumeRow, averageSets){
+    const sets = Number(volumeRow?.sets || 0);
+    const expected = !!volumeRow?.expected;
+    const avg = Number(averageSets || 0);
+    if(expected && sets === 0) return {level:'very_low', label:'Molto basso', score:260};
+    if(avg > 0 && sets < avg * 0.4) return {level:'very_low', label:'Molto basso', score:220};
+    if((expected && sets < Math.max(1, avg * 0.65)) || (avg > 0 && sets < avg * 0.65)) return {level:'low', label:'Basso', score:120};
+    return {level:'ok', label:'Ok', score:0};
+  }
+
+  function getMuscleRecommendationData(){
+    if(typeof computeMuscleVolumeSummary !== 'function') return null;
+    const volume = computeMuscleVolumeSummary();
+    const recommendations = [];
+    (volume.primaryRows || []).forEach(row => {
+      const priority = getMuscleImbalancePriority(row, volume.averageSets);
+      if(priority.level === 'ok') return;
+      const suggestedDays = Object.entries((window.weekSetup && weekSetup.dayTypes) || {})
+        .filter(([, type]) => {
+          const groups = (window.muscleSetup && muscleSetup.dayTypeGroups && muscleSetup.dayTypeGroups[type]) || [];
+          return groups.includes(row.group);
+        })
+        .map(([dayName, type]) => ({dayName, type, typeLabel: translateDayTypeLabel(type)}));
+      const candidateExercises = (window.exerciseCatalog || [])
+        .filter(ex => {
+          const link = getExerciseMuscleLink(ex);
+          return link.primary === row.group;
+        })
+        .sort((a,b) => {
+          const aLink = getExerciseMuscleLink(a);
+          const bLink = getExerciseMuscleLink(b);
+          const aSubMatch = Object.values(row.subs || {}).some(v => v > 0) ? 0 : (aLink.sub ? 1 : 0);
+          const bSubMatch = Object.values(row.subs || {}).some(v => v > 0) ? 0 : (bLink.sub ? 1 : 0);
+          if(aSubMatch !== bSubMatch) return bSubMatch - aSubMatch;
+          const ta = getTierRank(a.tier);
+          const tb = getTierRank(b.tier);
+          if(ta !== tb) return ta - tb;
+          return String(a.name || '').localeCompare(String(b.name || ''), 'it');
+        })
+        .slice(0, 4);
+
+      recommendations.push({
+        group: row.group,
+        sets: row.sets,
+        priority,
+        suggestedDays,
+        candidateExercises,
+        subRows: Object.entries(row.subs || {}).sort((a,b) => a[1] - b[1]).map(([sub, sets]) => ({sub, sets}))
+      });
+    });
+    recommendations.sort((a,b) => b.priority.score - a.priority.score || a.sets - b.sets || a.group.localeCompare(b.group, 'it'));
+    volume.recommendations = recommendations;
+    return volume;
+  }
+
+  const baseGetCatalogGroupsForPicker = window.getCatalogGroupsForPicker;
+  window.getCatalogGroupsForPicker = function(targetMuscle = "", dayMeta = null){
+    const base = baseGetCatalogGroupsForPicker(targetMuscle, dayMeta);
+    const volume = getMuscleRecommendationData();
+    if(!base || !volume) return base;
+
+    const priorityMap = {};
+    (volume.recommendations || []).forEach(rec => {
+      priorityMap[rec.group] = rec.priority;
+    });
+
+    function pickerBoost(ex){
+      const link = getExerciseMuscleLink(ex);
+      const primary = link.primary || '';
+      const sub = link.sub || '';
+      let boost = 0;
+      const rec = priorityMap[primary];
+      if(rec){
+        boost += rec.score || 0;
+        if(rec.level === 'very_low') boost += 80;
+      }
+      const subNeed = (volume.primaryRows || []).find(r => r.group === primary);
+      if(subNeed && sub && subNeed.subs && (subNeed.subs[sub] || 0) === 0) boost += 35;
+      if(Array.isArray(dayMeta?.focusGroups) && dayMeta.focusGroups.includes(primary)) boost += 50;
+      if(targetMuscle && normalizeText(targetMuscle) === normalizeText(sub)) boost += 45;
+      return boost;
+    }
+
+    const sortedGroups = (base.groups || []).map(group => {
+      const items = [...(group.items || [])].sort((a,b) => {
+        const pa = pickerBoost(a);
+        const pb = pickerBoost(b);
+        if(pa !== pb) return pb - pa;
+        const ta = getTierRank(a.tier);
+        const tb = getTierRank(b.tier);
+        if(ta !== tb) return ta - tb;
+        return String(a.name || '').localeCompare(String(b.name || ''), 'it');
+      });
+      const maxBoost = items.length ? pickerBoost(items[0]) : 0;
+      return {...group, items, _boost:maxBoost};
+    }).sort((a,b) => {
+      if(!!b.preferred !== !!a.preferred) return Number(!!b.preferred) - Number(!!a.preferred);
+      if((b._boost || 0) !== (a._boost || 0)) return (b._boost || 0) - (a._boost || 0);
+      return String(a.group || '').localeCompare(String(b.group || ''), 'it');
+    });
+
+    const topPool = {};
+    (base.topSuggestions || []).forEach(ex => { if(ex?.id) topPool[ex.id] = ex; });
+    sortedGroups.forEach(group => group.items.slice(0, 3).forEach(ex => { if(ex?.id) topPool[ex.id] = ex; }));
+    const boostedTop = Object.values(topPool).sort((a,b) => {
+      const pa = pickerBoost(a);
+      const pb = pickerBoost(b);
+      if(pa !== pb) return pb - pa;
+      const ta = getTierRank(a.tier);
+      const tb = getTierRank(b.tier);
+      if(ta !== tb) return ta - tb;
+      return String(a.name || '').localeCompare(String(b.name || ''), 'it');
+    }).slice(0, 8);
+
+    return {
+      ...base,
+      groups: sortedGroups.map(({_boost, ...g}) => g),
+      topSuggestions: boostedTop
+    };
+  };
+
+  const baseRenderCalcMuscleView = window.renderCalcMuscleView;
+  window.renderCalcMuscleView = function(){
+    baseRenderCalcMuscleView();
+    const wrap = document.getElementById('calcMuscleEditor');
+    if(!wrap) return;
+    const volume = getMuscleRecommendationData();
+    if(!volume) return;
+
+    const existing = document.getElementById('calcMuscleSuggestionCard');
+    if(existing) existing.remove();
+
+    const recCard = document.createElement('div');
+    recCard.className = 'calc-pro-card';
+    recCard.id = 'calcMuscleSuggestionCard';
+
+    const recommendations = (volume.recommendations || []).filter(rec => rec.priority.level !== 'ok');
+    recCard.innerHTML = `
+      <div class="calc-pro-head"><div class="calc-pro-title">Suggerimenti automatici da squilibri</div></div>
+      <div class="calc-issue-list">
+        ${recommendations.length ? recommendations.map(rec => {
+          const exBits = rec.candidateExercises.length
+            ? rec.candidateExercises.map(ex => `<span class="calc-chip">${ex.name}</span>`).join('')
+            : '<span class="calc-chip">Nessun esercizio mappato</span>';
+          const dayBits = rec.suggestedDays.length
+            ? rec.suggestedDays.map(d => `<span class="calc-chip">${d.dayName} · ${d.typeLabel || translateDayTypeLabel(d.type)}</span>`).join('')
+            : '<span class="calc-chip">Nessun giorno collegato</span>';
+          const actionText = rec.priority.level === 'very_low'
+            ? 'Proposta di inserimento: valuta uno slot dedicato in uno dei Day suggeriti.'
+            : 'Nel picker questi esercizi salgono in alto come suggerimento.';
+          return `
+            <div class="calc-issue-item">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+                <span class="calc-balance-pill ${rec.priority.level === 'very_low' ? 'calc-balance-low' : 'calc-balance-low'}">${rec.priority.label}</span>
+                <strong>${rec.group}</strong>
+              </div>
+              <div class="calc-volume-sub" style="margin-top:8px">${rec.group}: ${rec.sets} serie attuali. ${actionText}</div>
+              <div class="calc-volume-sub" style="margin-top:8px">Esercizi consigliati</div>
+              <div class="calc-chip-row">${exBits}</div>
+              <div class="calc-volume-sub" style="margin-top:8px">Giorni consigliati</div>
+              <div class="calc-chip-row">${dayBits}</div>
+            </div>`;
+        }).join('') : `<div class="calc-issue-item"><span class="calc-balance-pill calc-balance-ok">Ok</span><div class="calc-volume-sub" style="margin-top:8px">Nessun muscolo basso: nessun suggerimento automatico necessario.</div></div>`}
+      </div>
+    `;
+    wrap.appendChild(recCard);
+  };
+
+  const baseOpenExercisePicker = window.openExercisePicker;
+  window.openExercisePicker = function(dayName, exerciseIndex){
+    baseOpenExercisePicker(dayName, exerciseIndex);
+    const body = document.getElementById('exercisePickerBody');
+    const title = document.querySelector('#exercisePickerOverlay .exercise-picker-title');
+    const currentItemRef = window.appData?.[dayName]?.[exerciseIndex];
+    const targetMuscle = typeof inferSlotMuscle === 'function' ? inferSlotMuscle(dayName, exerciseIndex, currentItemRef) : '';
+    const dayMeta = typeof getDayMeta === 'function' ? getDayMeta(dayName) : null;
+    const volume = getMuscleRecommendationData();
+    if(!body || !volume) return;
+
+    const targetGroup = (() => {
+      const legacyMap = getLegacyMuscleToGroupMap();
+      return targetMuscle ? (legacyMap[targetMuscle] || targetMuscle) : '';
+    })();
+
+    const relevant = (volume.recommendations || []).filter(rec => {
+      if(dayMeta?.focusGroups?.includes(rec.group)) return true;
+      if(targetGroup && targetGroup === rec.group) return true;
+      return false;
+    }).slice(0, 2);
+
+    if(relevant.length){
+      const note = document.createElement('div');
+      note.className = 'exercise-picker-group';
+      note.innerHTML = `
+        <div class="exercise-picker-group-title">Priorità volume</div>
+        ${relevant.map(rec => `<div class="exercise-picker-option preferred" style="cursor:default"><div class="exercise-picker-option-name">${rec.group} · ${rec.priority.label}</div><div class="exercise-picker-option-meta">${rec.priority.level === 'very_low' ? 'Molto indietro: valuta inserimento in uno dei Day coerenti.' : 'Basso: il picker spinge in alto gli esercizi coerenti.'}</div></div>`).join('')}
+      `;
+      body.insertBefore(note, body.firstChild);
+      if(title){
+        const topRec = relevant[0];
+        if(topRec && !title.textContent.includes('priorità')){
+          title.textContent += ' · priorità ' + topRec.group;
+        }
+      }
+    }
+  };
+})();
+</script>
+
 </body>
 
 </html>

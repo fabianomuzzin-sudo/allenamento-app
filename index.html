@@ -196,19 +196,24 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   pointer-events:none;
 } 
 .wheel{
-  position:relative;
-  width:148px;
-  height:130px;
+  width:82px;
+  height:96px;
   overflow-y:auto;
   scrollbar-width:none;
   -ms-overflow-style:none;
   display:flex;
   flex-direction:column;
-  align-items:stretch;
+  align-items:center;
   scroll-snap-type:y mandatory;
   scroll-behavior:smooth;
-  padding:49px 0;
+  padding:32px 0;
 }
+
+.wheel{
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+}
+
 
 .wheel::before{
   content:none;
@@ -220,36 +225,35 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 }
 
 .wheel-item{
-  height:28px;
-  min-height:28px;
+  height:32px;
+  min-height:32px;
   display:flex;
   align-items:center;
   justify-content:center;
   scroll-snap-align:center;
   font-size:11px;
-  letter-spacing:.04em;
-  color:rgba(87,166,255,.68);
-  opacity:.72;
+  color:rgba(87,166,255,.6);
+  opacity:.6;
   transform:scale(1);
-  transition:transform .18s ease, opacity .18s ease, color .18s ease, text-shadow .18s ease;
-  text-shadow:none;
-  user-select:none;
+  transition: transform .16s cubic-bezier(.22,.61,.36,1), opacity .16s ease, color .16s ease;
   background:transparent;
   border:none;
   border-radius:0;
   box-shadow:none;
+  text-shadow:none;
+  user-select:none;
 }
 
 .wheel-item.active{
-  background:transparent;
-  border:none;
-  border-radius:0;
-  box-shadow:none;
   color:#eef6ff;
   opacity:1;
   transform:scale(1.14);
   font-size:12px;
   font-weight:900;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  box-shadow:none;
   text-shadow:none;
 }
 
@@ -464,13 +468,13 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
   </div>
 
   <div class="card hidden" id="calcoliCard">
-    <div class="exercise-title" id="calcPageTitle">Impostazioni</div>
+    <div class="exercise-title" id="calcPageTitle">Impostaz</div>
     <div class="exercise-note" id="calcPageNote"></div>
     <div class="sep"></div>
 
     <div class="calc-toolbar">
       <button class="calc-action hidden" id="calcBackBtn" type="button">← Indietro</button>
-      <button class="calc-action" id="resetCalcBtn" type="button">Reset Impostazioni</button>
+      <button class="calc-action" id="resetCalcBtn" type="button">Reset Impostaz</button>
       <div class="calc-status" id="calcSyncLabel"></div>
     </div>
 
@@ -554,11 +558,11 @@ input[type="range"]{width:100%;accent-color:var(--blue);margin:0}
 <div class="wheel" id="modeWheel">
   <div class="wheel-item" data-mode="ex">ESERCIZI</div>
   <div class="wheel-item" data-mode="day">GIORNI</div>
-  <div class="wheel-item active" data-mode="calc">IMPOSTAZIONI</div>
+  <div class="wheel-item active" data-mode="calc">IMPOSTAZ</div>
   <div class="wheel-item" data-mode="analysis">ANALISI</div>
-  <div class="wheel-item" data-mode="coach">ALLENATORE</div>
+  <div class="wheel-item" data-mode="coach">ALLEN</div>
 </div>
-<div class="wheel-center-label" id="wheelCenterLabel">IMPOSTAZIONI</div>
+<div class="wheel-center-label" id="wheelCenterLabel">IMPOSTAZ</div>
 </div>
     <div class="days" id="days"></div>
   </div>
@@ -800,7 +804,7 @@ function translateUiLabel(value){
   const map = {
     "Tier": "Livello",
     "Analysis": "Analisi",
-    "Allenatore": "Allenatore",
+    "Allen": "Allen",
     "Summary": "Riepilogo",
     "Imbalance": "Squilibri",
     "Focus Day": "Focus giorno",
@@ -1608,7 +1612,7 @@ function updateSliderUI(){
   sliderMinLabel.textContent = "1";
 
   if(["calc","analysis","coach"].includes(currentMode)){
-    const staticBubbleMap = { calc: "IMPOST", analysis: "ANALISI", coach: "ALLENATORE" };
+    const staticBubbleMap = { calc: "IMPOST", analysis: "ANALISI", coach: "ALLEN" };
     bubble.textContent = staticBubbleMap[currentMode] || "IMPOST";
     slider.disabled = true;
     sliderMinLabel.style.opacity = 0;
@@ -1978,13 +1982,13 @@ function setCalcMenuView(view){
 
   if(pageTitle){
     const labels = {
-      home: "Impostazioni",
+      home: "Impostaz",
       catalogo: "Catalogo esercizi",
       attrezzi: "Attrezzi",
       muscoli: "Muscoli",
       giorni: "Giorni"
     };
-    pageTitle.textContent = labels[calcMenuView] || "Impostazioni";
+    pageTitle.textContent = labels[calcMenuView] || "Impostaz";
   }
 
   if(pageNote){
@@ -2909,10 +2913,36 @@ const wheelCenterLabel = document.getElementById("wheelCenterLabel");
 const wheelModeLabels = {
   ex: "ESERCIZI",
   day: "GIORNI",
-  calc: "IMPOSTAZIONI",
+  calc: "IMPOSTAZ",
   analysis: "ANALISI",
-  coach: "ALLENATORE"
+  coach: "ALLEN"
 };
+
+function buildInfiniteWheel(){
+  if(!wheel) return;
+  const baseItems = [...wheel.querySelectorAll(".wheel-item")]
+    .map(item => ({
+      mode: item.dataset.mode || "",
+      label: item.textContent.trim()
+    }))
+    .filter(item => item.mode);
+
+  if(!baseItems.length) return;
+
+  const copies = 5;
+  wheel.innerHTML = "";
+  for(let copy = 0; copy < copies; copy += 1){
+    baseItems.forEach((entry, baseIndex) => {
+      const div = document.createElement("div");
+      div.className = "wheel-item";
+      div.dataset.mode = entry.mode;
+      div.dataset.copy = String(copy);
+      div.dataset.baseIndex = String(baseIndex);
+      div.textContent = entry.label;
+      wheel.appendChild(div);
+    });
+  }
+}
 
 function getWheelMetrics(){
   if(!wheel) return null;
@@ -2920,18 +2950,40 @@ function getWheelMetrics(){
   const items = [...wheel.querySelectorAll(".wheel-item")];
   if(!items.length) return null;
 
-  return { items, itemHeight: items[0].offsetHeight || 32 };
+  const uniqueModes = [...new Set(items.map(item => item.dataset.mode).filter(Boolean))];
+  const cycleSize = uniqueModes.length || 5;
+  return {
+    items,
+    itemHeight: items[0].offsetHeight || 32,
+    cycleSize
+  };
 }
 
-function getWheelItemByMode(mode){
+function getMiddleCopyIndex(){
+  const metrics = getWheelMetrics();
+  if(!metrics) return 0;
+  const copies = Math.floor(metrics.items.length / metrics.cycleSize);
+  return Math.max(0, Math.floor(copies / 2));
+}
+
+function getWheelItemByMode(mode, preferredCopy = null){
   const metrics = getWheelMetrics();
   if(!metrics) return null;
-  return metrics.items.find(item => item.dataset.mode === mode) || null;
+
+  const matching = metrics.items.filter(item => item.dataset.mode === mode);
+  if(!matching.length) return null;
+
+  if(preferredCopy !== null){
+    const exact = matching.find(item => Number(item.dataset.copy) === preferredCopy);
+    if(exact) return exact;
+  }
+
+  return matching[Math.floor(matching.length / 2)] || matching[0] || null;
 }
 
-function centerWheelOnMode(mode, behavior = "auto"){
+function centerWheelOnMode(mode, behavior = "auto", preferredCopy = null){
   if(!wheel) return;
-  const targetItem = getWheelItemByMode(mode) || getWheelItemByMode("calc");
+  const targetItem = getWheelItemByMode(mode, preferredCopy === null ? getMiddleCopyIndex() : preferredCopy) || getWheelItemByMode("calc");
   if(!targetItem) return;
   targetItem.scrollIntoView({ behavior, block: "center" });
 }
@@ -2959,6 +3011,31 @@ function getClosestWheelItem(){
   return closest;
 }
 
+function normalizeInfiniteWheelPosition(activeItem = null){
+  if(!wheel || wheelIsRecentering) return;
+  const metrics = getWheelMetrics();
+  if(!metrics) return;
+
+  const item = activeItem || getClosestWheelItem();
+  if(!item) return;
+
+  const copy = Number(item.dataset.copy || 0);
+  const middleCopy = getMiddleCopyIndex();
+  if(copy === middleCopy) return;
+
+  const sameModeMiddle = getWheelItemByMode(item.dataset.mode, middleCopy);
+  if(!sameModeMiddle) return;
+
+  const wheelRect = wheel.getBoundingClientRect();
+  const currentRect = item.getBoundingClientRect();
+  const targetRect = sameModeMiddle.getBoundingClientRect();
+  const currentCenter = currentRect.top + currentRect.height / 2;
+  const targetCenter = targetRect.top + targetRect.height / 2;
+  const delta = targetCenter - currentCenter;
+
+  wheel.scrollTop += delta;
+}
+
 function snapWheelToClosest(behavior = "smooth"){
   if(!wheel || wheelIsRecentering) return;
   const targetItem = getClosestWheelItem();
@@ -2970,6 +3047,7 @@ function snapWheelToClosest(behavior = "smooth"){
   const unlockDelay = behavior === "smooth" ? 180 : 40;
   setTimeout(() => {
     wheelIsRecentering = false;
+    normalizeInfiniteWheelPosition(targetItem);
     updateWheelVisual();
   }, unlockDelay);
 }
@@ -2992,7 +3070,7 @@ function updateWheelVisual(){
   const metrics = getWheelMetrics();
   if(!metrics) return;
 
-  const activeItem = getClosestWheelItem() || getWheelItemByMode(currentMode) || getWheelItemByMode("calc");
+  const activeItem = getClosestWheelItem() || getWheelItemByMode(currentMode, getMiddleCopyIndex()) || getWheelItemByMode("calc", getMiddleCopyIndex());
   if(!activeItem) return;
 
   metrics.items.forEach(item => item.classList.toggle("active", item === activeItem));
@@ -3009,21 +3087,24 @@ function updateWheelVisual(){
 }
 
 if(wheel){
+  buildInfiniteWheel();
+
   window.addEventListener("load", () => {
     if(!wheelModeLabels[currentMode]){
       currentMode = currentSection === "calcoli" ? "calc" : (currentExercise > 0 ? "ex" : "day");
     }
-    centerWheelOnMode(currentMode, "auto");
+    centerWheelOnMode(currentMode, "auto", getMiddleCopyIndex());
     setTimeout(updateWheelVisual, 40);
     setTimeout(() => snapWheelToClosest("auto"), 60);
   });
 
   wheel.addEventListener("scroll", () => {
+    const activeItem = getClosestWheelItem();
     updateWheelVisual();
+    normalizeInfiniteWheelPosition(activeItem);
+
     clearTimeout(wheelMagnetTimer);
-    wheelMagnetTimer = setTimeout(() => {
-      snapWheelToClosest("smooth");
-    }, 90);
+    wheelMagnetTimer = setTimeout(() => { snapWheelToClosest("smooth"); }, 60);
   });
 
   wheel.addEventListener("click", (e) => {
@@ -3035,6 +3116,7 @@ if(wheel){
     item.scrollIntoView({ behavior: "smooth", block: "center" });
     setTimeout(() => {
       wheelIsRecentering = false;
+      normalizeInfiniteWheelPosition(item);
       updateWheelVisual();
       snapWheelToClosest("auto");
     }, 180);
